@@ -1,0 +1,50 @@
+:root {
+  --ink: #05060c;
+  --gold: #e8c66b;
+  --cyan: #6fe9ff;
+  --purple: #3a2a6b;
+  --mist: rgba(160, 190, 230, 0.12);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: 'ZCOOL XiaoWei', 'STKaiti', 'KaiTi', '华文楷体', serif;
+  background: radial-gradient(120% 120% at 50% -10%, #1a1340 0%, #0a0a1c 40%, #05060c 100%);
+  background-attachment: fixed;
+  color: #e9eefb;
+  /* 登录页固定不滚动；进入首页后由 HomePage 挂上 .page-scroll 允许纵向滚动 */
+  overflow: hidden;
+}
+
+body.page-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* 国风滚动条 */
+body.page-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+body.page-scroll::-webkit-scrollbar-track {
+  background: rgba(8, 9, 22, 0.6);
+}
+
+body.page-scroll::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(232, 198, 107, 0.6), rgba(111, 233, 255, 0.55));
+}
+
+body.page-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(232, 198, 107, 0.9), rgba(111, 233, 255, 0.85));
+}
