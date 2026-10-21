@@ -484,3 +484,265 @@ logging.pattern.console=2026-10-16 16:45:56  INFO c.fenglin.springboottest.Sprin
 logging.pattern.console=2026-10-16 16:46:27  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring DispatcherServlet 'dispatcherServlet'
 logging.pattern.console=2026-10-16 16:46:27  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 532:Initializing Servlet 'dispatcherServlet'
 logging.pattern.console=2026-10-16 16:46:27  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 554:Completed initialization in 0 ms
+logging.pattern.console=2026-10-21 09:27:26  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 2412 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:27:26  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:27:26  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:27:26  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:27:26  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:27:26  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:27:26  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:27:26  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:27:26  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 708 ms
+logging.pattern.console=2026-10-21 09:27:27  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:27:27  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7f19e7b7
+logging.pattern.console=2026-10-21 09:27:27  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:27:27  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:27:27  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:27:27  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:27:27  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 2.026 seconds (process running for 2.278)
+logging.pattern.console=2026-10-21 09:27:38  INFO o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener.onApplicationEvent 211:Restarting due to 42 class path changes (0 additions, 0 deletions, 42 modifications)
+logging.pattern.console=2026-10-21 09:27:38  INFO o.s.boot.web.embedded.tomcat.GracefulShutdown.shutDownGracefully 54:Commencing graceful shutdown. Waiting for active requests to complete
+logging.pattern.console=2026-10-21 09:27:38  INFO o.s.boot.web.embedded.tomcat.GracefulShutdown.doShutdown 76:Graceful shutdown complete
+logging.pattern.console=2026-10-21 09:27:38  INFO com.zaxxer.hikari.HikariDataSource.close 349:HikariPool-1 - Shutdown initiated...
+logging.pattern.console=2026-10-21 09:27:38  INFO com.zaxxer.hikari.HikariDataSource.close 351:HikariPool-1 - Shutdown completed.
+logging.pattern.console=2026-10-21 09:27:39  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 2412 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:27:39  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:27:39  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:27:39  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:27:39  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:27:39  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:27:39  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 163 ms
+logging.pattern.console=2026-10-21 09:27:39  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-2 - Starting...
+logging.pattern.console=2026-10-21 09:27:39  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-2 - Added connection com.mysql.cj.jdbc.ConnectionImpl@40757e3a
+logging.pattern.console=2026-10-21 09:27:39  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-2 - Start completed.
+logging.pattern.console=2026-10-21 09:27:39  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:27:39  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:27:39  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:27:39  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 0.388 seconds (process running for 13.722)
+logging.pattern.console=2026-10-21 09:27:39  INFO o.s.b.d.a.ConditionEvaluationDeltaLoggingListener.onApplicationEvent 63:Condition evaluation unchanged
+logging.pattern.console=2026-10-21 09:27:42  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 1264 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:27:42  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:27:42  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:27:42  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:27:42  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:27:42  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:27:42  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:27:42  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:27:42  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 675 ms
+logging.pattern.console=2026-10-21 09:27:43  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:27:43  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@55a71d2a
+logging.pattern.console=2026-10-21 09:27:43  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:27:43  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:27:43  WARN o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 62:Unable to start LiveReload server
+logging.pattern.console=2026-10-21 09:27:43  WARN o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.refresh 635:Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+logging.pattern.console=2026-10-21 09:27:43  INFO com.zaxxer.hikari.HikariDataSource.close 349:HikariPool-1 - Shutdown initiated...
+logging.pattern.console=2026-10-21 09:27:43  INFO com.zaxxer.hikari.HikariDataSource.close 351:HikariPool-1 - Shutdown completed.
+logging.pattern.console=2026-10-21 09:27:43  INFO o.s.b.a.logging.ConditionEvaluationReportLogger.logMessage 82:
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+logging.pattern.console=2026-10-21 09:27:43  ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter.report 40:
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8081 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8081 or configure this application to listen on another port.
+
+logging.pattern.console=2026-10-21 09:28:37  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 8392 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:28:37  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:28:37  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:28:37  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:28:38  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:28:38  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:28:38  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:28:38  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:28:38  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 703 ms
+logging.pattern.console=2026-10-21 09:28:38  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:28:38  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@46dd344d
+logging.pattern.console=2026-10-21 09:28:38  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:28:39  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:28:39  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:28:39  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:28:39  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 1.69 seconds (process running for 1.941)
+logging.pattern.console=2026-10-21 09:34:22  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 5268 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:34:22  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:34:22  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:34:22  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:34:23  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:34:23  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:34:23  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:34:23  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:34:23  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 691 ms
+logging.pattern.console=2026-10-21 09:34:23  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:34:23  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5e756d05
+logging.pattern.console=2026-10-21 09:34:23  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:34:23  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:34:24  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:34:24  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:34:24  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 1.692 seconds (process running for 1.932)
+logging.pattern.console=2026-10-21 09:36:58  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 8556 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:36:58  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:36:58  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:36:58  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:36:58  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:36:58  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:36:58  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:36:59  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:36:59  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 688 ms
+logging.pattern.console=2026-10-21 09:36:59  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:36:59  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@79612c49
+logging.pattern.console=2026-10-21 09:36:59  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:36:59  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:36:59  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:36:59  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:36:59  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 1.683 seconds (process running for 1.929)
+logging.pattern.console=2026-10-21 09:45:38  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 7472 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:45:38  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:45:38  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:45:38  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:45:39  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 62134 (http)
+logging.pattern.console=2026-10-21 09:45:39  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:45:39  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:45:39  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:45:39  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1066 ms
+logging.pattern.console=2026-10-21 09:45:39  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:45:40  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5cabfe93
+logging.pattern.console=2026-10-21 09:45:40  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:45:40  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:45:40  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:45:40  WARN o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.refresh 635:Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+logging.pattern.console=2026-10-21 09:45:40  INFO com.zaxxer.hikari.HikariDataSource.close 349:HikariPool-1 - Shutdown initiated...
+logging.pattern.console=2026-10-21 09:45:40  INFO com.zaxxer.hikari.HikariDataSource.close 351:HikariPool-1 - Shutdown completed.
+logging.pattern.console=2026-10-21 09:45:40  INFO o.s.b.a.logging.ConditionEvaluationReportLogger.logMessage 82:
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+logging.pattern.console=2026-10-21 09:45:40  ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter.report 40:
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 62134 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 62134 or configure this application to listen on another port.
+
+logging.pattern.console=2026-10-21 09:48:27  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 6972 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:48:27  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:48:27  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:48:27  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:48:27  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:48:27  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:48:27  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:48:28  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:48:28  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 754 ms
+logging.pattern.console=2026-10-21 09:48:28  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:48:28  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@39dd3f1e
+logging.pattern.console=2026-10-21 09:48:28  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:48:28  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:48:28  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:48:28  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:48:28  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 1.87 seconds (process running for 2.13)
+logging.pattern.console=2026-10-21 09:48:32  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication v0.0.1-SNAPSHOT using Java 21.0.10 with PID 8464 (D:\workSpace\yhuhhu\java-main\springBootTest\target\springBootTest-0.0.1-SNAPSHOT.jar started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:48:32  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:48:33  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 62134 (http)
+logging.pattern.console=2026-10-21 09:48:33  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:48:33  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:48:33  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:48:33  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1465 ms
+logging.pattern.console=2026-10-21 09:48:34  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:48:34  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@abad89c
+logging.pattern.console=2026-10-21 09:48:34  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:48:34  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:48:35  WARN o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.refresh 635:Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+logging.pattern.console=2026-10-21 09:48:35  INFO com.zaxxer.hikari.HikariDataSource.close 349:HikariPool-1 - Shutdown initiated...
+logging.pattern.console=2026-10-21 09:48:35  INFO com.zaxxer.hikari.HikariDataSource.close 351:HikariPool-1 - Shutdown completed.
+logging.pattern.console=2026-10-21 09:48:35  INFO o.s.b.a.logging.ConditionEvaluationReportLogger.logMessage 82:
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+logging.pattern.console=2026-10-21 09:48:35  ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter.report 40:
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 62134 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 62134 or configure this application to listen on another port.
+
+logging.pattern.console=2026-10-21 09:48:35  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring DispatcherServlet 'dispatcherServlet'
+logging.pattern.console=2026-10-21 09:48:35  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 532:Initializing Servlet 'dispatcherServlet'
+logging.pattern.console=2026-10-21 09:48:35  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 554:Completed initialization in 1 ms
+logging.pattern.console=2026-10-21 09:49:11  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication v0.0.1-SNAPSHOT using Java 21.0.10 with PID 10728 (D:\workSpace\yhuhhu\java-main\springBootTest\target\springBootTest-0.0.1-SNAPSHOT.jar started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:49:11  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:49:13  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:49:13  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:49:13  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:49:13  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:49:13  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1383 ms
+logging.pattern.console=2026-10-21 09:49:13  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:49:13  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6eb089e6
+logging.pattern.console=2026-10-21 09:49:13  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:49:14  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:49:14  WARN o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.refresh 635:Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+logging.pattern.console=2026-10-21 09:49:14  INFO com.zaxxer.hikari.HikariDataSource.close 349:HikariPool-1 - Shutdown initiated...
+logging.pattern.console=2026-10-21 09:49:14  INFO com.zaxxer.hikari.HikariDataSource.close 351:HikariPool-1 - Shutdown completed.
+logging.pattern.console=2026-10-21 09:49:14  INFO o.s.b.a.logging.ConditionEvaluationReportLogger.logMessage 82:
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+logging.pattern.console=2026-10-21 09:49:14  ERROR o.s.b.diagnostics.LoggingFailureAnalysisReporter.report 40:
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8081 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8081 or configure this application to listen on another port.
+
+logging.pattern.console=2026-10-21 09:53:49  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication v0.0.1-SNAPSHOT using Java 21.0.10 with PID 8864 (D:\workSpace\yhuhhu\java-main\springBootTest\target\springBootTest-0.0.1-SNAPSHOT.jar started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:53:49  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:53:50  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8089 (http)
+logging.pattern.console=2026-10-21 09:53:50  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:53:50  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:53:50  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:53:50  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1229 ms
+logging.pattern.console=2026-10-21 09:53:50  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:53:51  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6eb089e6
+logging.pattern.console=2026-10-21 09:53:51  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:53:51  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:53:51  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8089 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:53:51  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 3.133 seconds (process running for 3.644)
+logging.pattern.console=2026-10-21 09:55:27  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 8400 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-10-21 09:55:27  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-10-21 09:55:27  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-10-21 09:55:27  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-10-21 09:55:28  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-10-21 09:55:28  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-10-21 09:55:28  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-10-21 09:55:28  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-10-21 09:55:28  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 702 ms
+logging.pattern.console=2026-10-21 09:55:28  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-10-21 09:55:28  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7b55c72c
+logging.pattern.console=2026-10-21 09:55:28  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-10-21 09:55:29  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-10-21 09:55:29  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-10-21 09:55:29  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-10-21 09:55:29  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 1.691 seconds (process running for 1.932)

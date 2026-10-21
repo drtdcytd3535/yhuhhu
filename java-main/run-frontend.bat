@@ -28,10 +28,20 @@ if not exist "node_modules" (
     if exist "%CACHE%\node_modules" (
         robocopy "%CACHE%\node_modules" "node_modules" /E /NFL /NDL /NJH /NJS /NP /R:0 /W:0 >nul 2>&1
     )
-    if not exist "node_modules" (
-        echo [前端] 快照不可用，改为联网安装 ...
-        call npm install --cache "%CACHE%\npm-cache" --prefer-offline
+)
+
+REM 关键：node_modules 里必须有 .bin\vite.cmd，否则 npm run dev 会报
+REM "'vite' 不是内部或外部命令"。快照复制经常丢掉 .bin 目录，这里强制补齐。
+if not exist "node_modules\.bin\vite.cmd" (
+    echo [前端] 缺少 node_modules\.bin（vite 启动器缺失），正在修复 ...
+    call npm install --cache "%CACHE%\npm-cache" --prefer-offline --no-audit --no-fund
+    if not exist "node_modules\.bin\vite.cmd" (
+        echo [X] 修复失败：仍找不到 node_modules\.bin\vite.cmd
+        echo     请手动在本目录执行： npm install
+        pause
+        exit /b 1
     )
+    echo [前端] 修复完成。
 )
 
 title 前端 Vite :5173

@@ -1,6 +1,6 @@
 @echo off
 chcp 936 >nul
-setlocal
+setlocal enabledelayedexpansion
 
 REM ============================================================
 REM  check-env.bat  ——  启动前环境自检

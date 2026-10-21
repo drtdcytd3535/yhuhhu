@@ -41,6 +41,8 @@ echo [后端] 构建完成。
 
 echo [后端] 启动中（日志：springBootTest\log\xx.log）...
 title 后端 SpringBoot :8081
-call mvnw.cmd -o -B -DskipTests spring-boot:run
+REM 用命令行参数把端口钉死在 8081：环境变量 SERVER_PORT / SERVER__PORT
+REM 之类会被 Spring Boot 宽松绑定捡走，导致 Tomcat 起在别的端口上
+call mvnw.cmd -o -B -DskipTests spring-boot:run -Dspring-boot.run.arguments="--server.port=8081"
 
 exit /b 0

@@ -69,13 +69,20 @@ call :port_listening 5173
 if "!READY!"=="1" goto :frontend_ok
 timeout /t 2 /nobreak >nul
 set /a W2+=2
-if !W2! GEQ 90 goto :frontend_ok
+if !W2! GEQ 90 goto :frontend_fail
 goto :wait_frontend
+
+:frontend_fail
+echo [X] 前端 90 秒仍未在 5173 端口就绪，不打开浏览器。
+echo     请看"前端 Vite :5173"窗口里的报错信息。
+pause
+goto :summary
 
 :frontend_ok
 echo [成功] 前端地址：http://127.0.0.1:5173
 start "" "http://127.0.0.1:5173"
 
+:summary
 echo.
 echo ============================================================
 echo    启动完成
