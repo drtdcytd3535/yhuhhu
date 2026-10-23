@@ -6,53 +6,127 @@
   <div class="mountains"></div>
   <div class="mist"></div>
 
-  <!-- 仙逆主视觉背景（登录 / 注册页共用，带动态效果） -->
-  <ArtBackground v-if="!logged" />
+  <!-- ============ 后台管理系统（独立于前台站点） ============ -->
+  <template v-if="adminState">
+    <!-- 后台登录：只有登录，不开放注册 -->
+    <AdminLogin v-if="adminState === 'login'" @login-success="onAdminLogin" @back="exitAdmin" />
+    <!-- 后台主页：管理首页展示的数据 -->
+    <AdminPanel v-else :admin="admin" @logout="onAdminLogout" @back="exitAdmin" />
+  </template>
 
-  <!-- ============ 登录 / 注册 ============ -->
-  <div v-if="!logged" class="wrap">
-    <!-- 品牌区 -->
-    <div class="brand">
-      <div class="seal">仙逆</div>
-      <div class="title">仙逆</div>
-      <div class="subtitle">逆天改命 · 问道长生</div>
+  <template v-else>
+    <!-- 仙逆主视觉背景（登录 / 注册页共用，带动态效果） -->
+    <ArtBackground v-if="!logged" />
+
+    <!-- ============ 登录 / 注册 ============ -->
+    <div v-if="!logged" class="wrap">
+      <!-- 品牌区 -->
+      <div class="brand">
+        <div class="seal">仙逆</div>
+        <div class="title">仙逆</div>
+        <div class="subtitle">逆天改命 · 问道长生</div>
+      </div>
+
+      <!-- 登录 / 注册卡片（按模式切换） -->
+      <LoginCard
+        v-if="mode === 'login'"
+        @go-register="mode = 'register'"
+        @login-success="onLoginSuccess"
+      />
+      <RegisterCard v-else @go-login="mode = 'login'" />
     </div>
 
-    <!-- 登录 / 注册卡片（按模式切换） -->
-    <LoginCard
-      v-if="mode === 'login'"
-      @go-register="mode = 'register'"
-      @login-success="onLoginSuccess"
-    />
-    <RegisterCard v-else @go-login="mode = 'login'" />
-  </div>
-
-  <!-- ============ 首页 ============ -->
-  <HomePage v-else :username="username" @logout="onLogout" />
+    <!-- ============ 首页 ============ -->
+    <HomePage v-else :username="username" @logout="onLogout" @admin="adminState = 'login'" />
+  </template>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import StarField from './components/StarField.vue'
 import ArtBackground from './components/ArtBackground.vue'
 import LoginCard from './components/LoginCard.vue'
 import RegisterCard from './components/RegisterCard.vue'
 import HomePage from './components/HomePage.vue'
+import AdminLogin from './components/AdminLogin.vue'
+import AdminPanel from './components/AdminPanel.vue'
 
 const mode = ref('login')
+
+/* 后台管理系统视图：null 前台站点 / 'login' 后台登录 / 'panel' 后台主页
+ * 与前台登录态互不干涉，退出后台只是回到后台登录页 */
+const adminState = ref(null)
+const admin = ref({ username: '', realName: '' })
+
+/* 刷新后台页面时用它记住「刚才在后台」，避免 F5 后被踢回前台 */
+const ADMIN_FLAG = 'xianni_admin_panel'
+
+function markAdmin(on) {
+  try {
+    if (on) sessionStorage.setItem(ADMIN_FLAG, '1')
+    else sessionStorage.removeItem(ADMIN_FLAG)
+  } catch (e) {
+    /* 隐私模式忽略 */
+  }
+}
+
+/** 后台登录成功 → 进入后台主页 */
+function onAdminLogin(payload) {
+  admin.value = payload || {}
+  adminState.value = 'panel'
+  markAdmin(true)
+}
+
+/** 返回仙门（保留后端 session，下次进来仍是登录态） */
+function exitAdmin() {
+  adminState.value = null
+  markAdmin(false)
+}
+
+/** 退出后台：回后台登录页并清掉记忆标记 */
+function onAdminLogout() {
+  adminState.value = 'login'
+  markAdmin(false)
+}
+
+/* 刷新恢复：本地标记 + 后端 session 双重确认 */
+onMounted(async () => {
+  let flag = false
+  try {
+    flag = sessionStorage.getItem(ADMIN_FLAG) === '1'
+  } catch (e) {
+    flag = false
+  }
+  if (!flag) return
+  try {
+    const res = await fetch('/api/admin/me')
+    const body = await res.json()
+    if (body.success) {
+      admin.value = body.data || {}
+      adminState.value = 'panel'
+    } else {
+      markAdmin(false)
+    }
+  } catch (e) {
+    markAdmin(false)
+  }
+})
 
 /* 登录态：前端本地状态（后端 session 已由 /api/login 写入）
  * 后续如需接口鉴权，可在此处补 /api/me 校验 */
 const logged = ref(false)
 const username = ref('道友')
 
-/* 开发态预览入口：?preview=home 跳过登录直达首页，?preview=register 直达注册页
+/* 开发态预览入口：?preview=home 跳过登录直达首页，?preview=cave 直达我的洞府，
+ * ?preview=admin 直达后台登录页，?preview=register 直达注册页。
  * 仅 import.meta.env.DEV 生效，生产构建不受影响 */
 if (import.meta.env.DEV) {
   const preview = new URLSearchParams(location.search).get('preview')
-  if (preview === 'home') {
+  if (preview === 'home' || preview === 'cave') {
     username.value = '预览道友'
     logged.value = true
+  } else if (preview === 'admin') {
+    adminState.value = 'login'
   } else if (preview === 'register') {
     mode.value = 'register'
   }

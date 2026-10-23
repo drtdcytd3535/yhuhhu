@@ -161,3 +161,21 @@ INSERT IGNORE INTO t_notice (id, content, date_label, sort_no) VALUES
   (3, '丹阁新入九转金丹三百枚，先到先得。', '前日', 3),
   (4, '青龙灵脉本月功勋兑换额度刷新，道友可依功勋换取修行时日。', '三日前', 4);
 
+
+-- =============================================================
+-- 后台管理员表（与前台 t_user 完全隔离：后台只登录、不注册）
+-- 默认账号由后端启动时自动写入（密码用 BCrypt 加密，不写死密文）
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_admin (
+  id          BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  username    VARCHAR(50)  NOT NULL                COMMENT '后台账号（唯一）',
+  password    VARCHAR(100) NOT NULL                COMMENT '密码（BCrypt 密文）',
+  real_name   VARCHAR(50)           DEFAULT NULL   COMMENT '执事名号（展示用）',
+  role        VARCHAR(20)  NOT NULL DEFAULT 'ADMIN' COMMENT '角色：ADMIN 执事',
+  status      TINYINT      NOT NULL DEFAULT 1      COMMENT '状态：1 启用 / 0 停用',
+  created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_username (username)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '后台管理员表';

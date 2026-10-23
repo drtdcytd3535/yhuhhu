@@ -2,7 +2,7 @@
 
 > **给 AI 助手：请先读完本文件再动手，不要重复探索目录结构、不要重复确认端口/密码/启动方式。**
 > 本文件是这个项目的"记忆"，机器每次重置后它依然在，用它替代重新摸索。
-> 最后更新：2026-10-16（新增首页展示与分级分类搜索后端 + 首页接入真实接口）
+> 最后更新：2026-10-23（首页背景图 + 「我的洞府」个人中心 + 后台管理系统）
 
 ---
 
@@ -22,9 +22,9 @@
 | 项目 | 路径 / 值 |
 | --- | --- |
 | 项目根 | `C:\Users\Administrator\Desktop\java-main` |
-| 前端源码 | `ghg-Vue/src/`（`App.vue`、`components/LoginCard.vue`、`components/RegisterCard.vue`、`components/StarField.vue`、`components/ArtBackground.vue`、`components/HomePage.vue`） |
-| 页面切换 | 未用 vue-router，`App.vue` 用 `logged` 状态在「登录/注册」与「首页」之间切换；登录成功由 `LoginCard` emit `login-success` |
-| 前端调试 | 开发态访问 `http://127.0.0.1:5173/?preview=home` 直达首页、`?preview=register` 直达注册页 |
+| 前端源码 | `ghg-Vue/src/`（`App.vue`、`components/LoginCard.vue`、`components/RegisterCard.vue`、`components/StarField.vue`、`components/ArtBackground.vue`、`components/HomePage.vue`、`components/CavePanel.vue`、`components/AdminLogin.vue`、`components/AdminPanel.vue`、`composables/useCave.js`） |
+| 页面切换 | 未用 vue-router，`App.vue` 三层状态：`adminState`（null 前台 / `login` 后台登录 / `panel` 后台主页）优先于 `logged`（登录注册 / 首页）；`logged` 为真后进入 `HomePage`，其内部再用 `view`（`home` / `cave`）在「仙门首页」与「我的洞府」间切换 |
+| 前端调试 | 开发态访问 `http://127.0.0.1:5173/?preview=home` 直达首页、`?preview=cave` 直达「我的洞府」、`?preview=admin` 直达后台登录页、`?preview=register` 直达注册页 |
 | 外链入口 | 首页导航「动漫」= `https://v.qq.com/x/cover/mzc00200aaogpgh.html`（腾讯视频《仙逆》动漫专辑页），`window.open` 新标签打开，常量在 `HomePage.vue` 的 `ANIME_URL` |
 | 前端构建 | `ghg-Vue/vite.config.js`（`/api` 代理到 `http://127.0.0.1:8081`） |
 | 后端工程 | `springBootTest/` |
@@ -48,12 +48,41 @@
 - `GET /api/content/{id}` — 内容详情（含正文），命中后浏览量 +1
 - 分页说明：本地仓库无 `mybatis-plus-jsqlparser`（3.5.9 起分页插件独立成模块），故 `/api/search` 手写 `LIMIT/OFFSET`，`MybatisPlusConfig` 里刻意没有注册分页插件
 
+## 2.4 后台管理系统（2026-10-23 新增）
+
+入口：首页导航栏右侧「后台管理」按钮（`HomePage` emit `admin`）→ 后台登录页 → 后台主页。**只有登录，没有注册**。
+
+- 账号体系：独立表 `t_admin`，与前台 `t_user` 完全不同名不同表；session key 也分开（前台 `LOGIN_USER`，后台 `ADMIN_USER`）
+- 默认执事：`admin / admin123`（由 `config/AdminBootstrap`（CommandLineRunner）在启动时兜底写入，密码 BCrypt 加密，SQL 里不写密文）
+- 后端接口（全部在 `/api/admin/**`，除 login 外都校验 session，未登录返回 `success:false,"尚未登入执事堂"`）：
+  - `POST /api/admin/login`、`POST /api/admin/logout`、`GET /api/admin/me`
+  - `GET /api/admin/stats` — 典籍总数/在架/下架/分类数/公告数/累计查阅
+  - `GET /api/admin/contents?keyword=&categoryId=&page=&size=` — 内容分页（含下架），`POST/PUT/DELETE /api/admin/content[/{id}]`
+  - `GET /api/admin/categories` — 扁平分类含父名与内容数，`POST/PUT/DELETE /api/admin/category[/{id}]`（有子分类或仍有内容时拒绝删除）
+  - `GET /api/admin/notices`，`POST/PUT/DELETE /api/admin/notice[/{id}]`
+- 前端：`AdminLogin.vue`（仅账号+密码+秘钥显隐）、`AdminPanel.vue`（概览 6 格 + 典籍内容/分级分类/宗门公告 三个 Tab + 增改弹窗 + 上下架 + 删除确认 + 分页）
+- 新增文件：`entity/Admin`、`mapper/AdminMapper`、`service/IAdminService(+Impl)`、`controller/AdminController`、`controller/AdminDataController`、`dto/AdminLoginRequest|AdminStats|AdminContentRow|AdminContentPage|AdminCategoryRow`、`util/AdminSession`、`config/AdminBootstrap`
+- 注意：后端用的是 `mvnw spring-boot:run` + devtools，改了 Java 后 `mvnw -o -B -DskipTests compile` 一跑，devtools 会自动重启应用（无需 kill 8081）
+
+## 2.5 我的洞府（2026-10-23 新增，纯前端）
+
+入口：首页导航「我的洞府」、右上角头像下拉「我的洞府 / 灵石账册」、详情弹窗「我的洞府 →」。视图切换在 `HomePage.vue` 的 `view`（`home` / `cave`），`cave` 时渲染 `components/CavePanel.vue`。
+
+- 状态仓库：`src/composables/useCave.js`（模块级 `reactive` 单例，`HomePage` 与 `CavePanel` 共用一份）
+- 存储：**浏览器 localStorage**，键 `xianni_cave_v1_{道号}`，按登录名隔离；登出时 `resetCave()` 清内存态
+- 数据结构：`{ stones, exp, signDays[], favorites[], history[], ledger[], createdAt }`
+- 规则（常量全在 `useCave.js` 顶部）：开辟洞府赠 100 灵石；晨课签到 +30 灵石 / +20 修为，每满 7 日额外 +20；首次研读 +2 灵石 / +10 修为；收录藏书 +15 修为、−5 灵石
+- 境界：`REALMS` 数组（炼气 100 → 筑基 240 → 金丹 480 → 元婴 960 → 化神 1800 → 炼虚 3200 → 合体 5600），`realm` computed 输出当前境界、层数、进度
+- 挂接点：`openDetail()` 里调 `pushHistory()` 记足迹；详情弹窗「收入藏书阁」调 `addFav()`；头像下拉的境界文案取 `realm`
+- 接后端时只需把 `initCave/save()` 换成接口读写，UI 与规则不用动
+
 ## 3. 数据库
 
 - MySQL 8.0.39，服务名 `MySQL80`（开机自动启动，无需手动拉起）
 - **账号 root / 密码 `123456`**（注意：不是 123456az，那是错的）
-- 库名 `spring_boot_test`，共 4 张表（均由 `src/main/resources/sql/schema.sql` 自动建表 + 幂等种子数据）：
+- 库名 `spring_boot_test`，共 5 张表（均由 `src/main/resources/sql/schema.sql` 自动建表 + 幂等种子数据）：
   - `t_user` — 用户（id / username / password / created_at）
+  - `t_admin` — 后台管理员（id / username / password / real_name / role / status / created_at），默认账号由启动兜底写入
   - `t_category` — 分级分类（id / name / **parent_id 自关联** / level / icon / description / sort_no；parent_id=0 为顶级；种子含 5 个顶级 + 15 个子分类）
   - `t_content` — 内容（id / title / summary / content 正文 / category_id / tags / author / hot / views / status；种子含 32 条）
   - `t_notice` — 宗门公告（id / content / date_label / sort_no；种子含 4 条）

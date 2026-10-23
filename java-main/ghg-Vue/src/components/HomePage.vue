@@ -1,10 +1,16 @@
 <template>
   <div class="home">
+    <!-- ================= 主页背景（等比铺满视口） ================= -->
+    <div class="home-bg" aria-hidden="true">
+      <img class="home-bg-img" src="../assets/home-bg.png" alt="" draggable="false" />
+      <div class="home-bg-veil"></div>
+    </div>
+
     <!-- ================= 顶部导航栏 ================= -->
     <header class="nav">
       <div class="nav-inner">
         <!-- 品牌 -->
-        <div class="logo" @click="toast('已在仙门首页')">
+        <div class="logo" @click="backHome(); toast('已在仙门首页')">
           <span class="seal-mini">仙</span>
           <span class="logo-text">
             <b>仙逆</b>
@@ -32,6 +38,17 @@
 
         <!-- 用户区 -->
         <div class="nav-right">
+          <!-- 后台管理系统入口 -->
+          <button class="admin-entry" title="前往仙门执事堂（后台管理）" @click="emit('admin')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="7.5" height="9" rx="1.6" />
+              <rect x="13.5" y="3" width="7.5" height="5.5" rx="1.6" />
+              <rect x="13.5" y="11.5" width="7.5" height="9.5" rx="1.6" />
+              <rect x="3" y="15" width="7.5" height="6" rx="1.6" />
+            </svg>
+            后台管理
+          </button>
+
           <button class="icon-btn" title="搜索" @click="focusSearch">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
               <circle cx="11" cy="11" r="7" />
@@ -55,11 +72,12 @@
                   <div>
                     <p class="dd-name">{{ username }}</p>
                     <p class="dd-realm">{{ realmText }}</p>
+                    <p class="dd-stone">◈ 灵石 {{ cave.stones }}</p>
                   </div>
                 </div>
-                <a class="dd-item" @click="soon('我的洞府')">我的洞府</a>
+                <a class="dd-item" @click="enterCave()">我的洞府</a>
                 <a class="dd-item" @click="soon('道号设置')">道号设置</a>
-                <a class="dd-item" @click="soon('灵石账册')">灵石账册</a>
+                <a class="dd-item" @click="enterCave()">灵石账册</a>
                 <div class="dd-split"></div>
                 <a class="dd-item danger" @click="onLogout">褪去此身 · 退出</a>
               </div>
@@ -69,8 +87,10 @@
       </div>
     </header>
 
-    <!-- ================= 搜索栏 ================= -->
-    <section class="search-sec">
+    <!-- ================= 仙门首页 ================= -->
+    <template v-if="view === 'home'">
+      <!-- 搜索栏 -->
+      <section class="search-sec">
       <p class="slogan">逆天改命 · 问道长生</p>
       <h1 class="s-title">寻你所欲，仙途无阻</h1>
 
@@ -265,6 +285,16 @@
         </div>
       </aside>
     </section>
+    </template>
+
+    <!-- ================= 我的洞府 ================= -->
+    <CavePanel
+      v-else
+      :username="username"
+      @back="backHome"
+      @open="openDetail"
+      @toast="toast"
+    />
 
     <!-- ================= 页脚 ================= -->
     <footer class="foot">
@@ -285,6 +315,14 @@
             <span v-for="t in detail.tags" :key="t" class="dt-tag">{{ t }}</span>
           </div>
           <div class="dt-body">{{ detail.content }}</div>
+
+          <div class="dt-acts">
+            <button class="dt-act" :class="{ on: isFav(detail.id) }" @click="toggleFav(detail)">
+              {{ isFav(detail.id) ? '★ 已藏于阁' : '☆ 收入藏书阁' }}
+            </button>
+            <button class="dt-act ghost" @click="closeDetail(); enterCave()">我的洞府 →</button>
+          </div>
+
           <div class="dt-foot">
             <span>出处 · {{ detail.author }}</span>
             <span>热度 {{ fmtHot(detail.hot) }}</span>
@@ -301,11 +339,29 @@
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import CavePanel from './CavePanel.vue'
+import { cave, realm, initCave, resetCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
 
 const props = defineProps({
   username: { type: String, default: '道友' }
 })
-const emit = defineEmits(['logout'])
+const emit = defineEmits(['logout', 'admin'])
+
+/* ---------------- 视图：仙门首页 / 我的洞府 ---------------- */
+const view = ref('home')
+
+function enterCave() {
+  view.value = 'cave'
+  activeMenu.value = 'mine'
+  userOpen.value = false
+  window.scrollTo({ top: 0 })
+}
+
+function backHome() {
+  view.value = 'home'
+  activeMenu.value = 'home'
+  window.scrollTo({ top: 0 })
+}
 
 /* ---------------- 导航 ---------------- */
 // 腾讯视频《仙逆》动漫 · 专辑页（点「动漫」直接跳转这里）
@@ -330,16 +386,21 @@ function goMenu(m) {
     toast('正在开启腾讯视频 · 《仙逆》动漫')
     return
   }
+  // 我的洞府：切到洞府视图
+  if (m.key === 'mine') {
+    enterCave()
+    return
+  }
   if (m.key === 'home') {
-    activeMenu.value = 'home'
-    resetCategory()
+    backHome()
     toast('已归仙门首页')
     return
   }
-  // 功法阁 / 丹阁 / 洞天福地 / 论道台 → 按对应顶级分类浏览
+  // 功法阁 / 丹阁 / 洞天福地 / 论道台 → 回到首页视图并按对应顶级分类浏览
   if (m.type) {
     const top = topCategories.value.find((c) => c.name === m.type)
     if (top) {
+      view.value = 'home'
       activeMenu.value = m.key
       searchResult.value = null
       pickTop(top, false)
@@ -517,7 +578,13 @@ function quickSearch(w) {
 }
 
 function focusSearch() {
-  searchInput.value?.focus()
+  // 洞府视图里没有搜索框：先回首页再聚焦
+  if (view.value !== 'home') {
+    backHome()
+    setTimeout(() => searchInput.value?.focus(), 60)
+  } else {
+    searchInput.value?.focus()
+  }
   toast('请输入检索之词')
 }
 
@@ -545,7 +612,11 @@ const detail = ref(null)
 
 async function openDetail(id) {
   const data = await api('/api/content/' + id)
-  if (data) detail.value = data
+  if (!data) return
+  detail.value = data
+  // 记入洞府足迹：首次研读另有修为与灵石进账
+  const r = pushHistory({ id: data.id, title: data.title, categoryPath: data.categoryPath })
+  if (r.first) toast(`首次研读 · 修为 +${r.exp}`)
 }
 
 function closeDetail() {
@@ -554,7 +625,20 @@ function closeDetail() {
 
 /* ---------------- 展示辅助 ---------------- */
 const avatarText = computed(() => (props.username || '道').charAt(0))
-const realmText = computed(() => `筑基后期 · 仙门第 ${props.username === '道友' ? '—' : '七'} 席`)
+/** 境界取自洞府修为，随研读、签到、收录藏书同步增长 */
+const realmText = computed(() => `${realm.value.name}境 · 第 ${realm.value.level} 重`)
+
+/* ---------------- 洞府：藏书收录 ---------------- */
+function toggleFav(item) {
+  if (!item || item.id == null) return
+  if (isFav(item.id)) {
+    removeFav(item.id)
+    toast('已移出藏书阁')
+    return
+  }
+  const r = addFav(item)
+  toast(r.ok ? `已收入藏书阁 · 修为 +${r.exp}` : r.msg)
+}
 
 /** 热度千分位化简写：98000 → 9.8万 */
 function fmtHot(n) {
@@ -602,6 +686,12 @@ onMounted(async () => {
   document.addEventListener('keydown', onKeydown)
   // 进入首页后允许纵向滚动
   document.body.classList.add('page-scroll')
+  // 开辟（或载入）此道号的洞府
+  initCave(props.username)
+  // 开发态预览入口：?preview=cave 直达洞府，仅开发环境生效
+  if (import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === 'cave') {
+    view.value = 'cave'
+  }
   await Promise.all([loadHome(), loadHots()])
   toast(`✦ ${props.username} 道友，仙门已开 ✦`)
 })
@@ -611,6 +701,8 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKeydown)
   clearTimeout(toastTimer)
   document.body.classList.remove('page-scroll')
+  // 登出后清空内存态，换号登录时不串数据
+  resetCave()
 })
 </script>
 
@@ -620,6 +712,53 @@ onBeforeUnmount(() => {
   z-index: 3;
   min-height: 100%;
   padding-bottom: 40px;
+}
+
+/* ================= 主页背景 ================= */
+/* 固定铺满视口：无论窗口多宽多窄，都按 16:9 原图等比覆盖、不拉伸变形 */
+.home-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1; /* 落在 .home 内容之下，但仍在本层叠上下文内，盖住旧的星野/远山 */
+  overflow: hidden;
+  pointer-events: none;
+  background: #05060c;
+}
+
+.home-bg-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover; /* 等比铺满，多余部分裁切 */
+  object-position: 50% 36%; /* 主角二人居中偏上，裁切时优先保留 */
+  user-select: none;
+  animation: homeBgIn 1.2s ease both;
+}
+
+/* 暗色纱罩：压住亮部，保证卡片与文字可读 */
+.home-bg-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 6, 12, 0.74) 0%,
+      rgba(5, 6, 12, 0.34) 20%,
+      rgba(5, 6, 12, 0.46) 56%,
+      rgba(5, 6, 12, 0.88) 100%
+    ),
+    radial-gradient(98% 82% at 50% 38%, rgba(6, 10, 12, 0.04), rgba(5, 6, 12, 0.55));
+}
+
+@keyframes homeBgIn {
+  from {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ================= 导航栏 ================= */
@@ -777,6 +916,38 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
+/* 后台管理入口 */
+.admin-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: 10px;
+  border: 1px solid rgba(232, 198, 107, 0.32);
+  background: rgba(232, 198, 107, 0.07);
+  color: rgba(232, 198, 107, 0.92);
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: 0.22s;
+}
+
+.admin-entry svg {
+  width: 15px;
+  height: 15px;
+}
+
+.admin-entry:hover {
+  color: #1a1023;
+  background: linear-gradient(100deg, var(--gold), #ffe9a8 60%, var(--cyan));
+  border-color: transparent;
+  box-shadow:
+    0 8px 22px rgba(232, 198, 107, 0.32),
+    0 0 16px rgba(111, 233, 255, 0.25);
+}
+
 .icon-btn {
   width: 38px;
   height: 38px;
@@ -894,6 +1065,13 @@ onBeforeUnmount(() => {
   margin-top: 3px;
   font-size: 12px;
   color: rgba(233, 238, 251, 0.5);
+}
+
+.dd-stone {
+  margin-top: 3px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--gold);
 }
 
 .dd-item {
@@ -1820,6 +1998,49 @@ onBeforeUnmount(() => {
   white-space: pre-wrap;
 }
 
+/* 详情弹窗操作：收入藏书阁 / 前往洞府 */
+.dt-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.dt-act {
+  padding: 9px 18px;
+  border-radius: 11px;
+  border: 1px solid rgba(232, 198, 107, 0.4);
+  background: rgba(232, 198, 107, 0.1);
+  color: var(--gold);
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.22s;
+}
+
+.dt-act:hover {
+  background: rgba(232, 198, 107, 0.2);
+  box-shadow: 0 0 16px rgba(232, 198, 107, 0.3);
+}
+
+.dt-act.on {
+  color: #1a1023;
+  background: linear-gradient(100deg, var(--gold), #ffe9a8 60%, var(--cyan));
+  border-color: transparent;
+}
+
+.dt-act.ghost {
+  border-color: rgba(111, 233, 255, 0.4);
+  background: rgba(111, 233, 255, 0.08);
+  color: var(--cyan);
+}
+
+.dt-act.ghost:hover {
+  background: rgba(111, 233, 255, 0.16);
+  box-shadow: 0 0 16px rgba(111, 233, 255, 0.28);
+}
+
 .dt-foot {
   display: flex;
   flex-wrap: wrap;
@@ -1961,6 +2182,16 @@ onBeforeUnmount(() => {
   }
   .dt-title {
     font-size: 24px;
+  }
+  /* 窄屏竖向裁切较多，主体再往上提一点 */
+  .home-bg-img {
+    object-position: 50% 30%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-bg-img {
+    animation: none;
   }
 }
 </style>

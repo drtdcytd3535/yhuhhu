@@ -11,11 +11,32 @@
  Target Server Version : 80039 (8.0.39)
  File Encoding         : 65001
 
- Date: 16/10/2026 16:49:01
+ Date: 23/10/2026 16:50:33
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for t_admin
+-- ----------------------------
+DROP TABLE IF EXISTS `t_admin`;
+CREATE TABLE `t_admin`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '后台账号（唯一）',
+  `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '密码（BCrypt 密文）',
+  `real_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '执事名号（展示用）',
+  `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ADMIN' COMMENT '角色：ADMIN 执事',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1 启用 / 0 停用',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_admin_username`(`username` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '后台管理员表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_admin
+-- ----------------------------
+INSERT INTO `t_admin` VALUES (1, 'admin', '$2a$10$hKuW6XQUa6X44fXIXn8.SOZ2HzTZf2nl6uNpqf6awTrQcGkSK8ShO', '仙门执事', 'ADMIN', 1, '2026-10-23 16:36:33');
 
 -- ----------------------------
 -- Table structure for t_category
@@ -34,7 +55,7 @@ CREATE TABLE `t_category`  (
   UNIQUE INDEX `uk_parent_name`(`parent_id` ASC, `name` ASC) USING BTREE,
   INDEX `idx_parent`(`parent_id` ASC) USING BTREE,
   INDEX `idx_level`(`level` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 53 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '分级分类表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 54 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '分级分类表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_category
@@ -81,12 +102,12 @@ CREATE TABLE `t_content`  (
   INDEX `idx_hot`(`hot` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_title`(`title` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 33 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '内容表（功法/丹药/洞天/道友/论道）' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '内容表（功法/丹药/洞天/道友/论道）' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_content
 -- ----------------------------
-INSERT INTO `t_content` VALUES (1, '太虚剑典', '剑气纵横三万里，一剑光寒十九州。', '太虚剑典乃太虚剑尊所创，共分九重。初重练剑意，三重可斩灵，六重剑出如龙，九重则一剑破空、剑光寒彻十九州。修习者需以剑为友、以心为鞘，切忌贪快求成。', 11, '剑诀,太虚,上乘', '太虚剑尊', 98000, 12602, 1, '2026-10-16 16:31:40');
+INSERT INTO `t_content` VALUES (1, '太虚剑典', '剑气纵横三万里，一剑光寒十九州。', '太虚剑典乃太虚剑尊所创，共分九重。初重练剑意，三重可斩灵，六重剑出如龙，九重则一剑破空、剑光寒彻十九州。修习者需以剑为友、以心为鞘，切忌贪快求成。', 11, '剑诀,太虚,上乘', '太虚剑尊', 98000, 12603, 1, '2026-10-16 16:31:40');
 INSERT INTO `t_content` VALUES (2, '斩灵十三剑', '十三剑落，灵亦为刍狗。', '斩灵十三剑共有十三式，招招断灵脉、斩元神。第七式「断魂」最险，若心境不稳易反噬自身，故需筑基后期方可习练。', 11, '剑诀,杀伐', '墨长歌', 61000, 8200, 1, '2026-10-16 16:31:40');
 INSERT INTO `t_content` VALUES (3, '星辰剑诀', '以星河为剑，剑落星辰坠。', '星辰剑诀借星河之力，于夜半子时引星辉入剑，剑身星辰流转。适合资质中上、耐得住寂寞的剑修。', 11, '剑诀,星辰', '苏九霄', 42000, 5300, 1, '2026-10-16 16:31:40');
 INSERT INTO `t_content` VALUES (4, '焚天诀', '焚尽苍穹，烈焰之下寸草不存。', '焚天诀以真火焚烧经脉再塑，修炼时痛楚难当，然成者一身真火焚山煮海。第三重「焚心」须以清心丹辅助，否则易走火。', 12, '火法,真火', '焚天老祖', 72000, 9100, 1, '2026-10-16 16:31:40');
@@ -131,7 +152,7 @@ CREATE TABLE `t_notice`  (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_sort`(`sort_no` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '宗门公告表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '宗门公告表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_notice
