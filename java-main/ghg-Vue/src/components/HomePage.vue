@@ -2,7 +2,7 @@
   <div class="home">
     <!-- ================= 主页背景（等比铺满视口） ================= -->
     <div class="home-bg" aria-hidden="true">
-      <img class="home-bg-img" src="../assets/home-bg.png" alt="" draggable="false" />
+      <img class="home-bg-img" src="../assets/hhh.jpg" alt="" draggable="false" />
       <div class="home-bg-veil"></div>
     </div>
 
@@ -947,6 +947,7 @@ onBeforeUnmount(() => {
     0 8px 22px rgba(232, 198, 107, 0.32),
     0 0 16px rgba(111, 233, 255, 0.25);
 }
+
 
 .icon-btn {
   width: 38px;
