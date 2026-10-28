@@ -5,11 +5,11 @@
       <span class="rc-ico">境</span>
       <span class="rc-title">
         <b>境界总览</b>
-        <i>九境十重 · 一览仙途</i>
+        <i>仙逆 · 四大步 {{ count }} 境</i>
       </span>
       <span class="rc-now">
-        <em>{{ now.name }}境</em>
-        <u>第 {{ now.level }} 重</u>
+        <em>{{ now.name }}{{ now.suffix }}</em>
+        <u>第 {{ now.level }} {{ now.unit }}</u>
       </span>
       <span class="rc-arrow" :class="{ up: open }">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
@@ -23,38 +23,50 @@
       <div class="rc-head-row">
         <span>境界</span>
         <span>修为区间</span>
-        <span>每重所需</span>
+        <span>每重/层所需</span>
         <span>当前状态</span>
       </div>
 
-      <ul class="rc-list">
-        <li v-for="(r, i) in rows" :key="r.name" class="rc-row" :class="r.status">
-          <span class="rc-name">
-            <i class="rc-idx">{{ String(i + 1).padStart(2, '0') }}</i>
-            {{ r.name }}
-            <em>境</em>
-          </span>
-          <span class="rc-range">{{ r.from }} – {{ r.to }}</span>
-          <span class="rc-step">{{ r.perLevel }}</span>
-          <span class="rc-state">
-            <template v-if="r.status === 'current'">
-              <b>第 {{ r.level }} 重</b>
-              <span class="rc-mini">
-                <span class="rc-mini-fill" :style="{ width: Math.round(r.progress * 100) + '%' }"></span>
-              </span>
-            </template>
-            <template v-else-if="r.status === 'done'">已渡</template>
-            <template v-else>未至</template>
-          </span>
-        </li>
-      </ul>
+      <section v-for="g in groups" :key="g.key" class="rc-group">
+        <p class="rc-group-head">
+          <span class="rc-badge" :class="{ bridge: g.badge === '过渡' }">{{ g.badge }}</span>
+          <b>{{ g.label }}</b>
+          <span class="rc-group-range">{{ g.from }} – {{ g.to }}</span>
+        </p>
+
+        <ul class="rc-list">
+          <li v-for="r in g.rows" :key="r.name" class="rc-row" :class="r.status">
+            <span class="rc-name">
+              {{ r.name }}
+              <em>{{ r.suffix }}</em>
+            </span>
+            <span class="rc-range">{{ r.from }} – {{ r.to }}</span>
+            <span class="rc-step">
+              {{ r.perLevel }}
+              <i>{{ r.unit }}</i>
+            </span>
+            <span class="rc-state">
+              <template v-if="r.status === 'current'">
+                <b>第 {{ r.level }} {{ r.unit }}</b>
+                <span class="rc-mini">
+                  <span class="rc-mini-fill" :style="{ width: Math.round(r.progress * 100) + '%' }"></span>
+                </span>
+              </template>
+              <template v-else-if="r.status === 'done'">已渡</template>
+              <template v-else>未至</template>
+            </span>
+          </li>
+        </ul>
+
+        <p class="rc-group-note">{{ g.note }}</p>
+      </section>
 
       <p class="rc-note">
-        修为累至区间上限即破境，每境十重。
+        修为累至区间上限即破境：凝气十五层、踏天九桥，余者各十重。
         <template v-if="next">
-          当前距 {{ next.name }}境圆满尚需 <b>{{ next.need }}</b> 修为。
+          当前距 {{ next.name }}{{ next.suffix }}圆满尚需 <b>{{ next.need }}</b> 修为。
         </template>
-        <template v-else>已臻渡劫圆满 · 九境共需 {{ TOTAL }} 修为，仙途无涯。</template>
+        <template v-else>已踏完第九桥 · 四大步共需 {{ TOTAL }} 修为，逆天之路至此超脱。</template>
       </p>
     </div>
   </div>
@@ -62,7 +74,14 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { realm, realmTable, nextRealm, REALM_TOTAL } from '../composables/useCave.js'
+import {
+  realm,
+  realmTable,
+  nextRealm,
+  REALM_TOTAL,
+  REALM_COUNT,
+  STEPS
+} from '../composables/useCave.js'
 
 const props = defineProps({
   defaultOpen: { type: Boolean, default: false }
@@ -73,6 +92,21 @@ const rows = computed(() => realmTable.value)
 const now = computed(() => realm.value)
 const next = computed(() => nextRealm.value)
 const TOTAL = REALM_TOTAL
+const count = REALM_COUNT
+
+/** 按四大步分组（阴虚阳实单独作过渡组） */
+const groups = computed(() =>
+  STEPS.map((s) => {
+    const list = rows.value.filter((r) => r.step === s.key)
+    if (!list.length) return null
+    return {
+      ...s,
+      rows: list,
+      from: list[0].from,
+      to: list[list.length - 1].to
+    }
+  }).filter(Boolean)
+)
 </script>
 
 <style scoped>
@@ -207,18 +241,72 @@ const TOTAL = REALM_TOTAL
 .rc-head-row,
 .rc-row {
   display: grid;
-  grid-template-columns: minmax(96px, 1fr) minmax(112px, 1.12fr) minmax(68px, 0.78fr) minmax(106px, 1.05fr);
+  grid-template-columns: minmax(88px, 0.92fr) minmax(112px, 1.1fr) minmax(84px, 0.82fr) minmax(104px, 1fr);
   align-items: center;
   gap: 8px;
 }
 
 .rc-head-row {
-  padding: 10px 12px 9px;
+  padding: 8px 12px 9px;
   font-size: 11px;
   letter-spacing: 3px;
   color: rgba(233, 238, 251, 0.34);
 }
 
+/* ================= 分组 ================= */
+.rc-group {
+  margin-top: 10px;
+}
+
+.rc-group-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px 6px;
+}
+
+.rc-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  background: rgba(232, 198, 107, 0.1);
+  border: 1px solid rgba(232, 198, 107, 0.32);
+}
+
+.rc-badge.bridge {
+  color: rgba(233, 238, 251, 0.55);
+  background: rgba(160, 190, 230, 0.07);
+  border-color: rgba(160, 190, 230, 0.28);
+}
+
+.rc-group-head b {
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  color: rgba(233, 238, 251, 0.82);
+}
+
+.rc-group-range {
+  margin-left: auto;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+  color: rgba(233, 238, 251, 0.28);
+}
+
+.rc-group-note {
+  padding: 2px 12px 4px 12px;
+  font-size: 11px;
+  line-height: 1.7;
+  letter-spacing: 0.5px;
+  color: rgba(233, 238, 251, 0.28);
+}
+
+/* ================= 行 ================= */
 .rc-list {
   list-style: none;
   display: flex;
@@ -283,7 +371,7 @@ const TOTAL = REALM_TOTAL
 .rc-name {
   display: flex;
   align-items: baseline;
-  gap: 7px;
+  gap: 3px;
   font-family: 'Ma Shan Zheng', serif;
   font-size: 18px;
   letter-spacing: 2px;
@@ -296,19 +384,11 @@ const TOTAL = REALM_TOTAL
   text-shadow: 0 0 16px rgba(232, 198, 107, 0.55);
 }
 
-.rc-idx {
-  font-family: 'ZCOOL XiaoWei', serif;
-  font-style: normal;
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: rgba(233, 238, 251, 0.26);
-}
-
 .rc-name em {
-  font-size: 12px;
+  font-size: 11px;
   font-style: normal;
   letter-spacing: 0;
-  opacity: 0.6;
+  opacity: 0.55;
 }
 
 .rc-range {
@@ -321,6 +401,12 @@ const TOTAL = REALM_TOTAL
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
   color: rgba(233, 238, 251, 0.45);
+}
+
+.rc-step i {
+  font-style: normal;
+  font-size: 10.5px;
+  opacity: 0.6;
 }
 
 .rc-row.current .rc-step {
@@ -363,7 +449,7 @@ const TOTAL = REALM_TOTAL
 }
 
 .rc-note {
-  margin-top: 12px;
+  margin-top: 14px;
   padding: 11px 14px;
   border-radius: 10px;
   font-size: 11.5px;
@@ -395,7 +481,7 @@ const TOTAL = REALM_TOTAL
   }
   .rc-head-row,
   .rc-row {
-    grid-template-columns: minmax(78px, 1fr) minmax(96px, 1.05fr) minmax(84px, 0.95fr);
+    grid-template-columns: minmax(74px, 0.9fr) minmax(94px, 1.05fr) minmax(84px, 0.95fr);
   }
   .rc-head-row span:nth-child(3),
   .rc-row .rc-step {
@@ -407,7 +493,7 @@ const TOTAL = REALM_TOTAL
   .rc-row.current .rc-name {
     font-size: 18px;
   }
-  .rc-idx {
+  .rc-group-range {
     display: none;
   }
 }

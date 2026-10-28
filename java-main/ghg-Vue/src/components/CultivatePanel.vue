@@ -18,14 +18,14 @@
     <div class="cv-panel cv-status">
       <div class="st-realm">
         <p class="st-label">当前境界</p>
-        <p class="st-name">{{ realm.name }}境</p>
-        <p class="st-level">第 {{ realm.level }} 重</p>
+        <p class="st-name">{{ realm.name }}{{ realm.suffix }}</p>
+        <p class="st-level">第 {{ realm.level }} {{ realm.unit }}</p>
       </div>
 
       <div class="st-mid">
         <div class="st-bar"><i :style="{ width: pct + '%' }"></i></div>
         <p class="st-tip">
-          <span>{{ next ? `距 ${next.name}境圆满还需 ${next.need} 修为` : '已臻渡劫巅峰 · 仙途无极' }}</span>
+          <span>{{ next ? `距 ${next.name}${next.suffix}圆满还需 ${next.need} 修为` : '已踏完第九桥 · 逆天超脱' }}</span>
         </p>
         <p class="st-today">
           今日修炼 <b>{{ cave.trainExp }}</b> / {{ TRAIN_LIMIT }}　·　尚余 <b>{{ remaining }}</b>
@@ -152,7 +152,8 @@
         </div>
         <p v-if="result.capped" class="gr-warn">今日修炼已至上限，所得不再累加，待明日再续</p>
         <p v-if="result.levelUp" class="gr-up">
-          ✦ 境界精进 · {{ result.realm.name }}境 第 {{ result.realm.level }} 重 ✦
+          ✦ 境界精进 · {{ result.realm.name }}{{ result.realm.suffix }} 第 {{ result.realm.level }}
+          {{ result.realm.unit }} ✦
         </p>
         <div class="gr-acts">
           <button class="g-btn" @click="restart">再试一次</button>

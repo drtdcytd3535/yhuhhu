@@ -5,17 +5,45 @@ import { reactive, computed } from 'vue'
  * 状态保存在内存（reactive），数据按道号持久化到 localStorage
  * ============================================================= */
 
-/** 境界表：累计修为（exp）逐级推进 */
+/**
+ * 仙逆境界表（依原著四大步序列）
+ * - segs：该境内的层次数（凝气十五层、踏天九桥，其余十重）
+ * - span：该境所需修为
+ * - unit：重数单位；suffix：境界后缀（前期称"期"，第二步起称"境"）
+ * - step：所属大阶段，用于境界表分组
+ */
 const REALMS = [
-  { name: '炼气', span: 100 },
-  { name: '筑基', span: 300 },
-  { name: '结丹', span: 700 },
-  { name: '元婴', span: 1500 },
-  { name: '化神', span: 3000 },
-  { name: '炼虚', span: 6000 },
-  { name: '合体', span: 12000 },
-  { name: '大乘', span: 25000 },
-  { name: '渡劫', span: 50000 }
+  // 第一步 · 凡蜕问道
+  { name: '凝气', suffix: '期', unit: '层', segs: 15, span: 150, step: 'first' },
+  { name: '筑基', suffix: '期', unit: '重', segs: 10, span: 160, step: 'first' },
+  { name: '结丹', suffix: '期', unit: '重', segs: 10, span: 260, step: 'first' },
+  { name: '元婴', suffix: '期', unit: '重', segs: 10, span: 420, step: 'first' },
+  { name: '化神', suffix: '期', unit: '重', segs: 10, span: 680, step: 'first' },
+  { name: '婴变', suffix: '期', unit: '重', segs: 10, span: 1100, step: 'first' },
+  { name: '问鼎', suffix: '期', unit: '重', segs: 10, span: 1800, step: 'first' },
+  // 过渡 · 阴虚阳实
+  { name: '阴虚', suffix: '期', unit: '重', segs: 10, span: 900, step: 'bridge1' },
+  { name: '阳实', suffix: '期', unit: '重', segs: 10, span: 900, step: 'bridge1' },
+  // 第二步 · 规则掌控
+  { name: '窥涅', suffix: '境', unit: '重', segs: 10, span: 2600, step: 'second' },
+  { name: '净涅', suffix: '境', unit: '重', segs: 10, span: 3800, step: 'second' },
+  { name: '碎涅', suffix: '境', unit: '重', segs: 10, span: 5200, step: 'second' },
+  // 第三步 · 本源超脱
+  { name: '空涅', suffix: '境', unit: '重', segs: 10, span: 7000, step: 'third' },
+  { name: '空灵', suffix: '境', unit: '重', segs: 10, span: 9500, step: 'third' },
+  { name: '空玄', suffix: '境', unit: '重', segs: 10, span: 13000, step: 'third' },
+  { name: '空劫', suffix: '境', unit: '重', segs: 10, span: 18000, step: 'third' },
+  // 第四步 · 踏天超脱
+  { name: '踏天', suffix: '境', unit: '桥', segs: 9, span: 27000, step: 'fourth' }
+]
+
+/** 大阶段命名与说明，供境界表分组展示 */
+export const STEPS = [
+  { key: 'first', badge: '第一步', label: '凡蜕问道', note: '引气入体至问鼎，凡躯蜕为仙体' },
+  { key: 'bridge1', badge: '过渡', label: '阴虚阳实', note: '元神吐纳元力、化元完成，方入第二步' },
+  { key: 'second', badge: '第二步', label: '规则掌控', note: '窥涅天仙 · 净涅仙王 · 碎涅仙君，碎涅圆满需渡天人五衰' },
+  { key: 'third', badge: '第三步', label: '本源超脱', note: '空涅仙帝至空劫大天尊，言出法随，需渡九次玄劫' },
+  { key: 'fourth', badge: '第四步', label: '踏天超脱', note: '踏天九桥，一步一桥，明悟轮回真我' }
 ]
 
 /** 收录藏书阁一次的修为 */
@@ -45,18 +73,19 @@ export const cave = reactive({
   trainExp: 0    // 当日修炼（小游戏）已得修为
 })
 
-/** 当前境界：{ name, level }，level 1~10 重 */
+/** 当前境界：{ name, suffix, unit, level }，level 1~segs（凝气十五层、踏天九桥、其余十重） */
 export const realm = computed(() => {
   let base = 0
   for (const r of REALMS) {
     if (cave.exp < base + r.span) {
       const ratio = (cave.exp - base) / r.span
-      const level = Math.min(10, Math.floor(ratio * 10) + 1)
-      return { name: r.name, level }
+      const level = Math.min(r.segs, Math.floor(ratio * r.segs) + 1)
+      return { name: r.name, suffix: r.suffix, unit: r.unit, level, segs: r.segs }
     }
     base += r.span
   }
-  return { name: '渡劫', level: 10 }
+  const last = REALMS[REALMS.length - 1]
+  return { name: last.name, suffix: last.suffix, unit: last.unit, level: last.segs, segs: last.segs }
 })
 
 /** 当前境界内进度 0~1（用于修为条宽度） */
@@ -69,12 +98,17 @@ export const realmProgress = computed(() => {
   return 1
 })
 
-/** 距下一境圆满所需修为：{ name, need }；渡劫圆满后为 null */
+/** 距下一境圆满所需修为：{ name, need }；踏天九桥圆满后为 null */
 export const nextRealm = computed(() => {
   let base = 0
   for (const r of REALMS) {
     if (cave.exp < base + r.span) {
-      return { name: r.name, need: base + r.span - cave.exp }
+      return {
+        name: r.name,
+        suffix: r.suffix,
+        unit: r.unit,
+        need: base + r.span - cave.exp
+      }
     }
     base += r.span
   }
@@ -82,7 +116,7 @@ export const nextRealm = computed(() => {
 })
 
 /**
- * 九境阶序总览：每境的修为区间、每重所需、当前所处位置
+ * 境界阶序总览：每境的修为区间、每重所需、当前所处位置
  * status: 'done' 已渡 / 'current' 当前所在 / 'future' 未至
  */
 export const realmTable = computed(() => {
@@ -96,12 +130,16 @@ export const realmTable = computed(() => {
     const done = !isCurrent && cave.exp >= to
     rows.push({
       name: r.name,
+      suffix: r.suffix,
+      unit: r.unit,
+      segs: r.segs,
+      step: r.step,
       from,
       to,
       span: r.span,
-      perLevel: Math.round(r.span / 10),
+      perLevel: Math.round(r.span / r.segs),
       status: isCurrent ? 'current' : done ? 'done' : 'future',
-      level: isCurrent ? at.level : done ? 10 : 0,
+      level: isCurrent ? at.level : done ? r.segs : 0,
       progress: isCurrent
         ? Math.min(1, Math.max(0, (cave.exp - from) / r.span))
         : done
@@ -115,6 +153,9 @@ export const realmTable = computed(() => {
 
 /** 九境圆满所需累计修为 */
 export const REALM_TOTAL = REALMS.reduce((s, r) => s + r.span, 0)
+
+/** 境界总数 */
+export const REALM_COUNT = REALMS.length
 
 /** 今日日期 yyyy-mm-dd */
 function today() {
@@ -303,9 +344,9 @@ export function addTrainExp(amount) {
     levelUp,
     realm: after,
     msg: brokeThrough
-      ? `修为 +${real} · 破境至${after.name}第 ${after.level} 重`
+      ? `修为 +${real} · 破境至${after.name}${after.suffix}第 ${after.level} ${after.unit}`
       : levelUp
-        ? `修为 +${real} · ${after.name}境第 ${after.level} 重`
+        ? `修为 +${real} · ${after.name}${after.suffix}第 ${after.level} ${after.unit}`
         : `修为 +${real}`
   }
 }

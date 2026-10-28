@@ -18,8 +18,8 @@
     <div class="cave-panel culti">
       <div class="culti-left">
         <p class="culti-label">当前境界</p>
-        <p class="culti-realm">{{ realm.name }}境</p>
-        <p class="culti-level">第 {{ realm.level }} 重</p>
+        <p class="culti-realm">{{ realm.name }}{{ realm.suffix }}</p>
+        <p class="culti-level">第 {{ realm.level }} {{ realm.unit }}</p>
       </div>
 
       <div class="culti-mid">
@@ -27,7 +27,7 @@
           <i :style="{ width: progressPct + '%' }"></i>
         </div>
         <p class="culti-tip">
-          {{ next ? `距 ${next.name}境圆满还需 ${next.need} 修为` : '已臻渡劫巅峰 · 仙途无极' }}
+          {{ next ? `距 ${next.name}${next.suffix}圆满还需 ${next.need} 修为` : '已踏完第九桥 · 逆天超脱' }}
         </p>
       </div>
 
