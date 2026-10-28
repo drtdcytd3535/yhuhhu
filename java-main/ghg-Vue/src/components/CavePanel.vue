@@ -41,6 +41,9 @@
       </button>
     </div>
 
+    <!-- ================= 境界总览 ================= -->
+    <RealmTable class="cave-realm" />
+
     <!-- ================= 藏书阁 ================= -->
     <div class="cave-panel">
       <div class="panel-head">
@@ -82,6 +85,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import RealmTable from './RealmTable.vue'
 import {
   cave,
   realm,

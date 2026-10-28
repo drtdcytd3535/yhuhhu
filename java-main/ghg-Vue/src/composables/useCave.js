@@ -81,6 +81,41 @@ export const nextRealm = computed(() => {
   return null
 })
 
+/**
+ * 九境阶序总览：每境的修为区间、每重所需、当前所处位置
+ * status: 'done' 已渡 / 'current' 当前所在 / 'future' 未至
+ */
+export const realmTable = computed(() => {
+  const at = realm.value
+  const rows = []
+  let base = 0
+  for (const r of REALMS) {
+    const from = base
+    const to = base + r.span
+    const isCurrent = r.name === at.name
+    const done = !isCurrent && cave.exp >= to
+    rows.push({
+      name: r.name,
+      from,
+      to,
+      span: r.span,
+      perLevel: Math.round(r.span / 10),
+      status: isCurrent ? 'current' : done ? 'done' : 'future',
+      level: isCurrent ? at.level : done ? 10 : 0,
+      progress: isCurrent
+        ? Math.min(1, Math.max(0, (cave.exp - from) / r.span))
+        : done
+          ? 1
+          : 0
+    })
+    base = to
+  }
+  return rows
+})
+
+/** 九境圆满所需累计修为 */
+export const REALM_TOTAL = REALMS.reduce((s, r) => s + r.span, 0)
+
 /** 今日日期 yyyy-mm-dd */
 function today() {
   const d = new Date()

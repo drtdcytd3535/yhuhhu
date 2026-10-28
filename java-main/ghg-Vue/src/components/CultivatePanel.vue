@@ -38,6 +38,9 @@
       </div>
     </div>
 
+    <!-- ================= 境界总览表 ================= -->
+    <RealmTable v-if="!game" class="cv-realm" :default-open="true" />
+
     <!-- ================= 法门选择 ================= -->
     <div v-if="!game" class="cv-games">
       <article v-for="g in games" :key="g.key" class="cv-game" @click="startGame(g.key)">
@@ -162,6 +165,7 @@
 
 <script setup>
 import { ref, reactive, computed, onBeforeUnmount } from 'vue'
+import RealmTable from './RealmTable.vue'
 import {
   cave,
   realm,
@@ -808,6 +812,12 @@ onBeforeUnmount(stopAll)
   font-size: 11px;
   letter-spacing: 3px;
   color: rgba(233, 238, 251, 0.42);
+}
+
+/* ================= 境界总览 ================= */
+.cv-realm {
+  display: block;
+  margin-bottom: 22px;
 }
 
 /* ================= 法门卡片 ================= */
