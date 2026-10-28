@@ -122,7 +122,7 @@ const username = ref('道友')
  * 仅 import.meta.env.DEV 生效，生产构建不受影响 */
 if (import.meta.env.DEV) {
   const preview = new URLSearchParams(location.search).get('preview')
-  if (preview === 'home' || preview === 'cave') {
+  if (preview === 'home' || preview === 'cave' || preview === 'train') {
     username.value = '预览道友'
     logged.value = true
   } else if (preview === 'admin') {

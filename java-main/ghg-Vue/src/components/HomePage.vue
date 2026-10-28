@@ -287,7 +287,14 @@
     </section>
     </template>
 
-    <!-- ================= 我的洞府 ================= -->
+    <!-- ================= 我的洞府 / 修炼 ================= -->
+    <CultivatePanel
+      v-else-if="view === 'train'"
+      :username="username"
+      @back="backHome"
+      @toast="toast"
+    />
+
     <CavePanel
       v-else
       :username="username"
@@ -340,6 +347,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import CavePanel from './CavePanel.vue'
+import CultivatePanel from './CultivatePanel.vue'
 import { cave, realm, initCave, resetCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
 
 const props = defineProps({
@@ -347,12 +355,20 @@ const props = defineProps({
 })
 const emit = defineEmits(['logout', 'admin'])
 
-/* ---------------- 视图：仙门首页 / 我的洞府 ---------------- */
+/* ---------------- 视图：仙门首页 / 修炼 / 我的洞府 ---------------- */
 const view = ref('home')
 
 function enterCave() {
   view.value = 'cave'
   activeMenu.value = 'mine'
+  userOpen.value = false
+  window.scrollTo({ top: 0 })
+}
+
+/** 修炼台：三课小游戏，所得修为直接入洞府账 */
+function enterTrain() {
+  view.value = 'train'
+  activeMenu.value = 'train'
   userOpen.value = false
   window.scrollTo({ top: 0 })
 }
@@ -373,6 +389,7 @@ const menus = [
   { key: 'pill', label: '丹阁', type: '丹药' },
   { key: 'cave', label: '洞天福地', type: '洞天' },
   { key: 'dao', label: '论道台', type: '论道' },
+  { key: 'train', label: '修炼' },
   { key: 'mine', label: '我的洞府' },
   { key: 'anime', label: '动漫', href: ANIME_URL }
 ]
@@ -389,6 +406,12 @@ function goMenu(m) {
   // 我的洞府：切到洞府视图
   if (m.key === 'mine') {
     enterCave()
+    return
+  }
+  // 修炼：切到修炼台
+  if (m.key === 'train') {
+    enterTrain()
+    toast('已入「修炼」 · 三课可修')
     return
   }
   if (m.key === 'home') {
@@ -688,9 +711,14 @@ onMounted(async () => {
   document.body.classList.add('page-scroll')
   // 开辟（或载入）此道号的洞府
   initCave(props.username)
-  // 开发态预览入口：?preview=cave 直达洞府，仅开发环境生效
-  if (import.meta.env.DEV && new URLSearchParams(location.search).get('preview') === 'cave') {
-    view.value = 'cave'
+  // 开发态预览入口：?preview=cave 直达洞府、?preview=train 直达修炼台，仅开发环境生效
+  if (import.meta.env.DEV) {
+    const preview = new URLSearchParams(location.search).get('preview')
+    if (preview === 'cave') view.value = 'cave'
+    if (preview === 'train') {
+      view.value = 'train'
+      activeMenu.value = 'train'
+    }
   }
   await Promise.all([loadHome(), loadHots()])
   toast(`✦ ${props.username} 道友，仙门已开 ✦`)

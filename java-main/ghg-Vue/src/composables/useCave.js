@@ -30,6 +30,8 @@ const SIGN_EXP = 10
 const FAVS_MAX = 50
 /** 足迹保留条数 */
 const HISTORY_MAX = 100
+/** 每日修炼（小游戏）可得修为上限 */
+export const TRAIN_LIMIT = 300
 
 /** 洞府全局状态 */
 export const cave = reactive({
@@ -38,7 +40,9 @@ export const cave = reactive({
   stones: 0,
   favs: [],      // 藏书阁：{ id, title, categoryPath, createdAt }
   history: [],   // 足迹：{ id, title, categoryPath, readAt }
-  signDate: ''   // 最近签到日期 yyyy-mm-dd
+  signDate: '',  // 最近签到日期 yyyy-mm-dd
+  trainDate: '', // 最近修炼日期 yyyy-mm-dd
+  trainExp: 0    // 当日修炼（小游戏）已得修为
 })
 
 /** 当前境界：{ name, level }，level 1~10 重 */
@@ -100,7 +104,9 @@ function persist() {
         stones: cave.stones,
         favs: cave.favs,
         history: cave.history,
-        signDate: cave.signDate
+        signDate: cave.signDate,
+        trainDate: cave.trainDate,
+        trainExp: cave.trainExp
       })
     )
   } catch {
@@ -119,12 +125,16 @@ export function initCave(username) {
     cave.favs = Array.isArray(saved?.favs) ? saved.favs : []
     cave.history = Array.isArray(saved?.history) ? saved.history : []
     cave.signDate = typeof saved?.signDate === 'string' ? saved.signDate : ''
+    cave.trainDate = typeof saved?.trainDate === 'string' ? saved.trainDate : ''
+    cave.trainExp = Number(saved?.trainExp) || 0
   } catch {
     cave.exp = 0
     cave.stones = 0
     cave.favs = []
     cave.history = []
     cave.signDate = ''
+    cave.trainDate = ''
+    cave.trainExp = 0
   }
 }
 
@@ -135,6 +145,8 @@ export function resetCave() {
   cave.favs = []
   cave.history = []
   cave.signDate = ''
+  cave.trainDate = ''
+  cave.trainExp = 0
   try {
     localStorage.removeItem(storageKey(cave.username))
   } catch {
@@ -200,4 +212,65 @@ export function sign() {
   cave.exp += SIGN_EXP
   persist()
   return { ok: true, stones: SIGN_STONES, exp: SIGN_EXP, msg: `签到成功 · 灵石 +${SIGN_STONES}` }
+}
+
+/* =============================================================
+ * 修炼 · 小游戏所得修为
+ * 每日上限 TRAIN_LIMIT，跨日自动重置当日计数
+ * ============================================================= */
+
+/** 今日修炼尚可得的修为 */
+export function trainRemaining() {
+  if (cave.trainDate !== today()) return TRAIN_LIMIT
+  return Math.max(0, TRAIN_LIMIT - cave.trainExp)
+}
+
+/**
+ * 修炼结算：按今日剩余额度入账
+ * @param {number} amount 本次应得修为
+ * @returns {{ok:boolean, exp:number, capped:boolean, left:number, levelUp:boolean, realm:object, msg:string}}
+ */
+export function addTrainExp(amount) {
+  const want = Math.max(0, Math.floor(Number(amount) || 0))
+  if (cave.trainDate !== today()) {
+    cave.trainDate = today()
+    cave.trainExp = 0
+  }
+  const left = Math.max(0, TRAIN_LIMIT - cave.trainExp)
+  const real = Math.min(want, left)
+
+  if (real <= 0) {
+    const capped = left <= 0
+    return {
+      ok: false,
+      exp: 0,
+      capped,
+      left,
+      levelUp: false,
+      realm: realm.value,
+      msg: capped ? '今日修炼已满，明日再续' : '此番未得修为，且再入定一试'
+    }
+  }
+
+  const before = realm.value
+  cave.exp += real
+  cave.trainExp += real
+  persist()
+  const after = realm.value
+  const brokeThrough = after.name !== before.name
+  const levelUp = brokeThrough || after.level !== before.level
+
+  return {
+    ok: true,
+    exp: real,
+    capped: real < want,
+    left: Math.max(0, TRAIN_LIMIT - cave.trainExp),
+    levelUp,
+    realm: after,
+    msg: brokeThrough
+      ? `修为 +${real} · 破境至${after.name}第 ${after.level} 重`
+      : levelUp
+        ? `修为 +${real} · ${after.name}境第 ${after.level} 重`
+        : `修为 +${real}`
+  }
 }
