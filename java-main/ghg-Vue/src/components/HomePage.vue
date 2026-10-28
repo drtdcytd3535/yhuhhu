@@ -348,7 +348,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import CavePanel from './CavePanel.vue'
 import CultivatePanel from './CultivatePanel.vue'
-import { cave, realm, initCave, resetCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
+import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
 
 const props = defineProps({
   username: { type: String, default: '道友' }
@@ -729,8 +729,8 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', onKeydown)
   clearTimeout(toastTimer)
   document.body.classList.remove('page-scroll')
-  // 登出后清空内存态，换号登录时不串数据
-  resetCave()
+  // 登出后仅清空内存态（数据库存档保留，换号登录不串数据）
+  clearCave()
 })
 </script>
 

@@ -10,7 +10,12 @@
       </button>
       <div class="cave-title">
         <h2>我的洞府</h2>
-        <p>{{ username }} · 洞天福地</p>
+        <p>
+          {{ username }} · 洞天福地
+          <span class="sync-tag" :class="{ ok: cave.synced }">
+            <i></i>{{ cave.synced ? '已存云端' : '离线暂存' }}
+          </span>
+        </p>
       </div>
     </div>
 
@@ -78,13 +83,18 @@
 
     <!-- ================= 底部：重置 ================= -->
     <div class="cave-foot">
-      <button class="cave-reset" @click="onReset">重置洞府 · 散去修为</button>
+      <button class="cave-reset" :class="{ armed: confirmReset }" @click="onReset">
+        {{ confirmReset ? '再点一次 · 确认散去（含云端存档）' : '重置洞府 · 散去修为' }}
+      </button>
+      <p class="cave-save-tip">
+        修为已随道号存于仙门玉册（数据库），换浏览器、清缓存后依旧还在。
+      </p>
     </div>
   </section>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onBeforeUnmount } from 'vue'
 import RealmTable from './RealmTable.vue'
 import {
   cave,
@@ -112,10 +122,25 @@ function onSign() {
   emit('toast', r.msg)
 }
 
+/* ---------------- 重置（二次确认，因会删除云端存档） ---------------- */
+const confirmReset = ref(false)
+let confirmTimer = null
+
 function onReset() {
+  if (!confirmReset.value) {
+    confirmReset.value = true
+    emit('toast', '再点一次，散去修为（云端存档一并删除）')
+    clearTimeout(confirmTimer)
+    confirmTimer = setTimeout(() => (confirmReset.value = false), 4000)
+    return
+  }
+  clearTimeout(confirmTimer)
+  confirmReset.value = false
   resetCave()
   emit('toast', '洞府已重置 · 重入仙途')
 }
+
+onBeforeUnmount(() => clearTimeout(confirmTimer))
 
 /* ---------------- 时间展示：MM-DD HH:mm ---------------- */
 function fmtTime(ts) {
@@ -187,6 +212,40 @@ function fmtTime(ts) {
   font-size: 13px;
   letter-spacing: 3px;
   color: rgba(233, 238, 251, 0.6);
+}
+
+/* 存档状态：已存云端 / 离线暂存 */
+.sync-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 20px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  vertical-align: 1px;
+  color: rgba(233, 238, 251, 0.5);
+  background: rgba(160, 190, 230, 0.08);
+  border: 1px solid rgba(160, 190, 230, 0.22);
+}
+
+.sync-tag i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(233, 238, 251, 0.4);
+}
+
+.sync-tag.ok {
+  color: rgba(111, 233, 255, 0.9);
+  background: rgba(111, 233, 255, 0.08);
+  border-color: rgba(111, 233, 255, 0.3);
+}
+
+.sync-tag.ok i {
+  background: var(--cyan);
+  box-shadow: 0 0 8px rgba(111, 233, 255, 0.9);
 }
 
 .cave-panel {
@@ -369,7 +428,15 @@ function fmtTime(ts) {
 /* 底部重置 */
 .cave-foot {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.cave-save-tip {
+  font-size: 11.5px;
+  letter-spacing: 1px;
+  color: rgba(233, 238, 251, 0.3);
 }
 
 .cave-reset {
@@ -388,5 +455,24 @@ function fmtTime(ts) {
 .cave-reset:hover {
   background: rgba(226, 75, 74, 0.22);
   color: #fff;
+}
+
+/* 二次确认态：更醒目，避免误删云端存档 */
+.cave-reset.armed {
+  background: rgba(226, 75, 74, 0.28);
+  border-color: rgba(226, 75, 74, 0.75);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(226, 75, 74, 0.35);
+  animation: resetPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes resetPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(226, 75, 74, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(226, 75, 74, 0.55);
+  }
 }
 </style>

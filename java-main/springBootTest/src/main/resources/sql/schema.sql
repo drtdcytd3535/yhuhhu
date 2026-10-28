@@ -195,3 +195,94 @@ CREATE TABLE IF NOT EXISTS t_admin (
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COMMENT = '后台管理员表';
+
+
+-- =============================================================
+-- 洞府存档表（修为 / 灵石 / 藏书阁 / 足迹 / 签到 / 每日修炼）
+-- 一个道号一条记录；前端 localStorage 只作离线缓存，本表为权威数据源
+-- client_time：客户端最后一次修改的毫秒时间戳，用于多端冲突合并
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_cave (
+  id           BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  username     VARCHAR(50)  NOT NULL                COMMENT '道号（唯一）',
+  exp          BIGINT       NOT NULL DEFAULT 0      COMMENT '累计修为',
+  stones       BIGINT       NOT NULL DEFAULT 0      COMMENT '灵石',
+  favs_json    TEXT                  DEFAULT NULL   COMMENT '藏书阁（JSON 数组）',
+  history_json TEXT                  DEFAULT NULL   COMMENT '研读足迹（JSON 数组）',
+  sign_date    VARCHAR(10)           DEFAULT ''     COMMENT '最近签到日期 yyyy-mm-dd',
+  train_date   VARCHAR(10)           DEFAULT ''     COMMENT '最近修炼日期 yyyy-mm-dd',
+  train_exp    INT          NOT NULL DEFAULT 0      COMMENT '当日修炼已得修为',
+  client_time  BIGINT       NOT NULL DEFAULT 0      COMMENT '客户端最后修改时间戳（毫秒）',
+  created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开辟时间',
+  updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_cave_username (username)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '洞府存档表';
+
+-- =============================================================
+-- 境界大阶段表（四大步 + 阴虚阳实过渡）
+-- 用于境界表分组展示，可后台调整文案
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_realm_stage (
+  id         BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  key_code   VARCHAR(20)  NOT NULL                COMMENT '阶段标识 first/bridge1/second/third/fourth',
+  badge      VARCHAR(10)  NOT NULL                COMMENT '角标（第一步/过渡…）',
+  label      VARCHAR(20)  NOT NULL                COMMENT '阶段名（凡蜕问道…）',
+  note       VARCHAR(200)          DEFAULT NULL   COMMENT '阶段说明',
+  sort_no    INT          NOT NULL DEFAULT 0      COMMENT '排序号',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_stage_key (key_code)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '境界大阶段表';
+
+-- =============================================================
+-- 境界配置表（《仙逆》四大步十七境）
+-- segs：该境内层次数（凝气十五层、踏天九桥，余者十重）
+-- span：该境所需修为；unit：重数单位；suffix：境界后缀
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_realm (
+  id         BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  name       VARCHAR(20)  NOT NULL                COMMENT '境界名（凝气/筑基…）',
+  suffix     VARCHAR(4)   NOT NULL DEFAULT '境'   COMMENT '后缀：期 / 境',
+  unit       VARCHAR(4)   NOT NULL DEFAULT '重'   COMMENT '层级单位：层 / 重 / 桥',
+  segs       INT          NOT NULL DEFAULT 10     COMMENT '境内层次数',
+  span       INT          NOT NULL                COMMENT '该境所需修为',
+  step_key   VARCHAR(20)  NOT NULL                COMMENT '所属阶段（t_realm_stage.key_code）',
+  sort_no    INT          NOT NULL DEFAULT 0      COMMENT '阶序',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_realm_name (name),
+  KEY idx_realm_sort (sort_no)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '境界配置表';
+
+-- ---------- 境界大阶段种子 ----------
+INSERT IGNORE INTO t_realm_stage (id, key_code, badge, label, note, sort_no) VALUES
+  (1, 'first',   '第一步', '凡蜕问道', '引气入体至问鼎，凡躯蜕为仙体', 1),
+  (2, 'bridge1', '过渡',   '阴虚阳实', '元神吐纳元力、化元完成，方入第二步', 2),
+  (3, 'second',  '第二步', '规则掌控', '窥涅天仙 · 净涅仙王 · 碎涅仙君，碎涅圆满需渡天人五衰', 3),
+  (4, 'third',   '第三步', '本源超脱', '空涅仙帝至空劫大天尊，言出法随，需渡九次玄劫', 4),
+  (5, 'fourth',  '第四步', '踏天超脱', '踏天九桥，一步一桥，明悟轮回真我', 5);
+
+-- ---------- 十七境种子（依原著四大步序列） ----------
+INSERT IGNORE INTO t_realm (id, name, suffix, unit, segs, span, step_key, sort_no) VALUES
+  (1,  '凝气', '期', '层', 15,   150, 'first',   1),
+  (2,  '筑基', '期', '重', 10,   160, 'first',   2),
+  (3,  '结丹', '期', '重', 10,   260, 'first',   3),
+  (4,  '元婴', '期', '重', 10,   420, 'first',   4),
+  (5,  '化神', '期', '重', 10,   680, 'first',   5),
+  (6,  '婴变', '期', '重', 10,  1100, 'first',   6),
+  (7,  '问鼎', '期', '重', 10,  1800, 'first',   7),
+  (8,  '阴虚', '期', '重', 10,   900, 'bridge1', 8),
+  (9,  '阳实', '期', '重', 10,   900, 'bridge1', 9),
+  (10, '窥涅', '境', '重', 10,  2600, 'second', 10),
+  (11, '净涅', '境', '重', 10,  3800, 'second', 11),
+  (12, '碎涅', '境', '重', 10,  5200, 'second', 12),
+  (13, '空涅', '境', '重', 10,  7000, 'third',  13),
+  (14, '空灵', '境', '重', 10,  9500, 'third',  14),
+  (15, '空玄', '境', '重', 10, 13000, 'third',  15),
+  (16, '空劫', '境', '重', 10, 18000, 'third',  16),
+  (17, '踏天', '境', '桥',  9, 27000, 'fourth', 17);

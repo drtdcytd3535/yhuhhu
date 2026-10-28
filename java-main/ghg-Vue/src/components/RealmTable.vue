@@ -96,7 +96,7 @@ const count = REALM_COUNT
 
 /** 按四大步分组（阴虚阳实单独作过渡组） */
 const groups = computed(() =>
-  STEPS.map((s) => {
+  STEPS.value.map((s) => {
     const list = rows.value.filter((r) => r.step === s.key)
     if (!list.length) return null
     return {

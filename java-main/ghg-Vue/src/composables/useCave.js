@@ -1,9 +1,19 @@
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
 
 /* =============================================================
- * 我的洞府 · 修为 / 灵石 / 藏书阁 / 足迹 / 签到
- * 状态保存在内存（reactive），数据按道号持久化到 localStorage
+ * 我的洞府 · 修为 / 灵石 / 藏书阁 / 足迹 / 签到 / 修炼
+ *
+ * 数据分层：
+ *   - 数据库 t_cave 为权威数据源（后端 /api/cave），换浏览器、清缓存都不丢
+ *   - localStorage 仅为离线缓存与首屏秒开，断网也能继续玩，联网后自动补传
+ *   - 境界配置取自 t_realm / t_realm_stage（/api/realms），取不到时用内置兜底
  * ============================================================= */
+
+/* ==================== 接口地址 ==================== */
+const API_CAVE = '/api/cave'
+const API_REALMS = '/api/realms'
+
+/* ==================== 内置境界配置（兜底） ==================== */
 
 /**
  * 仙逆境界表（依原著四大步序列）
@@ -12,7 +22,7 @@ import { reactive, computed } from 'vue'
  * - unit：重数单位；suffix：境界后缀（前期称"期"，第二步起称"境"）
  * - step：所属大阶段，用于境界表分组
  */
-const REALMS = [
+const DEFAULT_REALMS = [
   // 第一步 · 凡蜕问道
   { name: '凝气', suffix: '期', unit: '层', segs: 15, span: 150, step: 'first' },
   { name: '筑基', suffix: '期', unit: '重', segs: 10, span: 160, step: 'first' },
@@ -38,7 +48,7 @@ const REALMS = [
 ]
 
 /** 大阶段命名与说明，供境界表分组展示 */
-export const STEPS = [
+const DEFAULT_STEPS = [
   { key: 'first', badge: '第一步', label: '凡蜕问道', note: '引气入体至问鼎，凡躯蜕为仙体' },
   { key: 'bridge1', badge: '过渡', label: '阴虚阳实', note: '元神吐纳元力、化元完成，方入第二步' },
   { key: 'second', badge: '第二步', label: '规则掌控', note: '窥涅天仙 · 净涅仙王 · 碎涅仙君，碎涅圆满需渡天人五衰' },
@@ -46,6 +56,14 @@ export const STEPS = [
   { key: 'fourth', badge: '第四步', label: '踏天超脱', note: '踏天九桥，一步一桥，明悟轮回真我' }
 ]
 
+/** 当前生效的境界配置（数据库加载后覆盖内置值） */
+export const realms = ref(DEFAULT_REALMS)
+/** 当前生效的大阶段配置 */
+export const STEPS = ref(DEFAULT_STEPS)
+/** 境界配置来源：'db' 数据库 / 'builtin' 内置兜底 */
+export const realmSource = ref('builtin')
+
+/* ==================== 数值规则 ==================== */
 /** 收录藏书阁一次的修为 */
 const FAV_EXP = 20
 /** 首次研读一次的修为 */
@@ -60,6 +78,8 @@ const FAVS_MAX = 50
 const HISTORY_MAX = 100
 /** 每日修炼（小游戏）可得修为上限 */
 export const TRAIN_LIMIT = 300
+/** 写入数据库的防抖间隔（毫秒） */
+const PUSH_DELAY = 400
 
 /** 洞府全局状态 */
 export const cave = reactive({
@@ -70,13 +90,17 @@ export const cave = reactive({
   history: [],   // 足迹：{ id, title, categoryPath, readAt }
   signDate: '',  // 最近签到日期 yyyy-mm-dd
   trainDate: '', // 最近修炼日期 yyyy-mm-dd
-  trainExp: 0    // 当日修炼（小游戏）已得修为
+  trainExp: 0,   // 当日修炼（小游戏）已得修为
+  savedAt: 0,    // 最后修改时间戳（毫秒），用于与数据库比对新旧
+  synced: false, // 是否已与数据库同步过
+  cloud: false   // true 本轮数据来自云端
 })
 
-/** 当前境界：{ name, suffix, unit, level }，level 1~segs（凝气十五层、踏天九桥、其余十重） */
+/** 当前境界：{ name, suffix, unit, level, segs } */
 export const realm = computed(() => {
+  const list = realms.value
   let base = 0
-  for (const r of REALMS) {
+  for (const r of list) {
     if (cave.exp < base + r.span) {
       const ratio = (cave.exp - base) / r.span
       const level = Math.min(r.segs, Math.floor(ratio * r.segs) + 1)
@@ -84,14 +108,14 @@ export const realm = computed(() => {
     }
     base += r.span
   }
-  const last = REALMS[REALMS.length - 1]
+  const last = list[list.length - 1] || DEFAULT_REALMS[DEFAULT_REALMS.length - 1]
   return { name: last.name, suffix: last.suffix, unit: last.unit, level: last.segs, segs: last.segs }
 })
 
 /** 当前境界内进度 0~1（用于修为条宽度） */
 export const realmProgress = computed(() => {
   let base = 0
-  for (const r of REALMS) {
+  for (const r of realms.value) {
     if (cave.exp < base + r.span) return (cave.exp - base) / r.span
     base += r.span
   }
@@ -101,7 +125,7 @@ export const realmProgress = computed(() => {
 /** 距下一境圆满所需修为：{ name, need }；踏天九桥圆满后为 null */
 export const nextRealm = computed(() => {
   let base = 0
-  for (const r of REALMS) {
+  for (const r of realms.value) {
     if (cave.exp < base + r.span) {
       return {
         name: r.name,
@@ -123,7 +147,7 @@ export const realmTable = computed(() => {
   const at = realm.value
   const rows = []
   let base = 0
-  for (const r of REALMS) {
+  for (const r of realms.value) {
     const from = base
     const to = base + r.span
     const isCurrent = r.name === at.name
@@ -151,11 +175,13 @@ export const realmTable = computed(() => {
   return rows
 })
 
-/** 九境圆满所需累计修为 */
-export const REALM_TOTAL = REALMS.reduce((s, r) => s + r.span, 0)
+/** 十七境圆满所需累计修为 */
+export const REALM_TOTAL = computed(() => realms.value.reduce((s, r) => s + r.span, 0))
 
 /** 境界总数 */
-export const REALM_COUNT = REALMS.length
+export const REALM_COUNT = computed(() => realms.value.length)
+
+/* ==================== 工具 ==================== */
 
 /** 今日日期 yyyy-mm-dd */
 function today() {
@@ -165,57 +191,217 @@ function today() {
   return `${d.getFullYear()}-${m}-${day}`
 }
 
-/** 某道号的洞府存储键 */
+/** 某道号的本地缓存键 */
 function storageKey(name) {
   return `xianni_cave_${name || 'guest'}`
 }
 
-/** 持久化当前洞府 */
-function persist() {
+/** 当前存档快照（用于本地缓存与提交数据库） */
+function snapshot() {
+  return {
+    username: cave.username,
+    exp: cave.exp,
+    stones: cave.stones,
+    favs: cave.favs,
+    history: cave.history,
+    signDate: cave.signDate,
+    trainDate: cave.trainDate,
+    trainExp: cave.trainExp,
+    savedAt: cave.savedAt
+  }
+}
+
+/** 把一份存档写进内存状态 */
+function applyState(s) {
+  if (!s) return
+  cave.exp = Number(s.exp) || 0
+  cave.stones = Number(s.stones) || 0
+  cave.favs = Array.isArray(s.favs) ? s.favs : []
+  cave.history = Array.isArray(s.history) ? s.history : []
+  cave.signDate = typeof s.signDate === 'string' ? s.signDate : ''
+  cave.trainDate = typeof s.trainDate === 'string' ? s.trainDate : ''
+  cave.trainExp = Number(s.trainExp) || 0
+  cave.savedAt = Number(s.savedAt) || 0
+}
+
+/** 本地是否有值得保留的数据（用于判断是否要迁到数据库） */
+function hasLocalData() {
+  return (
+    cave.exp > 0 ||
+    cave.stones > 0 ||
+    cave.favs.length > 0 ||
+    cave.history.length > 0 ||
+    !!cave.signDate
+  )
+}
+
+/** 写本地缓存（离线可用） */
+function writeLocal() {
   try {
-    localStorage.setItem(
-      storageKey(cave.username),
-      JSON.stringify({
-        exp: cave.exp,
-        stones: cave.stones,
-        favs: cave.favs,
-        history: cave.history,
-        signDate: cave.signDate,
-        trainDate: cave.trainDate,
-        trainExp: cave.trainExp
-      })
-    )
+    localStorage.setItem(storageKey(cave.username), JSON.stringify(snapshot()))
   } catch {
     /* 隐私模式忽略 */
   }
 }
 
-/** 载入（或开辟）某道号的洞府 */
-export function initCave(username) {
-  cave.username = username || '道友'
+/** 读本地缓存；旧版本数据无 savedAt，视为待迁移 */
+function readLocal() {
   try {
     const raw = localStorage.getItem(storageKey(cave.username))
     const saved = raw ? JSON.parse(raw) : null
-    cave.exp = Number(saved?.exp) || 0
-    cave.stones = Number(saved?.stones) || 0
-    cave.favs = Array.isArray(saved?.favs) ? saved.favs : []
-    cave.history = Array.isArray(saved?.history) ? saved.history : []
-    cave.signDate = typeof saved?.signDate === 'string' ? saved.signDate : ''
-    cave.trainDate = typeof saved?.trainDate === 'string' ? saved.trainDate : ''
-    cave.trainExp = Number(saved?.trainExp) || 0
+    if (!saved) return null
+    applyState(saved)
+    return saved
   } catch {
-    cave.exp = 0
-    cave.stones = 0
-    cave.favs = []
-    cave.history = []
-    cave.signDate = ''
-    cave.trainDate = ''
-    cave.trainExp = 0
+    return null
   }
 }
 
-/** 重置洞府：清空内存与本地存储 */
-export function resetCave() {
+/* ==================== 数据库同步 ==================== */
+
+let pushTimer = null
+let pushing = false
+let pushAgain = false
+
+/** 防抖推送：本地改完稍等片刻再落库，避免连点刷库 */
+function schedulePush() {
+  if (typeof fetch !== 'function') return
+  clearTimeout(pushTimer)
+  pushTimer = setTimeout(() => pushToServer(), PUSH_DELAY)
+}
+
+/** 立即把当前存档写入数据库；失败则静默重试于下次改动 */
+async function pushToServer(force = false) {
+  if (typeof fetch !== 'function') return
+  if (pushing) {
+    pushAgain = true
+    return
+  }
+  if (force) cave.savedAt = Date.now()
+  const at = cave.savedAt
+  const name = cave.username
+  pushing = true
+  try {
+    const res = await fetch(`${API_CAVE}/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(snapshot())
+    })
+    const json = await res.json().catch(() => null)
+    if (json?.success) {
+      cave.synced = true
+      const r = json.data
+      // 云端记录更新（例如另开过页面）：以云端为准，避免互相覆盖
+      if (r?.newer && r.state && Number(r.state.savedAt || 0) > at && name === cave.username) {
+        applyState(r.state)
+        writeLocal()
+      }
+    } else {
+      cave.synced = false
+    }
+  } catch {
+    cave.synced = false
+  } finally {
+    pushing = false
+    if (pushAgain) {
+      pushAgain = false
+      schedulePush()
+    }
+  }
+}
+
+/** 从数据库拉取存档并按新旧合并 */
+async function pullFromServer() {
+  if (typeof fetch !== 'function') return
+  const name = cave.username
+  try {
+    const res = await fetch(`${API_CAVE}?username=${encodeURIComponent(name)}`)
+    const json = await res.json().catch(() => null)
+    if (!json?.success || name !== cave.username) return
+    const remote = json.data?.state || null
+    const remoteTime = Number(remote?.savedAt || 0)
+    const localTime = Number(cave.savedAt || 0)
+
+    if (!remote) {
+      // 库里没有：把本地已有数据（旧版本存档）迁进去，下次打开直接读库
+      if (hasLocalData()) await pushToServer(true)
+      return
+    }
+    if (remoteTime > localTime) {
+      // 云端更新：采用云端
+      applyState(remote)
+      cave.cloud = true
+      writeLocal()
+    } else if (localTime > remoteTime) {
+      // 本地更新：上传覆盖
+      await pushToServer()
+    } else if (hasLocalData() && Number(cave.exp) > Number(remote.exp)) {
+      // 时间戳相同（旧数据无时间戳）：修为更高者为准
+      await pushToServer(true)
+    } else {
+      applyState(remote)
+      cave.cloud = true
+      writeLocal()
+    }
+    cave.synced = true
+  } catch {
+    cave.synced = false
+  }
+}
+
+/** 从数据库加载境界配置；失败则沿用内置配置 */
+export async function loadRealms() {
+  if (typeof fetch !== 'function') return
+  try {
+    const res = await fetch(API_REALMS)
+    const json = await res.json().catch(() => null)
+    const d = json?.data
+    if (json?.success && Array.isArray(d?.realms) && d.realms.length) {
+      realms.value = d.realms.map((r) => ({
+        name: r.name,
+        suffix: r.suffix || '境',
+        unit: r.unit || '重',
+        segs: Number(r.segs) || 10,
+        span: Number(r.span) || 0,
+        step: r.step || 'first'
+      }))
+      if (Array.isArray(d.stages) && d.stages.length) STEPS.value = d.stages
+      realmSource.value = 'db'
+    }
+  } catch {
+    /* 后端未启动：沿用内置配置 */
+  }
+}
+
+/* ==================== 持久化入口 ==================== */
+
+/** 持久化：先落本地缓存（立刻生效），再防抖推数据库 */
+function persist() {
+  cave.savedAt = Date.now()
+  writeLocal()
+  schedulePush()
+}
+
+/**
+ * 开辟（或载入）某道号的洞府
+ * 同步先读本地缓存避免白屏，随后异步与数据库合并
+ */
+export async function initCave(username) {
+  cave.username = username || '道友'
+  cave.cloud = false
+  readLocal()
+  await Promise.all([loadRealms(), pullFromServer()])
+}
+
+/**
+ * 离开洞府（登出 / 换号）：仅清空内存与本地缓存
+ * 数据库存档保留，下次同名道号登录仍能读回
+ */
+export function clearCave() {
+  clearTimeout(pushTimer)
+  // 还有未落库的改动：立刻提交（pushToServer 在首个 await 前已取好快照）
+  if (cave.savedAt > 0 && hasLocalData()) pushToServer()
+  pushAgain = false
   cave.exp = 0
   cave.stones = 0
   cave.favs = []
@@ -223,12 +409,39 @@ export function resetCave() {
   cave.signDate = ''
   cave.trainDate = ''
   cave.trainExp = 0
+  cave.savedAt = 0
+  cave.synced = false
+  cave.cloud = false
+}
+
+/** 重置洞府：清空内存、本地缓存，并删除数据库存档（不可恢复） */
+export async function resetCave() {
+  clearTimeout(pushTimer)
+  pushAgain = false
+  const name = cave.username
+  cave.exp = 0
+  cave.stones = 0
+  cave.favs = []
+  cave.history = []
+  cave.signDate = ''
+  cave.trainDate = ''
+  cave.trainExp = 0
+  cave.savedAt = 0
   try {
-    localStorage.removeItem(storageKey(cave.username))
+    localStorage.removeItem(storageKey(name))
   } catch {
     /* 忽略 */
   }
+  if (typeof fetch === 'function') {
+    try {
+      await fetch(`${API_CAVE}?username=${encodeURIComponent(name)}`, { method: 'DELETE' })
+    } catch {
+      /* 断网时本地已清空，下次改动会重新写库 */
+    }
+  }
 }
+
+/* ==================== 藏书阁 / 足迹 ==================== */
 
 /** 是否已收录某内容 */
 export function isFav(id) {
@@ -272,6 +485,8 @@ export function pushHistory(item) {
   persist()
   return { first: true, exp: HISTORY_EXP, msg: '首次研读' }
 }
+
+/* ==================== 签到 ==================== */
 
 /** 今日是否已签到 */
 export function isSignedToday() {
