@@ -262,11 +262,22 @@ const categoryOptions = computed(() => {
 })
 
 /* ---------------- 请求封装 ---------------- */
+/* 登录态被服务端判定失效时，只弹一次提示并退回后台登录页 */
+let kicked = false
+
 async function api(url, options) {
   try {
     const res = await fetch(url, options)
     const body = await res.json()
     if (body.success) return body.data
+    if (body.message && body.message.includes('尚未登入执事堂')) {
+      if (!kicked) {
+        kicked = true
+        toast('登录态已失效，请重新验印')
+        setTimeout(() => emit('logout'), 900)
+      }
+      return null
+    }
     toast(body.message || '仙门暂无回应')
     return null
   } catch {

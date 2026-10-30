@@ -4,6 +4,8 @@
     <div class="home-bg" aria-hidden="true">
       <img class="home-bg-img" src="../assets/hhh.jpg" alt="" draggable="false" />
       <div class="home-bg-veil"></div>
+      <!-- 灵光粒子：浮尘 + 金色火星，随气息轻移 -->
+      <BgParticles />
     </div>
 
     <!-- ================= 顶部导航栏 ================= -->
@@ -38,8 +40,13 @@
 
         <!-- 用户区 -->
         <div class="nav-right">
-          <!-- 后台管理系统入口 -->
-          <button class="admin-entry" title="前往仙门执事堂（后台管理）" @click="emit('admin')">
+          <!-- 后台管理系统入口：仅管理员权限（permission = 0）可见 -->
+          <button
+            v-if="isAdmin"
+            class="admin-entry"
+            title="前往仙门执事堂（后台管理）"
+            @click="emit('admin')"
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
               <rect x="3" y="3" width="7.5" height="9" rx="1.6" />
               <rect x="13.5" y="3" width="7.5" height="5.5" rx="1.6" />
@@ -348,12 +355,18 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import CavePanel from './CavePanel.vue'
 import CultivatePanel from './CultivatePanel.vue'
+import BgParticles from './BgParticles.vue'
 import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
 
 const props = defineProps({
-  username: { type: String, default: '道友' }
+  username: { type: String, default: '道友' },
+  // 权限：1 默认（普通道友）/ 0 管理员；只有管理员能看到后台管理入口
+  permission: { type: [Number, String], default: 1 }
 })
 const emit = defineEmits(['logout', 'admin'])
+
+/** 是否管理员（permission = 0） */
+const isAdmin = computed(() => Number(props.permission) === 0)
 
 /* ---------------- 视图：仙门首页 / 修炼 / 我的洞府 ---------------- */
 const view = ref('home')
@@ -388,6 +401,7 @@ const menus = [
   { key: 'method', label: '功法阁', type: '功法' },
   { key: 'pill', label: '丹阁', type: '丹药' },
   { key: 'cave', label: '洞天福地', type: '洞天' },
+  { key: 'friend', label: '道友录', type: '道友' },
   { key: 'dao', label: '论道台', type: '论道' },
   { key: 'train', label: '修炼' },
   { key: 'mine', label: '我的洞府' },
@@ -760,7 +774,11 @@ onBeforeUnmount(() => {
   object-fit: cover; /* 等比铺满，多余部分裁切 */
   object-position: 50% 36%; /* 主角二人居中偏上，裁切时优先保留 */
   user-select: none;
-  animation: homeBgIn 1.2s ease both;
+  /* 入场淡入 + 之后极缓慢的推近呼吸（60s 一轮，几乎察觉不到在变，但画面"活着"） */
+  animation:
+    homeBgIn 1.2s ease both,
+    homeBgBreathe 60s ease-in-out 1.4s infinite alternate;
+  will-change: transform;
 }
 
 /* 暗色纱罩：压住亮部，保证卡片与文字可读 */
@@ -786,6 +804,16 @@ onBeforeUnmount(() => {
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+/* 极缓慢推近 + 微微上移：给静态背景一点"呼吸"，配合粒子的动态 */
+@keyframes homeBgBreathe {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.07) translate3d(0, -0.8%, 0);
   }
 }
 

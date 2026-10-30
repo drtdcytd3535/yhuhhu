@@ -18,8 +18,11 @@ public class User {
     /** 道号 / 账号 */
     private String username;
 
-    /** 秘语 / 密码（BCrypt 密文） */
+    /** 秘语 / 密码（明文存储，不做加密） */
     private String password;
+
+    /** 权限：0 = 管理员（可见/可入后台） / 1 = 默认权限 */
+    private Integer permission;
 
     /** 结缘（注册）时间 */
     private LocalDateTime createdAt;
@@ -46,6 +49,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Integer getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Integer permission) {
+        this.permission = permission;
     }
 
     public LocalDateTime getCreatedAt() {

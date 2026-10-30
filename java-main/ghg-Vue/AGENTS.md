@@ -36,8 +36,8 @@
 认证（`AuthController`）：
 
 - `GET  /api/captcha` — 取图形验证码，正确答案存服务端 session
-- `POST /api/register` — 注册：校验验证码 + 密码强度（≥8 位且含数字和字母）→ BCrypt 加密落库
-- `POST /api/login` — 登录：查库 + BCrypt 比对，成功写 session（前端登录页已接真实接口）
+- `POST /api/register` — 注册：校验验证码 + 密码强度（≥8 位且含数字和字母）→ **密码明文落库**，`permission` 固定写 1（默认权限）
+- `POST /api/login` — 登录：查库 + 明文比对（`PasswordUtil`，旧 BCrypt 记录仍兼容），成功写 session，响应带 `permission`（0 管理员 / 1 默认）
 
 首页展示与检索（`HomeController` / `SearchController` / `ContentController`）：
 
@@ -52,16 +52,17 @@
 
 入口：首页导航栏右侧「后台管理」按钮（`HomePage` emit `admin`）→ 后台登录页 → 后台主页。**只有登录，没有注册**。
 
-- 账号体系：独立表 `t_admin`，与前台 `t_user` 完全不同名不同表；session key 也分开（前台 `LOGIN_USER`，后台 `ADMIN_USER`）
-- 默认执事：`admin / admin123`（由 `config/AdminBootstrap`（CommandLineRunner）在启动时兜底写入，密码 BCrypt 加密，SQL 里不写密文）
-- 后端接口（全部在 `/api/admin/**`，除 login 外都校验 session，未登录返回 `success:false,"尚未登入执事堂"`）：
-  - `POST /api/admin/login`、`POST /api/admin/logout`、`GET /api/admin/me`
-  - `GET /api/admin/stats` — 典籍总数/在架/下架/分类数/公告数/累计查阅
-  - `GET /api/admin/contents?keyword=&categoryId=&page=&size=` — 内容分页（含下架），`POST/PUT/DELETE /api/admin/content[/{id}]`
-  - `GET /api/admin/categories` — 扁平分类含父名与内容数，`POST/PUT/DELETE /api/admin/category[/{id}]`（有子分类或仍有内容时拒绝删除）
-  - `GET /api/admin/notices`，`POST/PUT/DELETE /api/admin/notice[/{id}]`
-- 前端：`AdminLogin.vue`（仅账号+密码+秘钥显隐）、`AdminPanel.vue`（概览 6 格 + 典籍内容/分级分类/宗门公告 三个 Tab + 增改弹窗 + 上下架 + 删除确认 + 分页）
-- 新增文件：`entity/Admin`、`mapper/AdminMapper`、`service/IAdminService(+Impl)`、`controller/AdminController`、`controller/AdminDataController`、`dto/AdminLoginRequest|AdminStats|AdminContentRow|AdminContentPage|AdminCategoryRow`、`util/AdminSession`、`config/AdminBootstrap`
+- **准入规则（2026-10-30 改）**：后台登录改查 `t_user`，只有 `permission = 0`（管理员）的道号能入；`permission = 1` 的道号在首页看不到「后台管理」按钮，且调用 `/api/admin/login` 一律被拒（返回「此道号无执事之权，难入执事堂」）
+- 权限字段：`t_user.permission` TINYINT，`0 = 管理员 / 1 = 默认`，注册固定写 1；老库由 `config/UserPermissionBootstrap`（ApplicationRunner）启动时自动补列并置 1
+- 兜底执事：`admin / admin123`（`UserPermissionBootstrap` 仅在「库中无任何 permission=0 账号」时写入，密码明文；若 `admin` 已存在但被降权，不会自动提拔，只会打 warn 日志）
+- 当前账号权限（2026-10-30 定）：`ghjjvj` / `王林` / `wanglin` = 0（管理员，可入后台）；`admin` = 1（普通道友，明文 `admin123`，**不可**入后台）
+- session key：前台 `LOGIN_USER`，后台 `ADMIN_USER`，互不干涉
+- `t_admin` 表 / `entity/Admin` / `mapper/AdminMapper` 已不再参与登录（保留未删，属于历史遗留）
+- 后端接口（`/api/admin/**`）：`POST /api/admin/login`、`GET /api/admin/me`、`GET /api/admin/contents`、`POST /api/admin/contents`、`POST /api/admin/contents/{id}/status`、`DELETE /api/admin/contents/{id}`、`GET|POST /api/admin/notices`、`DELETE /api/admin/notices/{id}`
+- 服务端守卫：`config/AdminAuthInterceptor` + `config/WebConfig` 拦截 `/api/admin/**`（放行 login、me），每次请求都复查 session 里的道号是否仍为 permission=0；失效返回 `success:false,"尚未登入执事堂，请先行验印"`（HTTP 200），前端 `AdminPanel` 的 `api()` 见到此文案会 emit `logout` 退回登录页
+- session key 常量集中在 `common/AuthKeys`（`LOGIN_USER` / `ADMIN_USER`）
+- 前端：`AdminLogin.vue`（名号 + 秘语 + 显隐切换）、`AdminPanel.vue`（概览 6 格 + 典籍内容 / 宗门公告 Tab + 增改弹窗 + 上下架 + 删除确认 + 分页）
+- 注意：除 `login` / `me` 外，其余 `/api/admin/**` 由 `AdminAuthInterceptor` 统一校验 `ADMIN_USER` 会话
 - 注意：后端用的是 `mvnw spring-boot:run` + devtools，改了 Java 后 `mvnw -o -B -DskipTests compile` 一跑，devtools 会自动重启应用（无需 kill 8081）
 
 ## 2.5 我的洞府（2026-10-23 新增，纯前端）
@@ -71,7 +72,7 @@
 - 状态仓库：`src/composables/useCave.js`（模块级 `reactive` 单例，`HomePage` 与 `CavePanel` 共用一份）
 - 存储：**浏览器 localStorage**，键 `xianni_cave_v1_{道号}`，按登录名隔离；登出时 `resetCave()` 清内存态
 - 数据结构：`{ stones, exp, signDays[], favorites[], history[], ledger[], createdAt }`
-- 规则（常量全在 `useCave.js` 顶部）：开辟洞府赠 100 灵石；晨课签到 +30 灵石 / +20 修为，每满 7 日额外 +20；首次研读 +2 灵石 / +10 修为；收录藏书 +15 修为、−5 灵石
+- 规则（常量全在 `useCave.js` 顶部）：开辟洞府赠 100 灵石；晨课签到 +30 灵石 / +20 修为，每满 7 日额外 +20；首次研读 +2 灵石 / +10 修为；收录藏书 +5000 修为（`FAV_EXP`）
 - 境界：`REALMS` 数组（炼气 100 → 筑基 240 → 金丹 480 → 元婴 960 → 化神 1800 → 炼虚 3200 → 合体 5600），`realm` computed 输出当前境界、层数、进度
 - 挂接点：`openDetail()` 里调 `pushHistory()` 记足迹；详情弹窗「收入藏书阁」调 `addFav()`；头像下拉的境界文案取 `realm`
 - 接后端时只需把 `initCave/save()` 换成接口读写，UI 与规则不用动
@@ -81,10 +82,12 @@
 - MySQL 8.0.39，服务名 `MySQL80`（开机自动启动，无需手动拉起）
 - **账号 root / 密码 `123456`**（注意：不是 123456az，那是错的）
 - 库名 `spring_boot_test`，共 5 张表（均由 `src/main/resources/sql/schema.sql` 自动建表 + 幂等种子数据）：
-  - `t_user` — 用户（id / username / password / created_at）
-  - `t_admin` — 后台管理员（id / username / password / real_name / role / status / created_at），默认账号由启动兜底写入
+  - `t_user` — 用户（id / username / **password（明文）** / **permission（0 管理员 / 1 默认）** / created_at）
+  - `t_admin` — 历史遗留的后台管理员表（id / username / password / real_name / role / status / created_at）；后台登录已改走 `t_user.permission`，此表不再使用
   - `t_category` — 分级分类（id / name / **parent_id 自关联** / level / icon / description / sort_no；parent_id=0 为顶级；种子含 5 个顶级 + 15 个子分类）
-  - `t_content` — 内容（id / title / summary / content 正文 / category_id / tags / author / hot / views / status；种子含 32 条）
+  - `t_content` — 内容（id / title / summary / content 正文 / category_id / tags / author / hot / views / status；种子含 **89 条**）
+    - id 段位：1–11 通用功法、12–17 丹药、18–22 洞天、23–28 道友、29–32 论道、100–109《仙逆》王林系列
+    - **《斗破苍穹》段位（均带 `斗破` 标签）**：200–212 斗气功法、**220–228 丹药**（疗伤 3 / 突破 4 / 毒丹 2）、**230–237 洞天**（秘境 5 / 灵脉 3）、**240–248 道友**（剑修 2 / 丹修 4 / 体修 3）、**250–257 论道**（心得 4 / 问答 4）
   - `t_notice` — 宗门公告（id / content / date_label / sort_no；种子含 4 条）
   - 种子数据用 `INSERT IGNORE + 显式主键`，重复启动不会产生脏数据
 - 客户端路径：`C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe`

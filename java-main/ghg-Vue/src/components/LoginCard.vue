@@ -72,7 +72,7 @@ async function onSubmit() {
   if (loading.value) return
   loading.value = true
   try {
-    // 真实登录：交由后端校验数据库中注册的账号与密码（BCrypt）
+    // 真实登录：交由后端校验数据库中注册的账号与密码（t_user.password 为明文）
     const res = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -86,8 +86,9 @@ async function onSubmit() {
         localStorage.removeItem('xianti_user')
       }
       show(`✦ 仙门已开，${u} 道友请入 ✦`)
-      // 稍作停顿，让道友看清提示，再进入首页
-      navTimer = setTimeout(() => emit('login-success', { username: u }), 700)
+      // 稍作停顿，让道友看清提示，再进入首页（permission 决定首页是否显示后台管理入口）
+      const perm = data.data?.permission
+      navTimer = setTimeout(() => emit('login-success', { username: u, permission: perm }), 700)
     } else {
       show(data.message || '秘语有误，难开仙门')
     }

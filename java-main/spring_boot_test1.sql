@@ -11,7 +11,7 @@
  Target Server Version : 80039 (8.0.39)
  File Encoding         : 65001
 
- Date: 26/10/2026 11:50:27
+ Date: 28/10/2026 10:00:16
 */
 
 SET NAMES utf8mb4;
@@ -85,6 +85,32 @@ INSERT INTO `t_category` VALUES (51, '心得', 5, 2, '·', '修行体悟', 1, '2
 INSERT INTO `t_category` VALUES (52, '问答', 5, 2, '·', '疑难互答', 2, '2026-10-16 16:31:40');
 
 -- ----------------------------
+-- Table structure for t_cave
+-- ----------------------------
+DROP TABLE IF EXISTS `t_cave`;
+CREATE TABLE `t_cave`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '道号（唯一）',
+  `exp` bigint NOT NULL DEFAULT 0 COMMENT '累计修为',
+  `stones` bigint NOT NULL DEFAULT 0 COMMENT '灵石',
+  `favs_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '藏书阁（JSON 数组）',
+  `history_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '研读足迹（JSON 数组）',
+  `sign_date` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最近签到日期 yyyy-mm-dd',
+  `train_date` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最近修炼日期 yyyy-mm-dd',
+  `train_exp` int NOT NULL DEFAULT 0 COMMENT '当日修炼已得修为',
+  `client_time` bigint NOT NULL DEFAULT 0 COMMENT '客户端最后修改时间戳（毫秒）',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开辟时间',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_cave_username`(`username` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '洞府存档表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_cave
+-- ----------------------------
+INSERT INTO `t_cave` VALUES (4, 'wanglin', 10, 50, '[]', '[]', '2026-10-28', '', 0, 1793152662152, '2026-10-28 09:57:42', '2026-10-28 09:57:42');
+
+-- ----------------------------
 -- Table structure for t_content
 -- ----------------------------
 DROP TABLE IF EXISTS `t_content`;
@@ -146,10 +172,10 @@ INSERT INTO `t_content` VALUES (100, '凝气诀', '顺为凡，逆则仙，只�
 INSERT INTO `t_content` VALUES (101, '尸魅', '炼尸为傀，驱魅护主，左道亦可通天。', '尸魅之术乃铁柱所传左道秘法，采新尸炼为傀儡，以生魂驭死气。尸傀不知痛楚、不畏刀剑，越凶险之地越见其用。王林早年修为低微，凭一具尸傀周旋于藤家追杀之间，藤厉殒命于此术之下。修此术者须以自身精血温养，尸傀与主人心念相连，切忌心生怠慢，否则反噬只在顷刻。', 17, '魂修,尸魅,王林,左道', '王林', 87000, 12800, 1, '2026-10-26 11:40:56');
 INSERT INTO `t_content` VALUES (102, '吞魂', '噬人魂魄，夺人修为，吾以吞魂证长生。', '吞魂之法逆天而行，噬取他人魂魄炼为己用，神识与修为皆可暴涨。王林凭此法吞尽藤家修士魂魄，一夜之间连破数境，自此「杀神」之名传遍赵国。然此法戾气极重，吞魂越多、心魔越炽，须以大定力压服，否则魂魄反噬、性情大变，终沦为只知杀戮的凶魂。', 17, '魂修,吞魂,王林,杀神', '王林', 96000, 14302, 1, '2026-10-26 11:40:56');
 INSERT INTO `t_content` VALUES (103, '移魂大法', '魂迁他体，向死而生。', '移魂大法可于肉身将毁之际，迁神魂入他体夺舍重生，是保命的第一等秘术。王林数度身陷绝境，皆以移魂遁出死局——肉身可弃，道心不可失。修此法者神识须强横至极，且夺舍之体亦需温养调和，否则两魂相争，同归于尽。', 17, '魂修,移魂,夺舍,王林', '王林', 78000, 10400, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (104, '生死之道', '生之极意可活死人，死之极意可葬天地。', '生死之道乃王林主修的无上大道。生之极意，枯木逢春、白骨生肉；死之极意，一念之下万灵俱寂。生死本是轮回两端，悟透生死，方知长生不过一场执念——而他偏要以这场执念，逆天改命。王林自筑基起参悟生死，至踏天之境生死由心，一念之间可判诸天生死。', 18, '道法,生死,王林,大道', '王林', 99900, 16804, 1, '2026-10-26 11:40:56');
+INSERT INTO `t_content` VALUES (104, '生死之道', '生之极意可活死人，死之极意可葬天地。', '生死之道乃王林主修的无上大道。生之极意，枯木逢春、白骨生肉；死之极意，一念之下万灵俱寂。生死本是轮回两端，悟透生死，方知长生不过一场执念——而他偏要以这场执念，逆天改命。王林自筑基起参悟生死，至踏天之境生死由心，一念之间可判诸天生死。', 18, '道法,生死,王林,大道', '王林', 99900, 16805, 1, '2026-10-26 11:40:56');
 INSERT INTO `t_content` VALUES (105, '因果之道', '一念种因，一念得果，因果线断诸天皆惊。', '因果之道讲究万般皆有因果，种何因、得何果。修至大成可显化因果线，牵一发而动全身：顺因果者借力打力，逆因果者斩断前缘。王林以因果之道护道侣、灭强敌，凡与之为敌者，皆在因果簿上记下一笔，迟早要还。', 18, '道法,因果,王林', '王林', 92000, 13501, 1, '2026-10-26 11:40:56');
 INSERT INTO `t_content` VALUES (106, '真假之道', '虚虚实实，真真假假，诸天万界皆为我幻。', '真假之道参悟虚实本源，修至深处，假可乱真、真可作幻。王林以真假之道瞒天过海，一具化身可敌真身，诸般大能的神识探查在他面前形同虚设。此道练的是「心明」——识得破万象皆虚，方能以假证真。', 18, '道法,真假,虚实,王林', '王林', 85000, 11900, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (107, '时光之道', '岁月长河，唯我独行，逆转光阴续命改命。', '时光之道乃诸天至高法则之一。王林于天逆珠中窥得时光本源，自此岁月于他如长河可溯——逆转光阴可改既定之局，加速流转可催生灵药，驻颜驻寿更是等闲。然时光最是无情，逆改岁月必承天道反噬，一念不慎，形神俱灭于长河之中。', 18, '道法,时光,岁月,王林,天逆珠', '王林', 97000, 14901, 1, '2026-10-26 11:40:56');
+INSERT INTO `t_content` VALUES (107, '时光之道', '岁月长河，唯我独行，逆转光阴续命改命。', '时光之道乃诸天至高法则之一。王林于天逆珠中窥得时光本源，自此岁月于他如长河可溯——逆转光阴可改既定之局，加速流转可催生灵药，驻颜驻寿更是等闲。然时光最是无情，逆改岁月必承天道反噬，一念不慎，形神俱灭于长河之中。', 18, '道法,时光,岁月,王林,天逆珠', '王林', 97000, 14902, 1, '2026-10-26 11:40:56');
 INSERT INTO `t_content` VALUES (108, '御剑凝芒术', '青芒一现，斩敌千里。', '御剑凝芒术以神识驭剑、凝芒化虹，剑光离手千里之外取人首级。王林的本命飞剑通体青芒，随其修为一同成长——凝气时不过尺许青光，踏天之境一剑可裂星河。此术要诀在「人剑合一」，神识与剑心相融，剑随意动、意到剑至。', 11, '剑诀,御剑,青芒,王林', '王林', 89000, 12600, 1, '2026-10-26 11:40:56');
 INSERT INTO `t_content` VALUES (109, '淬体逆修篇', '灵根残缺？那便以肉身补天。', '淬体逆修篇为体修旁门，专为灵根残缺者所创——既然灵气入体艰难，便以万般苦楚淬炼肉身，皮膜、筋骨、脏腑、骨髓层层逆锻。王林早年在恒岳派杂役期间暗修此篇，肉身之强横远超同阶，硬接结丹修士一击而不倒。此篇要诀唯「忍」之一字：痛极则强，破而后立。', 13, '体修,淬体,逆修,王林', '王林', 83000, 11600, 1, '2026-10-26 11:40:56');
 
@@ -176,6 +202,69 @@ INSERT INTO `t_notice` VALUES (3, '丹阁新入九转金丹三百枚，先到先
 INSERT INTO `t_notice` VALUES (4, '青龙灵脉本月功勋兑换额度刷新，道友可依功勋换取修行时日。', '三日前', 4, '2026-10-16 16:31:40');
 
 -- ----------------------------
+-- Table structure for t_realm
+-- ----------------------------
+DROP TABLE IF EXISTS `t_realm`;
+CREATE TABLE `t_realm`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '境界名（凝气/筑基…）',
+  `suffix` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '境' COMMENT '后缀：期 / 境',
+  `unit` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '重' COMMENT '层级单位：层 / 重 / 桥',
+  `segs` int NOT NULL DEFAULT 10 COMMENT '境内层次数',
+  `span` int NOT NULL COMMENT '该境所需修为',
+  `step_key` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '所属阶段（t_realm_stage.key_code）',
+  `sort_no` int NOT NULL DEFAULT 0 COMMENT '阶序',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_realm_name`(`name` ASC) USING BTREE,
+  INDEX `idx_realm_sort`(`sort_no` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '境界配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_realm
+-- ----------------------------
+INSERT INTO `t_realm` VALUES (1, '凝气', '期', '层', 15, 150, 'first', 1);
+INSERT INTO `t_realm` VALUES (2, '筑基', '期', '重', 10, 160, 'first', 2);
+INSERT INTO `t_realm` VALUES (3, '结丹', '期', '重', 10, 260, 'first', 3);
+INSERT INTO `t_realm` VALUES (4, '元婴', '期', '重', 10, 420, 'first', 4);
+INSERT INTO `t_realm` VALUES (5, '化神', '期', '重', 10, 680, 'first', 5);
+INSERT INTO `t_realm` VALUES (6, '婴变', '期', '重', 10, 1100, 'first', 6);
+INSERT INTO `t_realm` VALUES (7, '问鼎', '期', '重', 10, 1800, 'first', 7);
+INSERT INTO `t_realm` VALUES (8, '阴虚', '期', '重', 10, 900, 'bridge1', 8);
+INSERT INTO `t_realm` VALUES (9, '阳实', '期', '重', 10, 900, 'bridge1', 9);
+INSERT INTO `t_realm` VALUES (10, '窥涅', '境', '重', 10, 2600, 'second', 10);
+INSERT INTO `t_realm` VALUES (11, '净涅', '境', '重', 10, 3800, 'second', 11);
+INSERT INTO `t_realm` VALUES (12, '碎涅', '境', '重', 10, 5200, 'second', 12);
+INSERT INTO `t_realm` VALUES (13, '空涅', '境', '重', 10, 7000, 'third', 13);
+INSERT INTO `t_realm` VALUES (14, '空灵', '境', '重', 10, 9500, 'third', 14);
+INSERT INTO `t_realm` VALUES (15, '空玄', '境', '重', 10, 13000, 'third', 15);
+INSERT INTO `t_realm` VALUES (16, '空劫', '境', '重', 10, 18000, 'third', 16);
+INSERT INTO `t_realm` VALUES (17, '踏天', '境', '桥', 9, 27000, 'fourth', 17);
+
+-- ----------------------------
+-- Table structure for t_realm_stage
+-- ----------------------------
+DROP TABLE IF EXISTS `t_realm_stage`;
+CREATE TABLE `t_realm_stage`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `key_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '阶段标识 first/bridge1/second/third/fourth',
+  `badge` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角标（第一步/过渡…）',
+  `label` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '阶段名（凡蜕问道…）',
+  `note` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '阶段说明',
+  `sort_no` int NOT NULL DEFAULT 0 COMMENT '排序号',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_stage_key`(`key_code` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '境界大阶段表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_realm_stage
+-- ----------------------------
+INSERT INTO `t_realm_stage` VALUES (1, 'first', '第一步', '凡蜕问道', '引气入体至问鼎，凡躯蜕为仙体', 1);
+INSERT INTO `t_realm_stage` VALUES (2, 'bridge1', '过渡', '阴虚阳实', '元神吐纳元力、化元完成，方入第二步', 2);
+INSERT INTO `t_realm_stage` VALUES (3, 'second', '第二步', '规则掌控', '窥涅天仙 · 净涅仙王 · 碎涅仙君，碎涅圆满需渡天人五衰', 3);
+INSERT INTO `t_realm_stage` VALUES (4, 'third', '第三步', '本源超脱', '空涅仙帝至空劫大天尊，言出法随，需渡九次玄劫', 4);
+INSERT INTO `t_realm_stage` VALUES (5, 'fourth', '第四步', '踏天超脱', '踏天九桥，一步一桥，明悟轮回真我', 5);
+
+-- ----------------------------
 -- Table structure for t_user
 -- ----------------------------
 DROP TABLE IF EXISTS `t_user`;
@@ -186,12 +275,13 @@ CREATE TABLE `t_user`  (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '结缘（注册）时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '仙门弟子（用户）表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '仙门弟子（用户）表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of t_user
 -- ----------------------------
 INSERT INTO `t_user` VALUES (1, 'ghjjvj', '$2a$10$xWQ5TGuFrkWlYZUKm6sSSuJc77oLUx.CeOuTEVMAb5cwH5970jcv2', '2026-10-14 09:23:39');
 INSERT INTO `t_user` VALUES (2, '王林', '$2a$10$82TleiFXWZfiRUpjYMFUGeUbrZsdhpVY3Hhb2ofYymw.kkdDesw56', '2026-10-14 09:41:05');
+INSERT INTO `t_user` VALUES (3, 'wanglin', '$2a$10$uroBWsR6DZj82FhV3KFs6e0S6mu6dKL/612N64S1WTf42e8lqYSD2', '2026-10-28 09:19:17');
 
 SET FOREIGN_KEY_CHECKS = 1;

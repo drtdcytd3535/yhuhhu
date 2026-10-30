@@ -64,8 +64,8 @@ export const STEPS = ref(DEFAULT_STEPS)
 export const realmSource = ref('builtin')
 
 /* ==================== 数值规则 ==================== */
-/** 收录藏书阁一次的修为 */
-const FAV_EXP = 20
+/** 收录藏书阁一次的修为（五千） */
+const FAV_EXP = 5000
 /** 首次研读一次的修为 */
 const HISTORY_EXP = 15
 /** 签到灵石 */
@@ -448,7 +448,7 @@ export function isFav(id) {
   return id == null ? false : cave.favs.some((f) => String(f.id) === String(id))
 }
 
-/** 收录进藏书阁：+20 修为 */
+/** 收录进藏书阁：+5000 修为 */
 export function addFav(item) {
   if (!item || item.id == null) return { ok: false, exp: 0, msg: '内容无效' }
   if (isFav(item.id)) return { ok: false, exp: 0, msg: '已在藏书阁中' }
@@ -564,4 +564,13 @@ export function addTrainExp(amount) {
         ? `修为 +${real} · ${after.name}${after.suffix}第 ${after.level} ${after.unit}`
         : `修为 +${real}`
   }
+}
+
+/** 灵石入账（采石等玩法所得，不受每日修为上限约束） */
+export function addStones(amount) {
+  const n = Math.max(0, Math.floor(Number(amount) || 0))
+  if (n <= 0) return 0
+  cave.stones += n
+  persist()
+  return n
 }

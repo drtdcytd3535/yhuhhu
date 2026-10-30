@@ -1,19 +1,19 @@
 package com.fenglin.springboottest.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.fenglin.springboottest.common.AuthKeys;
 import com.fenglin.springboottest.common.Result;
 import com.fenglin.springboottest.dto.AdminContentRow;
-import com.fenglin.springboottest.entity.Admin;
 import com.fenglin.springboottest.entity.Category;
 import com.fenglin.springboottest.entity.Content;
 import com.fenglin.springboottest.entity.Notice;
-import com.fenglin.springboottest.mapper.AdminMapper;
+import com.fenglin.springboottest.entity.User;
 import com.fenglin.springboottest.service.ICategoryService;
 import com.fenglin.springboottest.service.IContentService;
 import com.fenglin.springboottest.service.INoticeService;
-import jakarta.annotation.PostConstruct;
+import com.fenglin.springboottest.service.IUserService;
+import com.fenglin.springboottest.util.PasswordUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,59 +32,38 @@ import java.util.Map;
 /**
  * 执事堂（后台管理）接口：管理员登录 + 内容管理 + 公告管理
  *
- * 与前台 t_user 完全隔离：后台只登录、不注册。
+ * 谁能进后台由 t_user.permission 决定：
+ *   0 = 管理员（可登录后台、首页可见后台入口）
+ *   1 = 默认权限（无后台入口，登录后台一律拒绝）
  * 登录态独立存 session（ADMIN_USER），与前台 LOGIN_USER 互不干涉。
  */
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
-    private static final String ADMIN_USER_KEY = "ADMIN_USER";
+    private static final String ADMIN_USER_KEY = AuthKeys.ADMIN_USER;
     private static final int MAX_SIZE = 60;
+    /** 管理员权限值 */
+    private static final int PERM_ADMIN = 0;
 
-    private final AdminMapper adminMapper;
     private final IContentService contentService;
     private final ICategoryService categoryService;
     private final INoticeService noticeService;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final IUserService userService;
 
-    public AdminController(AdminMapper adminMapper,
-                           IContentService contentService,
+    public AdminController(IContentService contentService,
                            ICategoryService categoryService,
-                           INoticeService noticeService) {
-        this.adminMapper = adminMapper;
+                           INoticeService noticeService,
+                           IUserService userService) {
         this.contentService = contentService;
         this.categoryService = categoryService;
         this.noticeService = noticeService;
-    }
-
-    /**
-     * 启动时写入默认执事账号（幂等：t_admin 为空才写入）
-     * 默认账号：admin / admin123
-     */
-    @PostConstruct
-    public void seedDefaultAdmin() {
-        try {
-            Long count = adminMapper.selectCount(null);
-            if (count != null && count > 0) {
-                return;
-            }
-            Admin admin = new Admin();
-            admin.setUsername("admin");
-            admin.setPassword(encoder.encode("admin123"));
-            admin.setRealName("仙门执事");
-            admin.setRole("ADMIN");
-            admin.setStatus(1);
-            admin.setCreatedAt(LocalDateTime.now());
-            adminMapper.insert(admin);
-        } catch (Exception e) {
-            // 首次启动若 schema 尚未就绪则忽略，下次启动再补
-        }
+        this.userService = userService;
     }
 
     /* ==================== 登录 / 会话 ==================== */
 
-    /** 后台登录：校验账号 + 密码（BCrypt），成功写后台登录态 */
+    /** 后台登录：道号须存在且权限为 0（管理员），秘语为明文比对 */
     @PostMapping("/login")
     public Result login(@RequestBody Map<String, String> req, HttpServletRequest request) {
         String username = req.getOrDefault("username", "").trim();
@@ -93,19 +72,19 @@ public class AdminController {
         if (username.isEmpty() || password.isEmpty()) {
             return Result.fail("请先凝神，填全执事名号与秘语");
         }
-        Admin admin = adminMapper.selectOne(
-                new LambdaQueryWrapper<Admin>().eq(Admin::getUsername, username));
-        if (admin == null) {
+        User user = userService.getUserByUsername(username);
+        if (user == null) {
             return Result.fail("执事名号不在名册");
         }
-        if (admin.getStatus() == null || admin.getStatus() != 1) {
-            return Result.fail("此执事已停用");
+        // 权限位：只有 0（管理员）可入
+        if (!isAdmin(user)) {
+            return Result.fail("此道号无执事之权，难入执事堂");
         }
-        if (!encoder.matches(password, admin.getPassword())) {
+        if (!PasswordUtil.matches(password, user.getPassword())) {
             return Result.fail("秘语有误，难入执事堂");
         }
-        request.getSession().setAttribute(ADMIN_USER_KEY, admin.getUsername());
-        return Result.ok("✦ 执事堂已开 ✦", adminInfo(admin));
+        request.getSession().setAttribute(ADMIN_USER_KEY, user.getUsername());
+        return Result.ok("✦ 执事堂已开 ✦", adminInfo(user));
     }
 
     /** 当前登录的执事（供页面刷新后恢复后台状态） */
@@ -115,19 +94,26 @@ public class AdminController {
         if (username == null) {
             return Result.fail("尚未入堂");
         }
-        Admin admin = adminMapper.selectOne(
-                new LambdaQueryWrapper<Admin>().eq(Admin::getUsername, username));
-        if (admin == null || (admin.getStatus() != null && admin.getStatus() != 1)) {
+        User user = userService.getUserByUsername(username);
+        if (user == null || !isAdmin(user)) {
+            request.getSession().removeAttribute(ADMIN_USER_KEY);
             return Result.fail("执事身份已失效");
         }
-        return Result.ok("ok", adminInfo(admin));
+        return Result.ok("ok", adminInfo(user));
     }
 
-    private Map<String, Object> adminInfo(Admin admin) {
+    /** 权限位是否为管理员（0） */
+    private boolean isAdmin(User user) {
+        return user != null && user.getPermission() != null && user.getPermission() == PERM_ADMIN;
+    }
+
+    private Map<String, Object> adminInfo(User user) {
         Map<String, Object> info = new LinkedHashMap<>();
-        info.put("username", admin.getUsername());
-        info.put("realName", admin.getRealName() == null ? "" : admin.getRealName());
-        info.put("role", admin.getRole());
+        info.put("username", user.getUsername());
+        // t_user 表中没有执事名号字段，直接以道号充当展示名
+        info.put("realName", user.getUsername());
+        info.put("role", "ADMIN");
+        info.put("permission", user.getPermission());
         return info;
     }
 

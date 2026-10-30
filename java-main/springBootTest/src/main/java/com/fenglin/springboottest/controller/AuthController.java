@@ -1,5 +1,6 @@
 package com.fenglin.springboottest.controller;
 
+import com.fenglin.springboottest.common.AuthKeys;
 import com.fenglin.springboottest.common.Result;
 import com.fenglin.springboottest.dto.LoginRequest;
 import com.fenglin.springboottest.dto.LoginResponse;
@@ -7,9 +8,9 @@ import com.fenglin.springboottest.dto.RegisterRequest;
 import com.fenglin.springboottest.entity.User;
 import com.fenglin.springboottest.service.IUserService;
 import com.fenglin.springboottest.util.CaptchaUtil;
+import com.fenglin.springboottest.util.PasswordUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,23 +24,27 @@ import java.util.Base64;
 
 /**
  * 注册相关接口：图形验证码 + 注册落库
+ *
+ * 密码按需求存明文（不做加密）；登录时用 {@link PasswordUtil} 比对，
+ * 兼容早期 BCrypt 密文的老账号。新注册用户权限一律为 1（默认权限）。
  */
 @RestController
 @RequestMapping("/api")
 public class AuthController {
 
     private static final String CAPTCHA_KEY = "REG_CAPTCHA";
-    private static final String LOGIN_USER_KEY = "LOGIN_USER";
+    private static final String LOGIN_USER_KEY = AuthKeys.LOGIN_USER;
+    /** 默认权限：普通道友 */
+    private static final int PERM_DEFAULT = 1;
 
     private final IUserService userService;
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public AuthController(IUserService userService) {
         this.userService = userService;
     }
 
     /**
-     * 登录：校验账号存在 + 秘语（BCrypt）匹配，成功写登录态到 session
+     * 登录：校验账号存在 + 秘语匹配（明文），成功写登录态到 session
      */
     @PostMapping("/login")
     public Result login(@RequestBody LoginRequest req, HttpServletRequest request) {
@@ -55,14 +60,15 @@ public class AuthController {
         if (user == null) {
             return Result.fail("此道号未现于仙门名册");
         }
-        // 3. 秘语比对（BCrypt）
-        if (!encoder.matches(pwd, user.getPassword())) {
+        // 3. 秘语比对（明文；旧密文自动走 BCrypt）
+        if (!PasswordUtil.matches(pwd, user.getPassword())) {
             return Result.fail("秘语有误，难开仙门");
         }
         // 4. 写登录态（供后续受保护接口校验）
         request.getSession().setAttribute(LOGIN_USER_KEY, username);
 
-        LoginResponse resp = new LoginResponse(user.getId(), user.getUsername(), user.getCreatedAt());
+        int perm = user.getPermission() == null ? PERM_DEFAULT : user.getPermission();
+        LoginResponse resp = new LoginResponse(user.getId(), user.getUsername(), perm, user.getCreatedAt());
         return Result.ok("仙门已开，" + username + " 道友请入", resp);
     }
 
@@ -121,10 +127,11 @@ public class AuthController {
         if (userService.existsByUsername(username)) {
             return Result.fail("此道号已被他人结缘，请另择");
         }
-        // 6. 加密落库
+        // 6. 明文落库，权限取默认值（1）
         User user = new User();
         user.setUsername(username);
-        user.setPassword(encoder.encode(pwd));
+        user.setPassword(pwd);
+        user.setPermission(PERM_DEFAULT);
         user.setCreatedAt(java.time.LocalDateTime.now());
         userService.save(user);
 

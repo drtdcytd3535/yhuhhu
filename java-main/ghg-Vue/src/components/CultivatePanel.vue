@@ -54,7 +54,7 @@
       </article>
 
       <p class="cv-note">
-        每日三课，可得修为上限 {{ TRAIN_LIMIT }} 点，跨日自新。修为入洞府账中，境界随之精进。
+        六门法门，可得修为上限 {{ TRAIN_LIMIT }} 点，跨日自新。修为入洞府账中，境界随之精进。
       </p>
     </div>
 
@@ -142,6 +142,105 @@
         </div>
       </div>
 
+      <!-- ---------- 御剑渡劫 ---------- -->
+      <div v-else-if="game === 'thunder'" class="g-wrap">
+        <div class="g-hud">
+          <span>余时 <b>{{ thuLeft }}</b> 息</span>
+          <span>避雷 <b>{{ thu.dodge }}</b></span>
+          <span>罡气 <b>{{ thu.shield }}</b></span>
+          <span>所得 <b>+{{ thu.gained }}</b></span>
+        </div>
+
+        <div class="thu-stage" :class="{ struck: thu.flash > 0 }">
+          <canvas
+            ref="thuCanvas"
+            class="thu-canvas"
+            @pointermove="onThuMove"
+            @pointerdown="onThuMove"
+          ></canvas>
+          <p v-if="!thu.running && !result" class="thu-mask">凝剑于下 · 待雷起</p>
+        </div>
+
+        <div class="g-acts">
+          <button v-if="!thu.running && !result" class="g-btn" @click="startThu">御剑 · 迎接天劫</button>
+          <p v-if="thu.running" class="g-tip">移动鼠标或按 ← → / A D 御剑 · 雷现红光即为预警</p>
+        </div>
+      </div>
+
+      <!-- ---------- 灵脉采石 ---------- -->
+      <div v-else-if="game === 'mining'" class="g-wrap">
+        <div class="g-hud">
+          <span>余时 <b>{{ mineLeft }}</b> 息</span>
+          <span>凿中 <b>{{ mine.hits }}</b></span>
+          <span>矿心 <b>{{ mine.perfect }}</b></span>
+          <span>所得 <b>+{{ mine.gained }}</b> / 灵石 {{ mine.stones }}</span>
+        </div>
+
+        <div class="mine-bar" @pointerdown="strikeMine">
+          <i
+            v-for="n in mine.nodes"
+            :key="n.id"
+            class="mine-node"
+            :style="{ left: n.x + '%', width: n.w + '%' }"
+          >
+            <i class="mine-core" :style="{ left: '50%', width: n.core + '%' }"></i>
+          </i>
+          <i class="mine-cursor" :style="{ left: mine.pos + '%' }"></i>
+        </div>
+
+        <ul v-if="mine.log.length" class="mine-log">
+          <li v-for="(r, i) in mine.log" :key="i" :class="r.cls">{{ r.text }}</li>
+        </ul>
+
+        <div class="g-acts">
+          <button v-if="!mine.playing && !result" class="g-btn" @click="startMine">入脉 · 开始采石</button>
+          <button v-else-if="mine.playing" class="g-btn" @click="strikeMine">凿 · 落镐</button>
+          <p v-if="mine.playing" class="g-tip">点击灵脉条或按空格落镐 · 正中矿心可得双份</p>
+        </div>
+      </div>
+
+      <!-- ---------- 问心之劫 ---------- -->
+      <div v-else-if="game === 'heart'" class="g-wrap">
+        <div class="g-hud">
+          <span>第 <b>{{ heart.round }}</b> / {{ HEART_ROUNDS }} 念</span>
+          <span>心神 <b>{{ heart.mind }}</b></span>
+          <span>连辨 <b>x{{ heart.combo }}</b></span>
+          <span>所得 <b>+{{ heart.gained }}</b></span>
+        </div>
+
+        <div class="heart-stage">
+          <div
+            class="heart-face"
+            :class="[
+              heart.phase === 'show' ? (heart.kind === 'demon' ? 'demon' : 'light') : 'idle',
+              { judged: heart.phase === 'wait' && heart.mark }
+            ]"
+          >
+            <span v-if="heart.phase === 'show'">{{ heart.kind === 'demon' ? '魇' : '道' }}</span>
+            <span v-else-if="heart.mark">{{ heart.mark }}</span>
+            <span v-else>心</span>
+          </div>
+          <div class="heart-timer">
+            <i :style="{ width: heart.bar + '%' }"></i>
+          </div>
+          <p class="heart-hint">{{ heart.hint }}</p>
+        </div>
+
+        <div class="heart-acts">
+          <button class="h-btn cut" :disabled="heart.phase !== 'show'" @click="judgeHeart('cut')">
+            斩 · 心魔
+          </button>
+          <button class="h-btn take" :disabled="heart.phase !== 'show'" @click="judgeHeart('take')">
+            纳 · 灵光
+          </button>
+        </div>
+
+        <div class="g-acts">
+          <button v-if="!heart.playing && !result" class="g-btn" @click="startHeart">入定 · 问心开始</button>
+          <p v-if="heart.playing" class="g-tip">现「魇」即斩 · 现「道」即纳 · 迟疑则心神受损</p>
+        </div>
+      </div>
+
       <!-- ---------- 结算 ---------- -->
       <div v-if="result" class="g-result">
         <p class="gr-title">修炼结算</p>
@@ -150,6 +249,7 @@
           <span>本次修为 <b>+{{ result.exp }}</b></span>
           <span>今日尚余 <b>{{ result.left }}</b></span>
         </div>
+        <p v-if="result.stones" class="gr-stone">灵石 +{{ result.stones }} · 已入洞府账中</p>
         <p v-if="result.capped" class="gr-warn">今日修炼已至上限，所得不再累加，待明日再续</p>
         <p v-if="result.levelUp" class="gr-up">
           ✦ 境界精进 · {{ result.realm.name }}{{ result.realm.suffix }} 第 {{ result.realm.level }}
@@ -165,7 +265,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onBeforeUnmount } from 'vue'
+import { ref, reactive, computed, onBeforeUnmount, onMounted, nextTick } from 'vue'
 import RealmTable from './RealmTable.vue'
 import {
   cave,
@@ -173,6 +273,7 @@ import {
   realmProgress,
   nextRealm,
   addTrainExp,
+  addStones,
   trainRemaining,
   TRAIN_LIMIT
 } from '../composables/useCave.js'
@@ -216,6 +317,30 @@ const games = [
     sub: '以心布阵 · 一念千变',
     desc: '四象灵纹依次亮起，依其序复诵布阵，一重深过一重。',
     expText: '每过一重 +12 修为'
+  },
+  {
+    key: 'thunder',
+    ico: '⚡',
+    name: '御剑渡劫',
+    sub: '雷落九霄 · 剑走偏锋',
+    desc: '天雷自九霄劈下，御剑左右腾挪，二十息内避雷愈多，护体罡气愈不可失。',
+    expText: '每避一雷 +6 起（连避加成）'
+  },
+  {
+    key: 'mining',
+    ico: '⛏',
+    name: '灵脉采石',
+    sub: '凿山取髓 · 石中有灵',
+    desc: '灵脉游走不定，凿于脉眼之上可得灵石，正中矿心者所获更丰。',
+    expText: '脉眼 +8 修为 +1 灵石 · 矿心 +12 修为 +2 灵石'
+  },
+  {
+    key: 'heart',
+    ico: '☾',
+    name: '问心之劫',
+    sub: '心魔与道 · 一念之别',
+    desc: '心魔与灵光相继浮现，须于一瞬之间分辨斩纳；心神耗尽则劫散。',
+    expText: '每辨一念 +5 起（连辨加成）'
   }
 ]
 
@@ -561,6 +686,498 @@ function tapZhen(i) {
 }
 
 /* =============================================================
+ * 御剑渡劫：二十息内御剑避雷，罡气耗尽则劫散
+ * ============================================================= */
+const THU_TIME = 20
+/** 剑光半宽（归一化），与雷柱半宽相加即命中判定 */
+const THU_HALF = 0.07
+
+const thuCanvas = ref(null)
+let thuCtx = null
+let thuW = 0
+let thuH = 0
+let keyL = false
+let keyR = false
+
+const thu = reactive({
+  running: false,
+  left: THU_TIME,
+  shield: 3,
+  dodge: 0,
+  combo: 0,
+  gained: 0,
+  flash: 0,
+  px: 0.5,
+  bolts: [],
+  spawnT: 0,
+  t: 0,
+  raf: 0,
+  last: 0
+})
+
+/** 余息取整显示（内部仍按浮点推进） */
+const thuLeft = computed(() => Math.ceil(thu.left))
+const mineLeft = computed(() => Math.ceil(mine.left))
+
+function thuResize() {
+  const cv = thuCanvas.value
+  if (!cv) return
+  const dpr = Math.min(2, window.devicePixelRatio || 1)
+  const r = cv.getBoundingClientRect()
+  thuW = r.width || 520
+  thuH = r.height || 300
+  cv.width = Math.round(thuW * dpr)
+  cv.height = Math.round(thuH * dpr)
+  thuCtx = cv.getContext('2d')
+  if (thuCtx) thuCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
+}
+
+function resetThu() {
+  thu.running = false
+  thu.left = THU_TIME
+  thu.shield = 3
+  thu.dodge = 0
+  thu.combo = 0
+  thu.gained = 0
+  thu.flash = 0
+  thu.px = 0.5
+  thu.bolts = []
+  thu.spawnT = 0.8
+  thu.t = 0
+  if (thu.raf) cancelAnimationFrame(thu.raf)
+  thu.raf = 0
+}
+
+async function startThu() {
+  resetThu()
+  result.value = null
+  thu.running = true
+  thu.last = 0
+  await nextTick()
+  thuResize()
+  drawThu()
+  thu.raf = requestAnimationFrame(loopThu)
+}
+
+function spawnBolt() {
+  const prog = 1 - thu.left / THU_TIME
+  thu.bolts.push({
+    x: 0.06 + Math.random() * 0.88,
+    w: 0.05 + Math.random() * 0.03,
+    state: 'warn',
+    warn: Math.max(0.42, 0.85 - prog * 0.35),
+    life: 0.32,
+    done: false,
+    dead: false
+  })
+}
+
+function loopThu(ts) {
+  if (!thu.running) return
+  if (!thu.last) thu.last = ts
+  const dt = Math.min(50, ts - thu.last) / 1000
+  thu.last = ts
+  thu.t += dt
+
+  /* 御剑：键盘 ← → / A D */
+  if (keyL) thu.px -= dt * 0.8
+  if (keyR) thu.px += dt * 0.8
+  thu.px = Math.max(0.03, Math.min(0.97, thu.px))
+
+  /* 落雷 */
+  thu.spawnT -= dt
+  if (thu.spawnT <= 0) {
+    spawnBolt()
+    thu.spawnT = 0.55 + Math.random() * 0.45
+  }
+  for (const b of thu.bolts) {
+    if (b.state === 'warn') {
+      b.warn -= dt
+      if (b.warn <= 0) {
+        b.state = 'strike'
+        b.life = 0.32
+      }
+    } else if (b.state === 'strike') {
+      b.life -= dt
+      if (!b.done) {
+        b.done = true
+        if (Math.abs(b.x - thu.px) < THU_HALF + b.w / 2) hitThu()
+        else dodgeThu()
+      }
+      if (b.life <= 0) b.dead = true
+    }
+  }
+  thu.bolts = thu.bolts.filter((b) => !b.dead)
+  if (thu.flash > 0) thu.flash = Math.max(0, thu.flash - dt * 2)
+
+  thu.left -= dt
+  if (thu.shield <= 0) {
+    thu.left = Math.max(0, thu.left)
+    endThu('罡气散尽')
+    return
+  }
+  if (thu.left <= 0) {
+    thu.left = 0
+    endThu('天劫已渡')
+    return
+  }
+
+  drawThu()
+  thu.raf = requestAnimationFrame(loopThu)
+}
+
+function hitThu() {
+  thu.shield -= 1
+  thu.combo = 0
+  thu.flash = 1
+  beep(150, 0.3, 'sawtooth', 0.04)
+}
+
+function dodgeThu() {
+  thu.dodge += 1
+  thu.combo += 1
+  thu.gained += 6 + Math.min(4, Math.floor(thu.combo / 4))
+  beep(700 + Math.min(6, thu.combo) * 40, 0.06, 'sine', 0.02)
+}
+
+function endThu(why) {
+  thu.running = false
+  if (thu.raf) cancelAnimationFrame(thu.raf)
+  thu.raf = 0
+  drawThu()
+  settle(thu.gained, `${why} · 避雷 ${thu.dodge} 道 · 余罡气 ${thu.shield}`)
+}
+
+function drawThu() {
+  const ctx = thuCtx
+  if (!ctx || !thuW) return
+  ctx.clearRect(0, 0, thuW, thuH)
+
+  const sky = ctx.createLinearGradient(0, 0, 0, thuH)
+  sky.addColorStop(0, 'rgba(30, 22, 62, 0.92)')
+  sky.addColorStop(1, 'rgba(6, 7, 20, 0.96)')
+  ctx.fillStyle = sky
+  ctx.fillRect(0, 0, thuW, thuH)
+
+  /* 云气：两道极淡的横向光带 */
+  ctx.fillStyle = 'rgba(120, 150, 220, 0.05)'
+  ctx.fillRect(0, thuH * 0.28, thuW, 2)
+  ctx.fillRect(0, thuH * 0.56, thuW, 2)
+
+  for (const b of thu.bolts) {
+    const x = b.x * thuW
+    if (b.state === 'warn') {
+      const a = 0.22 + 0.26 * Math.abs(Math.sin(thu.t * 14))
+      ctx.strokeStyle = `rgba(255, 124, 112, ${a})`
+      ctx.lineWidth = 2
+      ctx.setLineDash([6, 9])
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x, thuH * 0.9)
+      ctx.stroke()
+      ctx.setLineDash([])
+      /* 预警箭标 */
+      ctx.fillStyle = `rgba(255, 150, 130, ${a + 0.2})`
+      ctx.beginPath()
+      ctx.moveTo(x, thuH * 0.06)
+      ctx.lineTo(x - 6, thuH * 0.02)
+      ctx.lineTo(x + 6, thuH * 0.02)
+      ctx.closePath()
+      ctx.fill()
+    } else {
+      const a = Math.max(0, b.life / 0.32)
+      const lg = ctx.createLinearGradient(x - 10, 0, x + 10, 0)
+      lg.addColorStop(0, 'rgba(180, 220, 255, 0)')
+      lg.addColorStop(0.5, `rgba(226, 242, 255, ${a})`)
+      lg.addColorStop(1, 'rgba(180, 220, 255, 0)')
+      ctx.fillStyle = lg
+      ctx.fillRect(x - 10, 0, 20, thuH * 0.92)
+      ctx.fillStyle = `rgba(255, 255, 255, ${a * 0.9})`
+      ctx.fillRect(x - 1.5, 0, 3, thuH * 0.92)
+    }
+  }
+
+  /* 剑光 */
+  const px = thu.px * thuW
+  const py = thuH * 0.88
+  ctx.save()
+  ctx.shadowBlur = 20
+  ctx.shadowColor = thu.flash > 0 ? 'rgba(255, 120, 110, 0.95)' : 'rgba(111, 233, 255, 0.9)'
+  ctx.fillStyle = thu.flash > 0 ? 'rgba(255, 168, 156, 0.96)' : 'rgba(196, 246, 255, 0.96)'
+  ctx.beginPath()
+  ctx.moveTo(px, py - 14)
+  ctx.lineTo(px + 10, py + 7)
+  ctx.lineTo(px, py + 2)
+  ctx.lineTo(px - 10, py + 7)
+  ctx.closePath()
+  ctx.fill()
+  ctx.restore()
+
+  /* 护体罡气：底部三枚光点 */
+  for (let i = 0; i < 3; i++) {
+    ctx.fillStyle = i < thu.shield ? 'rgba(232, 198, 107, 0.85)' : 'rgba(233, 238, 251, 0.14)'
+    ctx.beginPath()
+    ctx.arc(16 + i * 16, thuH - 14, 4, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+function onThuMove(e) {
+  const cv = thuCanvas.value
+  if (!cv) return
+  const r = cv.getBoundingClientRect()
+  if (!r.width) return
+  thu.px = Math.max(0.03, Math.min(0.97, (e.clientX - r.left) / r.width))
+}
+
+/* =============================================================
+ * 灵脉采石：光标游走，凿于脉眼得灵石，正中矿心加倍
+ * ============================================================= */
+const MINE_TIME = 20
+
+const mine = reactive({
+  playing: false,
+  left: MINE_TIME,
+  pos: 0,
+  dir: 1,
+  speed: 52,
+  nodes: [],
+  nid: 0,
+  hits: 0,
+  perfect: 0,
+  gained: 0,
+  stones: 0,
+  log: [],
+  raf: 0,
+  last: 0
+})
+
+function makeNode() {
+  const w = 9 + Math.random() * 5
+  return { id: ++mine.nid, x: 5 + Math.random() * (90 - w), w, core: 34 }
+}
+
+function resetMine() {
+  stopMine()
+  mine.left = MINE_TIME
+  mine.pos = 0
+  mine.dir = 1
+  mine.speed = 52
+  mine.hits = 0
+  mine.perfect = 0
+  mine.gained = 0
+  mine.stones = 0
+  mine.log = []
+  mine.nodes = [makeNode(), makeNode(), makeNode()]
+}
+
+function startMine() {
+  resetMine()
+  result.value = null
+  mine.playing = true
+  mine.last = 0
+  mine.raf = requestAnimationFrame(loopMine)
+}
+
+function loopMine(ts) {
+  if (!mine.playing) return
+  if (!mine.last) mine.last = ts
+  const dt = Math.min(50, ts - mine.last) / 1000
+  mine.last = ts
+  mine.pos += mine.dir * mine.speed * dt
+  if (mine.pos >= 100) {
+    mine.pos = 100
+    mine.dir = -1
+  } else if (mine.pos <= 0) {
+    mine.pos = 0
+    mine.dir = 1
+  }
+  const prev = Math.ceil(mine.left)
+  mine.left -= dt
+  if (Math.ceil(mine.left) !== prev) mine.speed += 5
+  if (mine.left <= 0) {
+    mine.left = 0
+    endMine()
+    return
+  }
+  mine.raf = requestAnimationFrame(loopMine)
+}
+
+function strikeMine() {
+  if (!mine.playing) return
+  const p = mine.pos
+  let idx = -1
+  let isCore = false
+  mine.nodes.forEach((n, i) => {
+    if (p >= n.x && p <= n.x + n.w) {
+      idx = i
+      const half = (n.w * n.core) / 200
+      isCore = Math.abs(p - (n.x + n.w / 2)) <= half
+    }
+  })
+
+  if (idx < 0) {
+    mine.log.unshift({ text: '凿空 · 灵脉未应', cls: 'miss' })
+    if (mine.log.length > 4) mine.log.pop()
+    beep(220, 0.1, 'sine', 0.03)
+    return
+  }
+
+  const exp = isCore ? 12 : 8
+  const st = isCore ? 2 : 1
+  mine.gained += exp
+  mine.stones += st
+  mine.hits += 1
+  if (isCore) mine.perfect += 1
+  mine.log.unshift({
+    text: `第 ${mine.hits} 镐 · ${isCore ? '正中矿心' : '凿中脉眼'}（修为 +${exp} / 灵石 +${st}）`,
+    cls: isCore ? 'core' : 'ok'
+  })
+  if (mine.log.length > 4) mine.log.pop()
+  beep(isCore ? 900 : 660, 0.12, 'sine', 0.035)
+  mine.nodes.splice(idx, 1)
+  mine.nodes.push(makeNode())
+}
+
+function endMine() {
+  mine.playing = false
+  if (mine.raf) cancelAnimationFrame(mine.raf)
+  mine.raf = 0
+  const stones = addStones(mine.stones)
+  settle(mine.gained, `凿脉 ${mine.hits} 镐 · 矿心 ${mine.perfect} 次 · 得灵石 ${stones}`)
+  if (result.value) result.value.stones = stones
+}
+
+function stopMine() {
+  mine.playing = false
+  if (mine.raf) cancelAnimationFrame(mine.raf)
+  mine.raf = 0
+}
+
+/* =============================================================
+ * 问心之劫：心魔当斩、灵光当纳，一念之差心神受损
+ * ============================================================= */
+const HEART_ROUNDS = 12
+
+const heart = reactive({
+  playing: false,
+  phase: 'idle', // idle | show | wait | done
+  round: 1,
+  kind: '',
+  mind: 3,
+  combo: 0,
+  hits: 0,
+  gained: 0,
+  bar: 0,
+  mark: '',
+  hint: '入定静心 · 魔与道皆在一念',
+  limit: 0.9,
+  raf: 0,
+  last: 0
+})
+
+function startHeart() {
+  stopHeart()
+  result.value = null
+  heart.round = 1
+  heart.mind = 3
+  heart.combo = 0
+  heart.hits = 0
+  heart.gained = 0
+  heart.bar = 0
+  heart.mark = ''
+  heart.playing = true
+  nextHeartRound()
+}
+
+function nextHeartRound() {
+  heart.kind = Math.random() < 0.5 ? 'demon' : 'light'
+  heart.limit = Math.max(0.52, 0.95 - (heart.round - 1) * 0.04)
+  heart.bar = 100
+  heart.mark = ''
+  heart.phase = 'show'
+  heart.hint = heart.kind === 'demon' ? '心魔现形 · 当斩' : '灵光现形 · 当纳'
+  heart.last = 0
+  beep(heart.kind === 'demon' ? 250 : 620, 0.1, 'sine', 0.03)
+  if (heart.raf) cancelAnimationFrame(heart.raf)
+  heart.raf = requestAnimationFrame(loopHeart)
+}
+
+function loopHeart(ts) {
+  if (heart.phase !== 'show') return
+  if (!heart.last) heart.last = ts
+  const dt = Math.min(50, ts - heart.last) / 1000
+  heart.last = ts
+  heart.bar = Math.max(0, heart.bar - (dt / heart.limit) * 100)
+  if (heart.bar <= 0) {
+    heart.raf = 0
+    heartWrong('迟疑')
+    return
+  }
+  heart.raf = requestAnimationFrame(loopHeart)
+}
+
+function judgeHeart(act) {
+  if (heart.phase !== 'show') return
+  if (heart.raf) cancelAnimationFrame(heart.raf)
+  heart.raf = 0
+  const right =
+    (heart.kind === 'demon' && act === 'cut') || (heart.kind === 'light' && act === 'take')
+  if (right) heartRight()
+  else heartWrong('错判')
+}
+
+function heartRight() {
+  heart.combo += 1
+  heart.hits += 1
+  heart.gained += 5 + Math.min(6, Math.floor(heart.combo / 3) * 2)
+  heart.mark = '✓'
+  heart.phase = 'wait'
+  heart.hint = '心念分明 · 此念已破'
+  beep(740 + Math.min(8, heart.combo) * 30, 0.14, 'sine', 0.04)
+  pending.push(setTimeout(afterHeartRound, 620))
+}
+
+function heartWrong(why) {
+  heart.mind -= 1
+  heart.combo = 0
+  heart.mark = '✕'
+  heart.phase = 'wait'
+  heart.hint = `${why} · 心神受损`
+  beep(150, 0.26, 'sawtooth', 0.035)
+  if (heart.mind <= 0) {
+    pending.push(setTimeout(() => endHeart(`心神耗尽 · 破 ${heart.hits} 念`), 720))
+    return
+  }
+  pending.push(setTimeout(afterHeartRound, 780))
+}
+
+function afterHeartRound() {
+  if (!heart.playing) return
+  if (heart.round >= HEART_ROUNDS) {
+    endHeart('十二念尽 · 问心功成')
+    return
+  }
+  heart.round += 1
+  nextHeartRound()
+}
+
+function endHeart(detail) {
+  heart.playing = false
+  heart.phase = 'done'
+  if (heart.raf) cancelAnimationFrame(heart.raf)
+  heart.raf = 0
+  settle(heart.gained, detail)
+}
+
+function stopHeart() {
+  heart.playing = false
+  heart.phase = 'idle'
+  if (heart.raf) cancelAnimationFrame(heart.raf)
+  heart.raf = 0
+}
+
+/* =============================================================
  * 结算与切换
  * ============================================================= */
 function settle(rawExp, detail) {
@@ -568,6 +1185,7 @@ function settle(rawExp, detail) {
   result.value = {
     detail,
     exp: r.exp,
+    stones: 0,
     left: r.left,
     capped: r.capped,
     levelUp: r.levelUp,
@@ -581,8 +1199,17 @@ function stopAll() {
   clearHuntTimers()
   hunt.running = false
   stopAlch()
+  stopThu()
+  stopMine()
+  stopHeart()
   pending.forEach((t) => clearTimeout(t))
   pending.length = 0
+}
+
+function stopThu() {
+  thu.running = false
+  if (thu.raf) cancelAnimationFrame(thu.raf)
+  thu.raf = 0
 }
 
 function startGame(key) {
@@ -613,6 +1240,19 @@ function startGame(key) {
     zhen.lit = -1
     zhen.hint = '凝神静气，方可入阵'
   }
+  if (key === 'thunder') resetThu()
+  if (key === 'mining') resetMine()
+  if (key === 'heart') {
+    stopHeart()
+    heart.round = 1
+    heart.mind = 3
+    heart.combo = 0
+    heart.hits = 0
+    heart.gained = 0
+    heart.bar = 0
+    heart.mark = ''
+    heart.hint = '入定静心 · 魔与道皆在一念'
+  }
 }
 
 function restart() {
@@ -634,7 +1274,52 @@ function onBack() {
   emit('back')
 }
 
-onBeforeUnmount(stopAll)
+/* ---------------- 键盘：御剑左右 / 采石空格 ---------------- */
+function onKeyDown(e) {
+  const k = e.key
+  if (game.value === 'thunder') {
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') {
+      keyL = true
+      e.preventDefault()
+    } else if (k === 'ArrowRight' || k === 'd' || k === 'D') {
+      keyR = true
+      e.preventDefault()
+    }
+    return
+  }
+  if (game.value === 'mining' && k === ' ') {
+    // 焦点若在按钮上，浏览器会自行触发 click，此处不再重复落镐
+    if (e.target && e.target.tagName === 'BUTTON') return
+    strikeMine()
+    e.preventDefault()
+  }
+}
+
+function onKeyUp(e) {
+  const k = e.key
+  if (k === 'ArrowLeft' || k === 'a' || k === 'A') keyL = false
+  if (k === 'ArrowRight' || k === 'd' || k === 'D') keyR = false
+}
+
+function onWinResize() {
+  if (game.value === 'thunder') {
+    thuResize()
+    drawThu()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeyDown)
+  window.addEventListener('keyup', onKeyUp)
+  window.addEventListener('resize', onWinResize)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKeyDown)
+  window.removeEventListener('keyup', onKeyUp)
+  window.removeEventListener('resize', onWinResize)
+  stopAll()
+})
 </script>
 
 <style scoped>
@@ -1268,7 +1953,254 @@ onBeforeUnmount(stopAll)
   color: rgba(233, 238, 251, 0.55);
 }
 
+/* ---------- 御剑渡劫 ---------- */
+.thu-stage {
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(111, 233, 255, 0.2);
+  box-shadow: inset 0 0 40px rgba(58, 42, 107, 0.4);
+  transition: 0.12s;
+}
+
+.thu-stage.struck {
+  border-color: rgba(255, 130, 110, 0.8);
+  box-shadow:
+    inset 0 0 40px rgba(150, 46, 40, 0.5),
+    0 0 26px rgba(255, 110, 90, 0.4);
+}
+
+.thu-canvas {
+  display: block;
+  width: 100%;
+  height: 300px;
+  touch-action: none;
+  cursor: none;
+}
+
+.thu-mask {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  letter-spacing: 5px;
+  color: rgba(233, 238, 251, 0.4);
+  background: rgba(8, 9, 22, 0.45);
+}
+
+/* ---------- 灵脉采石 ---------- */
+.mine-bar {
+  position: relative;
+  height: 62px;
+  max-width: 560px;
+  margin: 0 auto;
+  border-radius: 12px;
+  border: 1px solid rgba(111, 233, 255, 0.2);
+  background: linear-gradient(180deg, rgba(20, 22, 46, 0.8), rgba(8, 9, 22, 0.9));
+  cursor: pointer;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.mine-node {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  /* 左边界即 n.x，与命中判定 [n.x, n.x + w] 对齐（勿加 translateX） */
+  border-radius: 6px;
+  background: rgba(111, 233, 255, 0.16);
+  border: 1px solid rgba(111, 233, 255, 0.5);
+  box-shadow: 0 0 14px rgba(111, 233, 255, 0.24);
+}
+
+.mine-core {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  transform: translateX(-50%);
+  border-radius: 4px;
+  background: rgba(232, 198, 107, 0.34);
+  box-shadow: 0 0 16px rgba(232, 198, 107, 0.45);
+}
+
+.mine-cursor {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 3px;
+  margin-left: -1.5px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #fff, var(--cyan));
+  box-shadow: 0 0 16px rgba(111, 233, 255, 0.9);
+}
+
+.mine-log {
+  max-width: 560px;
+  margin: 16px auto 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  letter-spacing: 1.5px;
+  color: rgba(233, 238, 251, 0.55);
+}
+
+.mine-log li {
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(160, 190, 230, 0.12);
+}
+
+.mine-log li.ok {
+  color: rgba(111, 233, 255, 0.85);
+}
+
+.mine-log li.core {
+  color: var(--gold);
+}
+
+.mine-log li.miss {
+  color: rgba(255, 160, 140, 0.8);
+}
+
+/* ---------- 问心之劫 ---------- */
+.heart-stage {
+  max-width: 380px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heart-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 168px;
+  height: 168px;
+  margin: 0 auto;
+  border-radius: 50%;
+  font-family: 'Ma Shan Zheng', serif;
+  font-size: 62px;
+  color: rgba(233, 238, 251, 0.5);
+  border: 1px solid rgba(160, 190, 230, 0.24);
+  background: radial-gradient(circle at 50% 45%, rgba(58, 42, 107, 0.4), rgba(8, 9, 22, 0.85));
+  transition: 0.2s;
+}
+
+.heart-face.demon {
+  color: #ffb3a6;
+  border-color: rgba(255, 130, 110, 0.85);
+  background: radial-gradient(circle at 50% 45%, rgba(150, 46, 40, 0.6), rgba(24, 8, 10, 0.92));
+  box-shadow:
+    0 0 40px rgba(255, 110, 90, 0.45),
+    inset 0 0 30px rgba(255, 120, 90, 0.24);
+  animation: heartIn 0.18s ease both;
+}
+
+.heart-face.light {
+  color: #fff4cf;
+  border-color: rgba(232, 198, 107, 0.85);
+  background: radial-gradient(circle at 50% 45%, rgba(120, 96, 40, 0.5), rgba(12, 10, 26, 0.92));
+  box-shadow:
+    0 0 40px rgba(232, 198, 107, 0.45),
+    inset 0 0 30px rgba(232, 198, 107, 0.22);
+  animation: heartIn 0.18s ease both;
+}
+
+.heart-face.judged {
+  font-size: 54px;
+}
+
+@keyframes heartIn {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.heart-timer {
+  height: 5px;
+  margin: 20px 0 12px;
+  border-radius: 3px;
+  background: rgba(160, 190, 230, 0.14);
+  overflow: hidden;
+}
+
+.heart-timer i {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--cyan));
+  box-shadow: 0 0 12px rgba(111, 233, 255, 0.5);
+}
+
+.heart-hint {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: rgba(233, 238, 251, 0.55);
+}
+
+.heart-acts {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 22px;
+}
+
+.h-btn {
+  min-width: 132px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: 0.2s;
+}
+
+.h-btn.cut {
+  color: #ffd9d2;
+  border-color: rgba(255, 130, 110, 0.55);
+  background: rgba(255, 110, 90, 0.14);
+}
+
+.h-btn.cut:hover:not(:disabled) {
+  background: rgba(255, 110, 90, 0.26);
+  box-shadow: 0 0 20px rgba(255, 110, 90, 0.4);
+}
+
+.h-btn.take {
+  color: #fff4cf;
+  border-color: rgba(232, 198, 107, 0.55);
+  background: rgba(232, 198, 107, 0.14);
+}
+
+.h-btn.take:hover:not(:disabled) {
+  background: rgba(232, 198, 107, 0.26);
+  box-shadow: 0 0 20px rgba(232, 198, 107, 0.4);
+}
+
+.h-btn:disabled {
+  opacity: 0.4;
+  cursor: wait;
+}
+
 /* ---------- 结算 ---------- */
+.gr-stone {
+  margin-top: 10px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-shadow: 0 0 14px rgba(111, 233, 255, 0.5);
+}
+
 .g-result {
   padding: 24px;
   border-radius: 18px;

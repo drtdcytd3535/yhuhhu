@@ -37,7 +37,13 @@
     </div>
 
     <!-- ============ 首页 ============ -->
-    <HomePage v-else :username="username" @logout="onLogout" @admin="adminState = 'login'" />
+    <HomePage
+      v-else
+      :username="username"
+      :permission="permission"
+      @logout="onLogout"
+      @admin="adminState = 'login'"
+    />
   </template>
 </template>
 
@@ -116,14 +122,20 @@ onMounted(async () => {
  * 后续如需接口鉴权，可在此处补 /api/me 校验 */
 const logged = ref(false)
 const username = ref('道友')
+/* 当前登录用户的权限：0 管理员 / 1 默认（普通道友）
+ * 来自 /api/login 返回的 permission，决定首页是否显示「后台管理」入口 */
+const permission = ref(1)
 
 /* 开发态预览入口：?preview=home 跳过登录直达首页，?preview=cave 直达我的洞府，
  * ?preview=admin 直达后台登录页，?preview=register 直达注册页。
+ * 预览时可用 &perm=0 模拟管理员权限（看后台入口按钮），默认按普通道友（1）。
  * 仅 import.meta.env.DEV 生效，生产构建不受影响 */
 if (import.meta.env.DEV) {
-  const preview = new URLSearchParams(location.search).get('preview')
+  const query = new URLSearchParams(location.search)
+  const preview = query.get('preview')
   if (preview === 'home' || preview === 'cave' || preview === 'train') {
     username.value = '预览道友'
+    permission.value = query.get('perm') === '0' ? 0 : 1
     logged.value = true
   } else if (preview === 'admin') {
     adminState.value = 'login'
@@ -135,6 +147,7 @@ if (import.meta.env.DEV) {
 /** 登录成功后进入首页 */
 function onLoginSuccess(payload) {
   username.value = payload?.username || '道友'
+  permission.value = payload?.permission == null ? 1 : Number(payload.permission)
   logged.value = true
   window.scrollTo({ top: 0 })
 }
@@ -143,6 +156,9 @@ function onLoginSuccess(payload) {
 function onLogout() {
   logged.value = false
   mode.value = 'login'
+  // 权限随登录态一起清掉，避免下一个登录者继承上一位的入口
+  permission.value = 1
+  username.value = '道友'
 }
 </script>
 

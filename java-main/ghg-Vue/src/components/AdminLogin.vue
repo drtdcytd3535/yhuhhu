@@ -40,8 +40,8 @@
         {{ loading ? '验印中…' : '入 堂' }}
       </button>
 
-      <div class="foot">执事专用通道 · 不对外开放结缘</div>
-      <div class="hint">初始执事：admin / admin123</div>
+      <div class="foot">执事专用通道 · 仅「管理员权限」道号可入</div>
+      <div class="hint">执事名号须为「管理员权限」道号，普通道友不可入内</div>
     </form>
 
     <button class="back-link" @click="emit('back')">← 返回仙门</button>
