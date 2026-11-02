@@ -449,13 +449,13 @@ onBeforeUnmount(() => clearTimeout(toastTimer))
   border-radius: 12px;
   background: linear-gradient(160deg, rgba(232, 198, 107, 0.18), rgba(111, 233, 255, 0.08));
   border: 1px solid rgba(232, 198, 107, 0.45);
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 20px;
   color: var(--gold);
 }
 
 .adm-brand h2 {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 26px;
   letter-spacing: 6px;
   color: var(--gold);
@@ -487,7 +487,7 @@ onBeforeUnmount(() => clearTimeout(toastTimer))
 }
 
 .sv {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 24px;
   color: var(--gold);
 }
@@ -792,7 +792,7 @@ onBeforeUnmount(() => clearTimeout(toastTimer))
 
 .editor h3 {
   margin-bottom: 18px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 21px;
   letter-spacing: 5px;
   color: var(--gold);

@@ -133,7 +133,7 @@ const permission = ref(1)
 if (import.meta.env.DEV) {
   const query = new URLSearchParams(location.search)
   const preview = query.get('preview')
-  if (preview === 'home' || preview === 'cave' || preview === 'train') {
+  if (preview === 'home' || preview === 'cave' || preview === 'train' || preview === 'shop') {
     username.value = '预览道友'
     permission.value = query.get('perm') === '0' ? 0 : 1
     logged.value = true
@@ -229,7 +229,7 @@ function onLogout() {
   box-shadow:
     0 0 32px rgba(232, 198, 107, 0.25),
     inset 0 0 24px rgba(111, 233, 255, 0.12);
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 42px;
   line-height: 1;
   color: var(--gold);
@@ -240,7 +240,7 @@ function onLogout() {
 }
 
 .title {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 64px;
   letter-spacing: 14px;
   color: #fff;

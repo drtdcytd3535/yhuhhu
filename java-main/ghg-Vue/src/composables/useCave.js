@@ -78,8 +78,118 @@ const FAVS_MAX = 50
 const HISTORY_MAX = 100
 /** 每日修炼（小游戏）可得修为上限 */
 export const TRAIN_LIMIT = 300
+/** 灵石倍率：每日修炼所得灵石 = 所得修为 × 7 */
+export const STONE_RATE = 7
 /** 写入数据库的防抖间隔（毫秒） */
 const PUSH_DELAY = 400
+
+/* ==================== 商店 · 极品装备 ==================== */
+
+/**
+ * 装备目录（仙逆 / 斗破苍穹 两大原著中的极品之物）
+ * - id：唯一标识，存档中只记 id
+ * - from：出处，《仙逆》/《斗破苍穹》
+ * - kind：类别（本命至宝 / 护甲 / 兵刃 / 异火 / 身法 …）
+ * - bonus：佩戴后每日修炼所得修为加成（0.4 = +40%）
+ * - price：售价（灵石）
+ */
+export const EQUIPS = [
+  {
+    id: 'xuanzhong-chi',
+    name: '玄重尺',
+    from: '斗破苍穹',
+    kind: '兵刃',
+    bonus: 0.1,
+    price: 1200,
+    ico: '▬',
+    desc: '萧炎少年时所负黑铁重尺，重逾三千斤，一尺压下万法皆退。'
+  },
+  {
+    id: 'sanqian-leidong',
+    name: '三千雷动',
+    from: '斗破苍穹',
+    kind: '身法',
+    bonus: 0.12,
+    price: 1500,
+    ico: '⇶',
+    desc: '雷族秘传身法，身化雷光，一步三影，来去无痕。'
+  },
+  {
+    id: 'nixian-jian',
+    name: '逆仙剑',
+    from: '仙逆',
+    kind: '本命飞剑',
+    bonus: 0.15,
+    price: 1600,
+    ico: '†',
+    desc: '王林本命飞剑，剑意逆天而行，出鞘即斩因果。'
+  },
+  {
+    id: 'ziyun-yi',
+    name: '紫云翼',
+    from: '斗破苍穹',
+    kind: '飞行斗技',
+    bonus: 0.18,
+    price: 2000,
+    ico: '⋀',
+    desc: '以紫云凝成的双翼，振翅之间冲霄九万，斗气自生。'
+  },
+  {
+    id: 'gushen-zhanjia',
+    name: '古神战甲',
+    from: '仙逆',
+    kind: '护身宝甲',
+    bonus: 0.22,
+    price: 2400,
+    ico: '⛨',
+    desc: '古神一族血肉秘法所铸，甲在身则万法难侵，肉身成圣之基。'
+  },
+  {
+    id: 'qinglian-dixinhui',
+    name: '青莲地心火',
+    from: '斗破苍穹',
+    kind: '异火',
+    bonus: 0.28,
+    price: 3000,
+    ico: '❀',
+    desc: '异火榜第十九，生于地心青莲，火中藏莲意，可淬体炼丹。'
+  },
+  {
+    id: 'yunluo-xinyan',
+    name: '陨落心炎',
+    from: '斗破苍穹',
+    kind: '异火',
+    bonus: 0.32,
+    price: 3400,
+    ico: '✹',
+    desc: '异火榜第十四，自天外陨石而生的心火，无形无质，焚魂于默然。'
+  },
+  {
+    id: 'tianni-zhu',
+    name: '天逆珠',
+    from: '仙逆',
+    kind: '本命至宝',
+    bonus: 0.4,
+    price: 3600,
+    ico: '◉',
+    desc: '王林本命至宝，珠内自成天逆空间，可纳灵力、温养神魂、逆转一线生机。'
+  },
+  {
+    id: 'jinglian-yaohuo',
+    name: '净莲妖火',
+    from: '斗破苍穹',
+    kind: '异火榜第三',
+    bonus: 0.5,
+    price: 5600,
+    ico: '✺',
+    desc: '异火榜第三，妖异净莲绽放之时，万里苍穹尽作火海。'
+  }
+]
+
+/** 按 id 取装备定义 */
+export function findEquip(id) {
+  return EQUIPS.find((e) => e.id === id) || null
+}
 
 /** 洞府全局状态 */
 export const cave = reactive({
@@ -88,6 +198,8 @@ export const cave = reactive({
   stones: 0,
   favs: [],      // 藏书阁：{ id, title, categoryPath, createdAt }
   history: [],   // 足迹：{ id, title, categoryPath, readAt }
+  equips: [],    // 已购装备 id 列表
+  equipped: '',  // 当前佩戴的装备 id，'' 表示未佩戴
   signDate: '',  // 最近签到日期 yyyy-mm-dd
   trainDate: '', // 最近修炼日期 yyyy-mm-dd
   trainExp: 0,   // 当日修炼（小游戏）已得修为
@@ -181,6 +293,17 @@ export const REALM_TOTAL = computed(() => realms.value.reduce((s, r) => s + r.sp
 /** 境界总数 */
 export const REALM_COUNT = computed(() => realms.value.length)
 
+/* ==================== 装备加成 ==================== */
+
+/** 当前佩戴的装备定义；未佩戴为 null */
+export const equippedItem = computed(() => (cave.equipped ? findEquip(cave.equipped) : null))
+
+/** 佩戴装备带来的修为加成（0.4 = +40%，未佩戴为 0） */
+export function expBonus() {
+  const it = equippedItem.value
+  return it ? it.bonus : 0
+}
+
 /* ==================== 工具 ==================== */
 
 /** 今日日期 yyyy-mm-dd */
@@ -204,6 +327,8 @@ function snapshot() {
     stones: cave.stones,
     favs: cave.favs,
     history: cave.history,
+    equips: cave.equips,
+    equipped: cave.equipped,
     signDate: cave.signDate,
     trainDate: cave.trainDate,
     trainExp: cave.trainExp,
@@ -218,6 +343,14 @@ function applyState(s) {
   cave.stones = Number(s.stones) || 0
   cave.favs = Array.isArray(s.favs) ? s.favs : []
   cave.history = Array.isArray(s.history) ? s.history : []
+  // 装备：与服务端已有记录取并集，避免旧版本无此字段时把已购宝物清空
+  const remoteEquips = Array.isArray(s.equips) ? s.equips : []
+  cave.equips = Array.from(new Set([...cave.equips, ...remoteEquips]))
+  if (typeof s.equipped === 'string' && cave.equips.includes(s.equipped)) {
+    cave.equipped = s.equipped
+  } else if (cave.equipped && !cave.equips.includes(cave.equipped)) {
+    cave.equipped = ''
+  }
   cave.signDate = typeof s.signDate === 'string' ? s.signDate : ''
   cave.trainDate = typeof s.trainDate === 'string' ? s.trainDate : ''
   cave.trainExp = Number(s.trainExp) || 0
@@ -231,6 +364,7 @@ function hasLocalData() {
     cave.stones > 0 ||
     cave.favs.length > 0 ||
     cave.history.length > 0 ||
+    cave.equips.length > 0 ||
     !!cave.signDate
   )
 }
@@ -406,6 +540,8 @@ export function clearCave() {
   cave.stones = 0
   cave.favs = []
   cave.history = []
+  cave.equips = []
+  cave.equipped = ''
   cave.signDate = ''
   cave.trainDate = ''
   cave.trainExp = 0
@@ -423,6 +559,8 @@ export async function resetCave() {
   cave.stones = 0
   cave.favs = []
   cave.history = []
+  cave.equips = []
+  cave.equipped = ''
   cave.signDate = ''
   cave.trainDate = ''
   cave.trainExp = 0
@@ -518,11 +656,13 @@ export function trainRemaining() {
 
 /**
  * 修炼结算：按今日剩余额度入账
- * @param {number} amount 本次应得修为
- * @returns {{ok:boolean, exp:number, capped:boolean, left:number, levelUp:boolean, realm:object, msg:string}}
+ * 佩戴装备会提升所得修为；灵石按「修为 × 7」结算
+ * @param {number} amount 本次应得修为（未含法宝加成）
+ * @returns {{ok:boolean, exp:number, stones:number, bonus:number, capped:boolean, left:number, levelUp:boolean, realm:object, msg:string}}
  */
 export function addTrainExp(amount) {
-  const want = Math.max(0, Math.floor(Number(amount) || 0))
+  const bonus = expBonus()
+  const want = Math.max(0, Math.floor((Number(amount) || 0) * (1 + bonus)))
   if (cave.trainDate !== today()) {
     cave.trainDate = today()
     cave.trainExp = 0
@@ -535,6 +675,8 @@ export function addTrainExp(amount) {
     return {
       ok: false,
       exp: 0,
+      stones: 0,
+      bonus,
       capped,
       left,
       levelUp: false,
@@ -546,6 +688,8 @@ export function addTrainExp(amount) {
   const before = realm.value
   cave.exp += real
   cave.trainExp += real
+  const stones = real * STONE_RATE
+  cave.stones += stones
   persist()
   const after = realm.value
   const brokeThrough = after.name !== before.name
@@ -554,23 +698,71 @@ export function addTrainExp(amount) {
   return {
     ok: true,
     exp: real,
+    stones,
+    bonus,
     capped: real < want,
     left: Math.max(0, TRAIN_LIMIT - cave.trainExp),
     levelUp,
     realm: after,
     msg: brokeThrough
-      ? `修为 +${real} · 破境至${after.name}${after.suffix}第 ${after.level} ${after.unit}`
+      ? `修为 +${real} · 灵石 +${stones} · 破境至${after.name}${after.suffix}第 ${after.level} ${after.unit}`
       : levelUp
-        ? `修为 +${real} · ${after.name}${after.suffix}第 ${after.level} ${after.unit}`
-        : `修为 +${real}`
+        ? `修为 +${real} · 灵石 +${stones} · ${after.name}${after.suffix}第 ${after.level} ${after.unit}`
+        : `修为 +${real} · 灵石 +${stones}`
   }
 }
 
-/** 灵石入账（采石等玩法所得，不受每日修为上限约束） */
+/** 灵石入账（签到 / 活动等玩法所得，不受每日修为上限约束） */
 export function addStones(amount) {
   const n = Math.max(0, Math.floor(Number(amount) || 0))
   if (n <= 0) return 0
   cave.stones += n
   persist()
   return n
+}
+
+/* ==================== 商店 · 购买与佩戴 ==================== */
+
+/** 是否已拥有某装备 */
+export function hasEquip(id) {
+  return cave.equips.includes(id)
+}
+
+/** 是否正佩戴某装备 */
+export function isEquipped(id) {
+  return cave.equipped === id
+}
+
+/**
+ * 以灵石购得装备
+ * @returns {{ok:boolean, msg:string}}
+ */
+export function buyEquip(item) {
+  if (!item || !item.id) return { ok: false, msg: '此物不在册中' }
+  if (hasEquip(item.id)) return { ok: false, msg: `「${item.name}」已在囊中` }
+  if (cave.stones < item.price) {
+    return { ok: false, msg: `灵石不足 · 尚差 ${item.price - cave.stones}` }
+  }
+  cave.stones -= item.price
+  cave.equips = [...cave.equips, item.id]
+  persist()
+  return { ok: true, msg: `得「${item.name}」· 灵石 -${item.price}` }
+}
+
+/** 佩戴装备（须已拥有，同一时刻仅佩一件） */
+export function equipItem(id) {
+  const it = findEquip(id)
+  if (!it) return { ok: false, msg: '此物不在册中' }
+  if (!hasEquip(id)) return { ok: false, msg: `尚未购得「${it.name}」` }
+  cave.equipped = id
+  persist()
+  return { ok: true, msg: `已佩「${it.name}」· 修炼加成 +${Math.round(it.bonus * 100)}%` }
+}
+
+/** 卸下当前装备 */
+export function unequipItem() {
+  if (!cave.equipped) return { ok: false, msg: '当前未佩法宝' }
+  cave.equipped = ''
+  persist()
+  return { ok: true, msg: '已卸下法宝' }
 }

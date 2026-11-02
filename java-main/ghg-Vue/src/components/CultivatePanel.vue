@@ -30,11 +30,18 @@
         <p class="st-today">
           今日修炼 <b>{{ cave.trainExp }}</b> / {{ TRAIN_LIMIT }}　·　尚余 <b>{{ remaining }}</b>
         </p>
+        <p class="st-today st-equip">
+          <template v-if="equippedItem">
+            佩 <b>{{ equippedItem.name }}</b> · 修为加成 <b>+{{ Math.round(equippedItem.bonus * 100) }}%</b>
+          </template>
+          <template v-else>未佩法宝 · 可往「商店」以灵石购极品装备</template>
+        </p>
       </div>
 
       <div class="st-exp">
         <p class="st-exp-num">{{ cave.exp }}</p>
         <p class="st-exp-label">累计修为</p>
+        <p class="st-stone">◈ 灵石 {{ cave.stones }}</p>
       </div>
     </div>
 
@@ -54,7 +61,8 @@
       </article>
 
       <p class="cv-note">
-        六门法门，可得修为上限 {{ TRAIN_LIMIT }} 点，跨日自新。修为入洞府账中，境界随之精进。
+        六门法门，可得修为上限 {{ TRAIN_LIMIT }} 点，跨日自新。修为入洞府账中，境界随之精进；
+        每次修炼另得灵石，数量为所得修为的 {{ STONE_RATE }} 倍，可往「商店」换购极品装备。
       </p>
     </div>
 
@@ -249,7 +257,12 @@
           <span>本次修为 <b>+{{ result.exp }}</b></span>
           <span>今日尚余 <b>{{ result.left }}</b></span>
         </div>
-        <p v-if="result.stones" class="gr-stone">灵石 +{{ result.stones }} · 已入洞府账中</p>
+        <p v-if="result.stones" class="gr-stone">
+          灵石 +{{ result.stones }} · 按修为 {{ STONE_RATE }} 倍结算，已入洞府账中
+        </p>
+        <p v-if="result.bonus" class="gr-bonus">
+          法宝「{{ result.equipName }}」加成 +{{ Math.round(result.bonus * 100) }}% 已计入
+        </p>
         <p v-if="result.capped" class="gr-warn">今日修炼已至上限，所得不再累加，待明日再续</p>
         <p v-if="result.levelUp" class="gr-up">
           ✦ 境界精进 · {{ result.realm.name }}{{ result.realm.suffix }} 第 {{ result.realm.level }}
@@ -273,9 +286,10 @@ import {
   realmProgress,
   nextRealm,
   addTrainExp,
-  addStones,
   trainRemaining,
-  TRAIN_LIMIT
+  equippedItem,
+  TRAIN_LIMIT,
+  STONE_RATE
 } from '../composables/useCave.js'
 
 const props = defineProps({
@@ -332,7 +346,7 @@ const games = [
     name: '灵脉采石',
     sub: '凿山取髓 · 石中有灵',
     desc: '灵脉游走不定，凿于脉眼之上可得灵石，正中矿心者所获更丰。',
-    expText: '脉眼 +8 修为 +1 灵石 · 矿心 +12 修为 +2 灵石'
+    expText: '脉眼 +8 修为 · 矿心 +12 修为（灵石另按 7 倍计）'
   },
   {
     key: 'heart',
@@ -1024,7 +1038,7 @@ function strikeMine() {
   }
 
   const exp = isCore ? 12 : 8
-  const st = isCore ? 2 : 1
+  const st = exp * STONE_RATE
   mine.gained += exp
   mine.stones += st
   mine.hits += 1
@@ -1043,9 +1057,8 @@ function endMine() {
   mine.playing = false
   if (mine.raf) cancelAnimationFrame(mine.raf)
   mine.raf = 0
-  const stones = addStones(mine.stones)
-  settle(mine.gained, `凿脉 ${mine.hits} 镐 · 矿心 ${mine.perfect} 次 · 得灵石 ${stones}`)
-  if (result.value) result.value.stones = stones
+  // 灵石统一在修炼结算中按「修为 × 7」入账，此处不再单独发放
+  settle(mine.gained, `凿脉 ${mine.hits} 镐 · 矿心 ${mine.perfect} 次`)
 }
 
 function stopMine() {
@@ -1185,7 +1198,9 @@ function settle(rawExp, detail) {
   result.value = {
     detail,
     exp: r.exp,
-    stones: 0,
+    stones: r.stones || 0,
+    bonus: r.bonus || 0,
+    equipName: equippedItem.value?.name || '',
     left: r.left,
     capped: r.capped,
     levelUp: r.levelUp,
@@ -1377,7 +1392,7 @@ onBeforeUnmount(() => {
 }
 
 .cv-title h2 {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 30px;
   font-weight: 400;
   letter-spacing: 7px;
@@ -1423,7 +1438,7 @@ onBeforeUnmount(() => {
 
 .st-name {
   margin-top: 5px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 25px;
   letter-spacing: 3px;
   color: var(--gold);
@@ -1487,7 +1502,7 @@ onBeforeUnmount(() => {
 }
 
 .st-exp-num {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 26px;
   color: #fff;
   text-shadow: 0 0 18px rgba(111, 233, 255, 0.5);
@@ -1498,6 +1513,24 @@ onBeforeUnmount(() => {
   font-size: 11px;
   letter-spacing: 3px;
   color: rgba(233, 238, 251, 0.42);
+}
+
+/* 法宝加成行 */
+.st-equip {
+  margin-top: 6px;
+  color: rgba(232, 198, 107, 0.62);
+}
+
+.st-equip b {
+  color: var(--gold);
+}
+
+/* 灵石余额 */
+.st-stone {
+  margin-top: 8px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--gold);
 }
 
 /* ================= 境界总览 ================= */
@@ -1559,7 +1592,7 @@ onBeforeUnmount(() => {
 
 .cv-game h3 {
   margin: 12px 0 9px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 400;
   letter-spacing: 3px;
@@ -1636,7 +1669,7 @@ onBeforeUnmount(() => {
 
 .g-hud b {
   margin-left: 4px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 19px;
   font-weight: 400;
   color: var(--gold);
@@ -1756,7 +1789,7 @@ onBeforeUnmount(() => {
 }
 
 .hc-face {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 30px;
   color: #fff;
   text-shadow: 0 0 16px rgba(255, 200, 180, 0.85);
@@ -1781,7 +1814,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 36px;
   color: rgba(232, 198, 107, 0.85);
   border: 1px solid rgba(232, 198, 107, 0.35);
@@ -1888,7 +1921,7 @@ onBeforeUnmount(() => {
 }
 
 .rune-name {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 22px;
   letter-spacing: 2px;
   color: rgba(233, 238, 251, 0.82);
@@ -2080,7 +2113,7 @@ onBeforeUnmount(() => {
   height: 168px;
   margin: 0 auto;
   border-radius: 50%;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 62px;
   color: rgba(233, 238, 251, 0.5);
   border: 1px solid rgba(160, 190, 230, 0.24);
@@ -2201,6 +2234,14 @@ onBeforeUnmount(() => {
   text-shadow: 0 0 14px rgba(111, 233, 255, 0.5);
 }
 
+/* 法宝加成说明 */
+.gr-bonus {
+  margin-top: 6px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: rgba(232, 198, 107, 0.85);
+}
+
 .g-result {
   padding: 24px;
   border-radius: 18px;
@@ -2221,7 +2262,7 @@ onBeforeUnmount(() => {
 
 .gr-detail {
   margin-top: 12px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 24px;
   letter-spacing: 3px;
   color: #fff;
@@ -2240,7 +2281,7 @@ onBeforeUnmount(() => {
 
 .gr-row b {
   margin-left: 4px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 400;
   color: var(--gold);

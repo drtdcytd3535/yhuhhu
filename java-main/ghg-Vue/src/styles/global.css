@@ -4,6 +4,11 @@
   --cyan: #6fe9ff;
   --purple: #3a2a6b;
   --mist: rgba(160, 190, 230, 0.12);
+
+  /* 国风主题字体：正文（站酷小薇，回退楷体/宋体系） */
+  --font-body: 'ZCOOL XiaoWei', 'STKaiti', 'KaiTi', '华文楷体', 'SimSun', serif;
+  /* 国风主题字体：标题/强调（马善政毛笔手书体，与正文同一国风体系） */
+  --font-display: 'Ma Shan Zheng', 'ZCOOL XiaoWei', 'STKaiti', 'KaiTi', '华文楷体', serif;
 }
 
 * {
@@ -12,13 +17,22 @@
   box-sizing: border-box;
 }
 
+/* 表单控件浏览器默认使用系统字体，统一强制继承主题字体 */
+button,
+input,
+select,
+textarea,
+option {
+  font-family: inherit;
+}
+
 html,
 body {
   height: 100%;
 }
 
 body {
-  font-family: 'ZCOOL XiaoWei', 'STKaiti', 'KaiTi', '华文楷体', serif;
+  font-family: var(--font-body);
   background: radial-gradient(120% 120% at 50% -10%, #1a1340 0%, #0a0a1c 40%, #05060c 100%);
   background-attachment: fixed;
   color: #e9eefb;

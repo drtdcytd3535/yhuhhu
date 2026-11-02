@@ -2,7 +2,7 @@
   <div class="home">
     <!-- ================= 主页背景（等比铺满视口） ================= -->
     <div class="home-bg" aria-hidden="true">
-      <img class="home-bg-img" src="../assets/hhh.jpg" alt="" draggable="false" />
+      <img class="home-bg-img" src="../assets/home-bg.jpg" alt="" draggable="false" />
       <div class="home-bg-veil"></div>
       <!-- 灵光粒子：浮尘 + 金色火星，随气息轻移 -->
       <BgParticles />
@@ -84,7 +84,7 @@
                 </div>
                 <a class="dd-item" @click="enterCave()">我的洞府</a>
                 <a class="dd-item" @click="soon('道号设置')">道号设置</a>
-                <a class="dd-item" @click="enterCave()">灵石账册</a>
+                <a class="dd-item" @click="enterShop()">灵石账册</a>
                 <div class="dd-split"></div>
                 <a class="dd-item danger" @click="onLogout">褪去此身 · 退出</a>
               </div>
@@ -302,9 +302,17 @@
       @toast="toast"
     />
 
+    <ShopPanel
+      v-else-if="view === 'shop'"
+      :username="username"
+      @back="backHome"
+      @toast="toast"
+    />
+
     <CavePanel
       v-else
       :username="username"
+      :anime-url="ANIME_URL"
       @back="backHome"
       @open="openDetail"
       @toast="toast"
@@ -355,6 +363,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import CavePanel from './CavePanel.vue'
 import CultivatePanel from './CultivatePanel.vue'
+import ShopPanel from './ShopPanel.vue'
 import BgParticles from './BgParticles.vue'
 import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
 
@@ -386,6 +395,14 @@ function enterTrain() {
   window.scrollTo({ top: 0 })
 }
 
+/** 商店：灵石换购极品装备 */
+function enterShop() {
+  view.value = 'shop'
+  activeMenu.value = 'shop'
+  userOpen.value = false
+  window.scrollTo({ top: 0 })
+}
+
 function backHome() {
   view.value = 'home'
   activeMenu.value = 'home'
@@ -393,7 +410,7 @@ function backHome() {
 }
 
 /* ---------------- 导航 ---------------- */
-// 腾讯视频《仙逆》动漫 · 专辑页（点「动漫」直接跳转这里）
+// 腾讯视频《仙逆》动漫 · 专辑页（入口已移入「我的洞府」页内）
 const ANIME_URL = 'https://v.qq.com/x/cover/mzc00200aaogpgh.html'
 
 const menus = [
@@ -405,7 +422,7 @@ const menus = [
   { key: 'dao', label: '论道台', type: '论道' },
   { key: 'train', label: '修炼' },
   { key: 'mine', label: '我的洞府' },
-  { key: 'anime', label: '动漫', href: ANIME_URL }
+  { key: 'shop', label: '商店' }
 ]
 const activeMenu = ref('home')
 const userOpen = ref(false)
@@ -426,6 +443,12 @@ function goMenu(m) {
   if (m.key === 'train') {
     enterTrain()
     toast('已入「修炼」 · 三课可修')
+    return
+  }
+  // 商店：切到万宝阁
+  if (m.key === 'shop') {
+    enterShop()
+    toast('已入「万宝阁」 · 灵石可易极品装备')
     return
   }
   if (m.key === 'home') {
@@ -729,6 +752,10 @@ onMounted(async () => {
   if (import.meta.env.DEV) {
     const preview = new URLSearchParams(location.search).get('preview')
     if (preview === 'cave') view.value = 'cave'
+    if (preview === 'shop') {
+      view.value = 'shop'
+      activeMenu.value = 'shop'
+    }
     if (preview === 'train') {
       view.value = 'train'
       activeMenu.value = 'train'
@@ -772,7 +799,7 @@ onBeforeUnmount(() => {
   height: 100%;
   display: block;
   object-fit: cover; /* 等比铺满，多余部分裁切 */
-  object-position: 50% 36%; /* 主角二人居中偏上，裁切时优先保留 */
+  object-position: 50% 40%; /* 主角二人居中，裁切时优先保留面部区域 */
   user-select: none;
   /* 入场淡入 + 之后极缓慢的推近呼吸（60s 一轮，几乎察觉不到在变，但画面"活着"） */
   animation:
@@ -854,7 +881,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 22px;
   color: var(--gold);
   background: linear-gradient(160deg, rgba(232, 198, 107, 0.2), rgba(111, 233, 255, 0.08));
@@ -869,7 +896,7 @@ onBeforeUnmount(() => {
 }
 
 .logo-text b {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 24px;
   letter-spacing: 5px;
   color: #fff;
@@ -1063,7 +1090,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 15px;
   color: #1a1023;
   background: linear-gradient(140deg, var(--gold), #ffe9a8 60%, var(--cyan));
@@ -1189,7 +1216,7 @@ onBeforeUnmount(() => {
 }
 
 .s-title {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 46px;
   font-weight: 400;
   letter-spacing: 8px;
@@ -1543,7 +1570,7 @@ onBeforeUnmount(() => {
 }
 
 .stat-val {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 22px;
   color: #fff;
   letter-spacing: 2px;
@@ -1717,7 +1744,7 @@ onBeforeUnmount(() => {
 
 .card h3 {
   margin: 14px 0 10px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 21px;
   font-weight: 400;
   letter-spacing: 3px;
@@ -2012,7 +2039,7 @@ onBeforeUnmount(() => {
 }
 
 .dt-title {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 32px;
   font-weight: 400;
   letter-spacing: 4px;
@@ -2137,7 +2164,7 @@ onBeforeUnmount(() => {
   height: 34px;
   margin-bottom: 14px;
   border-radius: 9px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 19px;
   color: var(--gold);
   background: rgba(232, 198, 107, 0.1);
@@ -2242,7 +2269,7 @@ onBeforeUnmount(() => {
   }
   /* 窄屏竖向裁切较多，主体再往上提一点 */
   .home-bg-img {
-    object-position: 50% 30%;
+    object-position: 50% 32%;
   }
 }
 

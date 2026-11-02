@@ -127,6 +127,8 @@ public class CaveController {
         row.setStones(req.stones() == null ? 0L : Math.max(0L, req.stones()));
         row.setFavsJson(writeJson(req.favs()));
         row.setHistoryJson(writeJson(req.history()));
+        row.setEquipsJson(writeStringJson(req.equips()));
+        row.setEquipped(req.equipped() == null ? "" : req.equipped().trim());
         row.setSignDate(req.signDate() == null ? "" : req.signDate());
         row.setTrainDate(req.trainDate() == null ? "" : req.trainDate());
         row.setTrainExp(req.trainExp() == null ? 0 : Math.max(0, req.trainExp()));
@@ -141,6 +143,15 @@ public class CaveController {
         }
     }
 
+    /** 字符串列表（装备 id）序列化 */
+    private String writeStringJson(List<String> list) {
+        try {
+            return json.writeValueAsString(list == null ? new ArrayList<String>() : list);
+        } catch (Exception e) {
+            return "[]";
+        }
+    }
+
     private CaveState toState(Cave row) {
         return new CaveState(
                 row.getUsername(),
@@ -148,6 +159,8 @@ public class CaveController {
                 row.getStones() == null ? 0L : row.getStones(),
                 readJson(row.getFavsJson()),
                 readJson(row.getHistoryJson()),
+                readStringList(row.getEquipsJson()),
+                row.getEquipped() == null ? "" : row.getEquipped(),
                 row.getSignDate() == null ? "" : row.getSignDate(),
                 row.getTrainDate() == null ? "" : row.getTrainDate(),
                 row.getTrainExp() == null ? 0 : row.getTrainExp(),
@@ -162,6 +175,19 @@ public class CaveController {
         try {
             List<Map<String, Object>> list =
                     json.readValue(text, new TypeReference<List<Map<String, Object>>>() {});
+            return list == null ? new ArrayList<>() : list;
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /** 反序列化装备 id 列表 */
+    private List<String> readStringList(String text) {
+        if (text == null || text.isBlank()) {
+            return new ArrayList<>();
+        }
+        try {
+            List<String> list = json.readValue(text, new TypeReference<List<String>>() {});
             return list == null ? new ArrayList<>() : list;
         } catch (Exception e) {
             return new ArrayList<>();

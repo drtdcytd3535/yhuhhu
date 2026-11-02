@@ -49,6 +49,34 @@
     <!-- ================= 境界总览 ================= -->
     <RealmTable class="cave-realm" />
 
+    <!-- ================= 仙逆动漫 ================= -->
+    <div class="cave-panel">
+      <div class="panel-head">
+        <h3>仙逆动漫</h3>
+        <span class="panel-count">腾讯视频 · 全季</span>
+      </div>
+      <div
+        class="anime-card"
+        role="button"
+        tabindex="0"
+        @click="openAnime"
+        @keyup.enter="openAnime"
+        @keyup.space.prevent="openAnime"
+      >
+        <span class="anime-seal">仙逆</span>
+        <div class="anime-info">
+          <p class="anime-name">仙逆 · 逆天改命</p>
+          <p class="anime-desc">王林自恒岳派起步，问道长生、踏天逆凡。洞府打坐之余，可观此界影像。</p>
+        </div>
+        <span class="anime-play">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+          </svg>
+          前往观看
+        </span>
+      </div>
+    </div>
+
     <!-- ================= 藏书阁 ================= -->
     <div class="cave-panel">
       <div class="panel-head">
@@ -107,10 +135,22 @@ import {
 } from '../composables/useCave.js'
 
 const props = defineProps({
-  username: { type: String, default: '道友' }
+  username: { type: String, default: '道友' },
+  // 动漫外链（腾讯视频《仙逆》专辑页），由首页传入
+  animeUrl: { type: String, default: '' }
 })
 
 const emit = defineEmits(['back', 'open', 'toast'])
+
+/* ---------------- 仙逆动漫 ---------------- */
+function openAnime() {
+  if (!props.animeUrl) {
+    emit('toast', '动漫入口暂未开启')
+    return
+  }
+  window.open(props.animeUrl, '_blank', 'noopener,noreferrer')
+  emit('toast', '正在开启腾讯视频 · 《仙逆》动漫')
+}
 
 /* ---------------- 签到 / 进度 ---------------- */
 const signed = computed(() => isSignedToday())
@@ -200,7 +240,7 @@ function fmtTime(ts) {
 }
 
 .cave-title h2 {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 34px;
   letter-spacing: 6px;
   color: var(--gold);
@@ -266,7 +306,7 @@ function fmtTime(ts) {
 }
 
 .panel-head h3 {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 21px;
   letter-spacing: 4px;
   color: var(--gold);
@@ -293,7 +333,7 @@ function fmtTime(ts) {
 }
 
 .culti-realm {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 30px;
   letter-spacing: 4px;
   color: #fff;
@@ -334,7 +374,7 @@ function fmtTime(ts) {
 }
 
 .culti-stones {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 26px;
   letter-spacing: 2px;
   color: var(--gold);
@@ -423,6 +463,104 @@ function fmtTime(ts) {
   font-size: 13px;
   letter-spacing: 1px;
   color: rgba(233, 238, 251, 0.45);
+}
+
+/* 仙逆动漫入口 */
+.anime-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(100deg, rgba(58, 42, 107, 0.34), rgba(8, 9, 22, 0.5));
+  border: 1px solid rgba(232, 198, 107, 0.22);
+  cursor: pointer;
+  transition: 0.24s;
+}
+
+.anime-card:hover {
+  border-color: rgba(232, 198, 107, 0.55);
+  box-shadow: 0 0 22px rgba(232, 198, 107, 0.16);
+  transform: translateY(-1px);
+}
+
+.anime-card:focus-visible {
+  outline: 1px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.anime-seal {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  letter-spacing: 1px;
+  color: #1a1023;
+  background: linear-gradient(140deg, var(--gold), #ffe9a8 55%, var(--cyan));
+  box-shadow: 0 0 18px rgba(232, 198, 107, 0.32);
+}
+
+.anime-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.anime-name {
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: #e9eefb;
+}
+
+.anime-desc {
+  margin-top: 5px;
+  font-size: 12.5px;
+  letter-spacing: 1px;
+  line-height: 1.6;
+  color: rgba(233, 238, 251, 0.55);
+}
+
+.anime-play {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  background: rgba(232, 198, 107, 0.1);
+  border: 1px solid rgba(232, 198, 107, 0.36);
+  transition: 0.22s;
+}
+
+.anime-play svg {
+  width: 12px;
+  height: 12px;
+}
+
+.anime-card:hover .anime-play {
+  color: #1a1023;
+  background: linear-gradient(100deg, var(--gold), #ffe9a8 60%, var(--cyan));
+  border-color: transparent;
+}
+
+@media (max-width: 620px) {
+  .anime-card {
+    flex-wrap: wrap;
+  }
+
+  .anime-info {
+    flex-basis: calc(100% - 70px);
+  }
+
+  .anime-play {
+    margin-left: auto;
+  }
 }
 
 /* 底部重置 */

@@ -151,7 +151,7 @@ const groups = computed(() =>
   width: 32px;
   height: 32px;
   border-radius: 9px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 18px;
   color: var(--gold);
   background: rgba(232, 198, 107, 0.1);
@@ -189,7 +189,7 @@ const groups = computed(() =>
 }
 
 .rc-now em {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-style: normal;
   font-size: 19px;
   letter-spacing: 2px;
@@ -283,7 +283,7 @@ const groups = computed(() =>
 }
 
 .rc-group-head b {
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 15px;
   font-weight: 400;
   letter-spacing: 2px;
@@ -372,7 +372,7 @@ const groups = computed(() =>
   display: flex;
   align-items: baseline;
   gap: 3px;
-  font-family: 'Ma Shan Zheng', serif;
+  font-family: var(--font-display);
   font-size: 18px;
   letter-spacing: 2px;
   color: rgba(233, 238, 251, 0.75);

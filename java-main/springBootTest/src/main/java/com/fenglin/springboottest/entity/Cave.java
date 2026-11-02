@@ -36,6 +36,12 @@ public class Cave {
     /** 最近签到日期 yyyy-mm-dd */
     private String signDate;
 
+    /** 已购装备 id 列表（JSON 数组字符串） */
+    private String equipsJson;
+
+    /** 当前佩戴的装备 id，空串表示未佩戴 */
+    private String equipped;
+
     /** 最近修炼日期 yyyy-mm-dd */
     private String trainDate;
 
@@ -103,6 +109,22 @@ public class Cave {
 
     public void setSignDate(String signDate) {
         this.signDate = signDate;
+    }
+
+    public String getEquipsJson() {
+        return equipsJson;
+    }
+
+    public void setEquipsJson(String equipsJson) {
+        this.equipsJson = equipsJson;
+    }
+
+    public String getEquipped() {
+        return equipped;
+    }
+
+    public void setEquipped(String equipped) {
+        this.equipped = equipped;
     }
 
     public String getTrainDate() {
