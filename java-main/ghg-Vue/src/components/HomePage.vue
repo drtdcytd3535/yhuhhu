@@ -2,7 +2,7 @@
   <div class="home">
     <!-- ================= 主页背景（等比铺满视口） ================= -->
     <div class="home-bg" aria-hidden="true">
-      <img class="home-bg-img" src="../assets/home-bg.jpg" alt="" draggable="false" />
+      <img class="home-bg-img" src="../assets/home-bg.png" alt="" draggable="false" />
       <div class="home-bg-veil"></div>
       <!-- 灵光粒子：浮尘 + 金色火星，随气息轻移 -->
       <BgParticles />

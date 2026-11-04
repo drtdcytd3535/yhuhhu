@@ -21,7 +21,7 @@ call :kill_port 8081 "后端 SpringBoot"
 echo.
 echo [完成] 已停止占用 5173 / 8081 的进程。
 echo.
-timeout /t 4 /nobreak >nul
+ping -n 5 127.0.0.1 >nul
 exit /b 0
 
 REM ---------- 子过程：按端口结束进程 ----------

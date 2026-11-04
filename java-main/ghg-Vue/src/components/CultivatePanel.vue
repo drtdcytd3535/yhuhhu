@@ -61,8 +61,8 @@
       </article>
 
       <p class="cv-note">
-        六门法门，可得修为上限 {{ TRAIN_LIMIT }} 点，跨日自新。修为入洞府账中，境界随之精进；
-        每次修炼另得灵石，数量为所得修为的 {{ STONE_RATE }} 倍，可往「商店」换购极品装备。
+        六门法门，修为每日上限 {{ TRAIN_LIMIT }} 点，跨日自新。修为入洞府账中，境界随之精进；
+        每次修炼另得灵石，数量为本次修为的 {{ STONE_RATE }} 倍，<b>灵石不设上限</b>——修为封顶后照常入账，可往「商店」换购极品装备。
       </p>
     </div>
 
@@ -258,12 +258,14 @@
           <span>今日尚余 <b>{{ result.left }}</b></span>
         </div>
         <p v-if="result.stones" class="gr-stone">
-          灵石 +{{ result.stones }} · 按修为 {{ STONE_RATE }} 倍结算，已入洞府账中
+          灵石 +{{ result.stones }} · 按本次修为 {{ STONE_RATE }} 倍结算（灵石无上限），已入洞府账中
         </p>
         <p v-if="result.bonus" class="gr-bonus">
           法宝「{{ result.equipName }}」加成 +{{ Math.round(result.bonus * 100) }}% 已计入
         </p>
-        <p v-if="result.capped" class="gr-warn">今日修炼已至上限，所得不再累加，待明日再续</p>
+        <p v-if="result.capped" class="gr-warn">
+          今日修为已至上限，灵石照常入账（不设上限），可继续修炼积攒灵石
+        </p>
         <p v-if="result.levelUp" class="gr-up">
           ✦ 境界精进 · {{ result.realm.name }}{{ result.realm.suffix }} 第 {{ result.realm.level }}
           {{ result.realm.unit }} ✦

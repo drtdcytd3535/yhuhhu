@@ -77,35 +77,90 @@
       </div>
     </div>
 
-    <!-- ================= 藏书阁 ================= -->
+    <!-- ================= 藏书阁 / 修道足迹（可展开 · 可合并） ================= -->
     <div class="cave-panel">
       <div class="panel-head">
-        <h3>藏书阁</h3>
-        <span class="panel-count">{{ cave.favs.length }} 卷</span>
+        <h3>{{ merged ? '藏迹合璧' : '藏书阁' }}</h3>
+        <span class="panel-count">{{ merged ? mergedList.length + ' 卷' : cave.favs.length + ' 卷' }}</span>
+        <div class="panel-tools">
+          <button class="panel-tool" :class="{ on: merged }" @click="toggleMerge">
+            {{ merged ? '分开查看' : '合并两阁' }}
+          </button>
+          <button class="panel-tool" @click="toggleFavFold">
+            {{ favFolded ? '展开' : '收起' }}
+          </button>
+        </div>
       </div>
-      <ul v-if="cave.favs.length" class="cave-list">
-        <li v-for="f in cave.favs" :key="f.id" @click="emit('open', f.id)">
-          <span class="list-path">{{ f.categoryPath || '未分类' }}</span>
-          <span class="list-title">{{ f.title }}</span>
-          <span class="list-time">{{ fmtTime(f.createdAt) }}</span>
-        </li>
-      </ul>
-      <p v-else class="cave-empty">阁中空空，去首页研读功法后点「收入藏书阁」即可收录。</p>
+
+      <!-- ---------- 合并视图：藏书 + 足迹，同卷合一，按最近时间排序 ---------- -->
+      <template v-if="merged">
+        <template v-if="mergedList.length">
+          <ul v-if="!favFolded" class="cave-list">
+            <li v-for="m in mergedShown" :key="m.id" @click="emit('open', m.id)">
+              <span class="list-tags">
+                <i v-if="m.fav" class="list-tag tag-fav">藏</i>
+                <i v-if="m.trail" class="list-tag tag-trail">迹</i>
+              </span>
+              <span class="list-path">{{ m.categoryPath || '未分类' }}</span>
+              <span class="list-title">{{ m.title }}</span>
+              <span class="list-time">{{ fmtTime(m.lastAt) }}</span>
+            </li>
+          </ul>
+          <p v-else class="cave-empty">已收起 · 点右上「展开」查看 {{ mergedList.length }} 卷典藏</p>
+          <button
+            v-if="mergedList.length > FOLD_N"
+            class="list-more"
+            @click="mergedExpanded = !mergedExpanded"
+          >
+            {{ mergedExpanded ? '收起列表' : `展开全部 ${mergedList.length} 卷` }}
+          </button>
+        </template>
+        <p v-else class="cave-empty">两阁皆空，去首页研读功法、点「收入藏书阁」即可收录。</p>
+      </template>
+
+      <!-- ---------- 分开视图：藏书阁 ---------- -->
+      <template v-else>
+        <template v-if="cave.favs.length">
+          <ul v-if="!favFolded" class="cave-list">
+            <li v-for="f in favShown" :key="f.id" @click="emit('open', f.id)">
+              <span class="list-path">{{ f.categoryPath || '未分类' }}</span>
+              <span class="list-title">{{ f.title }}</span>
+              <span class="list-time">{{ fmtTime(f.createdAt) }}</span>
+            </li>
+          </ul>
+          <p v-else class="cave-empty">已收起 · 点右上「展开」查看 {{ cave.favs.length }} 卷藏书</p>
+          <button v-if="cave.favs.length > FOLD_N" class="list-more" @click="favExpanded = !favExpanded">
+            {{ favExpanded ? '收起列表' : `展开全部 ${cave.favs.length} 卷` }}
+          </button>
+        </template>
+        <p v-else class="cave-empty">阁中空空，去首页研读功法后点「收入藏书阁」即可收录。</p>
+      </template>
     </div>
 
-    <!-- ================= 修道足迹 ================= -->
-    <div class="cave-panel">
+    <!-- ================= 修道足迹（合并时并入上一阁） ================= -->
+    <div v-if="!merged" class="cave-panel">
       <div class="panel-head">
         <h3>修道足迹</h3>
         <span class="panel-count">{{ cave.history.length }} 卷</span>
+        <div class="panel-tools">
+          <button class="panel-tool" @click="toggleTrailFold">
+            {{ trailFolded ? '展开' : '收起' }}
+          </button>
+        </div>
       </div>
-      <ul v-if="cave.history.length" class="cave-list">
-        <li v-for="h in cave.history" :key="h.id" @click="emit('open', h.id)">
-          <span class="list-path">{{ h.categoryPath || '未分类' }}</span>
-          <span class="list-title">{{ h.title }}</span>
-          <span class="list-time">{{ fmtTime(h.readAt) }}</span>
-        </li>
-      </ul>
+      <template v-if="cave.history.length">
+        <ul v-if="!trailFolded" class="cave-list">
+          <li v-for="h in trailShown" :key="h.id" @click="emit('open', h.id)">
+            <span class="list-path">{{ h.categoryPath || '未分类' }}</span>
+            <span class="list-title">{{ h.title }}</span>
+            <span class="list-time">{{ fmtTime(h.readAt) }}</span>
+          </li>
+        </ul>
+        <p v-else class="cave-empty">已收起 · 点右上「展开」查看 {{ cave.history.length }} 卷足迹</p>
+        <button v-if="cave.history.length > FOLD_N" class="list-more" @click="trailExpanded = !trailExpanded">
+          {{ trailExpanded ? '收起列表' : `展开全部 ${cave.history.length} 卷` }}
+        </button>
+      </template>
       <p v-else class="cave-empty">尚未留下足迹，翻阅任意典籍即可记录于此。</p>
     </div>
 
@@ -141,6 +196,112 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['back', 'open', 'toast'])
+
+/* =============================================================
+ * 藏书阁 / 修道足迹：展开 · 收起 · 合并
+ * ============================================================= */
+/** 收起状态下列表显示的条数 */
+const FOLD_N = 5
+
+const merged = ref(false)          // 是否合并两阁
+const favFolded = ref(false)       // 藏书阁（合并时为合璧阁）整体收起
+const trailFolded = ref(false)     // 修道足迹整体收起
+const favExpanded = ref(false)     // 藏书阁列表展开全部
+const trailExpanded = ref(false)   // 足迹列表展开全部
+const mergedExpanded = ref(false)  // 合并列表展开全部
+
+/* 界面偏好持久化：合并 / 收起状态下次登录、刷新后仍保留 */
+const PANEL_PREF_KEY = 'cave.panelPrefs.v1'
+
+function loadPanelPrefs() {
+  try {
+    const raw = localStorage.getItem(PANEL_PREF_KEY)
+    if (!raw) return
+    const p = JSON.parse(raw) || {}
+    if (typeof p.merged === 'boolean') merged.value = p.merged
+    if (typeof p.favFolded === 'boolean') favFolded.value = p.favFolded
+    if (typeof p.trailFolded === 'boolean') trailFolded.value = p.trailFolded
+  } catch {
+    /* 偏好损坏则用默认 */
+  }
+}
+
+function savePanelPrefs() {
+  try {
+    localStorage.setItem(
+      PANEL_PREF_KEY,
+      JSON.stringify({
+        merged: merged.value,
+        favFolded: favFolded.value,
+        trailFolded: trailFolded.value
+      })
+    )
+  } catch {
+    /* 隐私模式等无法写入时忽略 */
+  }
+}
+
+function toggleFavFold() {
+  favFolded.value = !favFolded.value
+  savePanelPrefs()
+}
+
+function toggleTrailFold() {
+  trailFolded.value = !trailFolded.value
+  savePanelPrefs()
+}
+
+loadPanelPrefs()
+
+const favShown = computed(() => (favExpanded.value ? cave.favs : cave.favs.slice(0, FOLD_N)))
+const trailShown = computed(() => (trailExpanded.value ? cave.history : cave.history.slice(0, FOLD_N)))
+
+/**
+ * 合并两阁：同一卷（id 相同）只留一条，标记「藏 / 迹」，
+ * 按最近一次动作（收藏时间 / 阅读时间）倒序排列。
+ */
+const mergedList = computed(() => {
+  const map = new Map()
+  for (const f of cave.favs || []) {
+    map.set(f.id, {
+      id: f.id,
+      title: f.title,
+      categoryPath: f.categoryPath,
+      fav: true,
+      trail: false,
+      lastAt: Number(f.createdAt) || 0
+    })
+  }
+  for (const h of cave.history || []) {
+    const cur = map.get(h.id)
+    const t = Number(h.readAt) || 0
+    if (cur) {
+      cur.trail = true
+      cur.lastAt = Math.max(cur.lastAt, t)
+    } else {
+      map.set(h.id, {
+        id: h.id,
+        title: h.title,
+        categoryPath: h.categoryPath,
+        fav: false,
+        trail: true,
+        lastAt: t
+      })
+    }
+  }
+  return [...map.values()].sort((a, b) => b.lastAt - a.lastAt)
+})
+
+const mergedShown = computed(() =>
+  mergedExpanded.value ? mergedList.value : mergedList.value.slice(0, FOLD_N)
+)
+
+function toggleMerge() {
+  merged.value = !merged.value
+  mergedExpanded.value = false
+  savePanelPrefs()
+  emit('toast', merged.value ? '两阁已合璧 · 藏书与足迹同卷归一' : '已分开查看藏书与足迹')
+}
 
 /* ---------------- 仙逆动漫 ---------------- */
 function openAnime() {
@@ -300,12 +461,13 @@ function fmtTime(ts) {
 
 .panel-head {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 14px;
 }
 
 .panel-head h3 {
+  margin-right: auto;
   font-family: var(--font-display);
   font-size: 21px;
   letter-spacing: 4px;
@@ -316,6 +478,37 @@ function fmtTime(ts) {
   font-size: 12px;
   letter-spacing: 2px;
   color: rgba(233, 238, 251, 0.5);
+}
+
+/* 面板工具：合并 / 展开收起 */
+.panel-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.panel-tool {
+  padding: 3px 12px;
+  border: 1px solid rgba(111, 233, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(8, 9, 22, 0.5);
+  color: rgba(207, 216, 242, 0.8);
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.panel-tool:hover {
+  border-color: rgba(232, 198, 107, 0.55);
+  color: var(--gold);
+}
+
+.panel-tool.on {
+  border-color: rgba(232, 198, 107, 0.7);
+  background: rgba(232, 198, 107, 0.12);
+  color: var(--gold);
 }
 
 /* 修为面板 */
@@ -463,6 +656,53 @@ function fmtTime(ts) {
   font-size: 13px;
   letter-spacing: 1px;
   color: rgba(233, 238, 251, 0.45);
+}
+
+/* 合并视图：藏 / 迹 标记 */
+.list-tags {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.list-tag {
+  padding: 3px 7px;
+  border-radius: 5px;
+  font-style: normal;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.tag-fav {
+  color: var(--gold);
+  background: rgba(232, 198, 107, 0.14);
+  border: 1px solid rgba(232, 198, 107, 0.4);
+}
+
+.tag-trail {
+  color: var(--cyan);
+  background: rgba(111, 233, 255, 0.12);
+  border: 1px solid rgba(111, 233, 255, 0.35);
+}
+
+/* 列表展开更多 */
+.list-more {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 1px dashed rgba(111, 233, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(8, 9, 22, 0.35);
+  color: rgba(207, 216, 242, 0.75);
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.list-more:hover {
+  border-color: rgba(232, 198, 107, 0.5);
+  color: var(--gold);
 }
 
 /* 仙逆动漫入口 */

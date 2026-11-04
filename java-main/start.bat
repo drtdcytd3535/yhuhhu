@@ -38,12 +38,14 @@ echo [启动] 后端 Spring Boot（新窗口）...
 start "后端 SpringBoot :8081" cmd /k "%ROOT%run-backend.bat"
 
 REM ---------- 步骤 4：等待 8081 就绪 ----------
+REM 用 ping 延时代替 timeout：timeout 在无控制台/输入重定向的环境下会直接报错退出，
+REM 导致等待循环瞬间跑完误判"后端未就绪"。ping 在任何环境下都能可靠延时。
 echo [等待] 后端就绪中（最多 120 秒）...
 set /a WAITED=0
 :wait_backend
 call :port_listening 8081
 if "!READY!"=="1" goto :backend_ok
-timeout /t 2 /nobreak >nul
+ping -n 3 127.0.0.1 >nul
 set /a WAITED+=2
 if !WAITED! GEQ 120 (
     echo [!] 后端 120 秒仍未就绪，查看后端窗口或 log\xx.log
@@ -67,7 +69,7 @@ set /a W2=0
 :wait_frontend
 call :port_listening 5173
 if "!READY!"=="1" goto :frontend_ok
-timeout /t 2 /nobreak >nul
+ping -n 3 127.0.0.1 >nul
 set /a W2+=2
 if !W2! GEQ 90 goto :frontend_fail
 goto :wait_frontend
@@ -92,7 +94,7 @@ echo    停止项目请运行 stop.bat
 echo ============================================================
 echo.
 echo 本窗口可以关闭（两个服务在各自新窗口里跑）。
-timeout /t 10 /nobreak >nul
+ping -n 11 127.0.0.1 >nul
 exit /b 0
 
 REM ---------- 子过程：端口监听检测 ----------

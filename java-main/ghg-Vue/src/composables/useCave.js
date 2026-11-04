@@ -419,7 +419,9 @@ async function pushToServer(force = false) {
     const res = await fetch(`${API_CAVE}/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(snapshot())
+      body: JSON.stringify(snapshot()),
+      // keepalive：关闭/刷新页面的瞬间也能把请求发完，避免最后一次操作丢失
+      keepalive: true
     })
     const json = await res.json().catch(() => null)
     if (json?.success) {
@@ -514,6 +516,25 @@ function persist() {
   cave.savedAt = Date.now()
   writeLocal()
   schedulePush()
+}
+
+/* 关闭 / 刷新 / 切走页面时，把没来得及推送的改动立即落库（keepalive 保证请求发得出去） */
+if (typeof window !== 'undefined' && typeof fetch === 'function') {
+  const flushOnLeave = () => {
+    if (!cave.username) return
+    if (pushTimer) {
+      clearTimeout(pushTimer)
+      pushTimer = null
+    }
+    pushToServer(true)
+  }
+  window.addEventListener('pagehide', flushOnLeave)
+  window.addEventListener('beforeunload', flushOnLeave)
+  if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushOnLeave()
+    })
+  }
 }
 
 /**
@@ -655,8 +676,9 @@ export function trainRemaining() {
 }
 
 /**
- * 修炼结算：按今日剩余额度入账
- * 佩戴装备会提升所得修为；灵石按「修为 × 7」结算
+ * 修炼结算：按今日剩余额度入账修为
+ * 佩戴装备会提升所得修为；灵石按「本次修为 × 7」结算，且灵石不受每日修为上限约束
+ * （修为封顶后继续修炼仍可得灵石）
  * @param {number} amount 本次应得修为（未含法宝加成）
  * @returns {{ok:boolean, exp:number, stones:number, bonus:number, capped:boolean, left:number, levelUp:boolean, realm:object, msg:string}}
  */
@@ -670,25 +692,36 @@ export function addTrainExp(amount) {
   const left = Math.max(0, TRAIN_LIMIT - cave.trainExp)
   const real = Math.min(want, left)
 
+  // 灵石按「本次应得修为」结算：不随每日修为上限缩水，也不设上限
+  const stones = want * STONE_RATE
+
   if (real <= 0) {
     const capped = left <= 0
+    if (stones > 0) {
+      // 修为已封顶，灵石照发
+      cave.stones += stones
+      persist()
+    }
     return {
-      ok: false,
+      ok: stones > 0,
       exp: 0,
-      stones: 0,
+      stones,
       bonus,
       capped,
       left,
       levelUp: false,
       realm: realm.value,
-      msg: capped ? '今日修炼已满，明日再续' : '此番未得修为，且再入定一试'
+      msg: stones > 0
+        ? `今日修为已满 · 灵石 +${stones}（灵石不设上限）`
+        : capped
+          ? '今日修炼已满，明日再续'
+          : '此番未得修为，且再入定一试'
     }
   }
 
   const before = realm.value
   cave.exp += real
   cave.trainExp += real
-  const stones = real * STONE_RATE
   cave.stones += stones
   persist()
   const after = realm.value

@@ -13,13 +13,31 @@ set "BACKEND=%ROOT%springBootTest"
 set "CACHE=D:\ghg-cache"
 set "MVN_HOME=%CACHE%\maven-home"
 
-REM Maven wrapper 的发行版与配置都从 D 盘读取
-set "MAVEN_USER_HOME=%MVN_HOME%"
+REM 本地仓库在 %USERPROFILE%\.m2\repository（restore-deps.bat 已把 wrapper 恢复到这里）
+REM 之前指向 %MVN_HOME% 但那个目录里没有 repository，导致离线模式必然失败
+set "MAVEN_USER_HOME=%USERPROFILE%\.m2"
 
 cd /d "%BACKEND%"
 if errorlevel 1 (
     echo [X] 找不到后端目录 %BACKEND%
     exit /b 1
+)
+
+REM ---------- 启动前自动清理 8081 端口 ----------
+REM 之前报错 "Port 8081 was already in use"，是上次启动残留的 java 进程没退干净。
+REM 现在每次启动前先按端口找到残留进程并结束，保证端口空闲。
+echo [清理] 检查并释放 8081 端口 ...
+set "BUSY="
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":8081 " ^| findstr "LISTENING"') do (
+    set "BUSY=%%p"
+    echo [清理] 端口 8081 被进程 %%p 占用，正在结束 ...
+    taskkill /F /PID %%p >nul 2>&1
+)
+if defined BUSY (
+    timeout /t 2 /nobreak >nul
+    echo [清理] 已释放 8081 端口。
+) else (
+    echo [清理] 8081 端口空闲。
 )
 
 echo ----------------------------------------

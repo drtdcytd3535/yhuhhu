@@ -18,6 +18,22 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM ---------- 启动前自动清理 5173 端口 ----------
+REM 防止上次残留的 node 进程占着端口，导致 Vite 起到别的端口或启动失败
+echo [清理] 检查并释放 5173 端口 ...
+set "BUSY="
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr ":5173 " ^| findstr "LISTENING"') do (
+    set "BUSY=%%p"
+    echo [清理] 端口 5173 被进程 %%p 占用，正在结束 ...
+    taskkill /F /PID %%p >nul 2>&1
+)
+if defined BUSY (
+    timeout /t 2 /nobreak >nul
+    echo [清理] 已释放 5173 端口。
+) else (
+    echo [清理] 5173 端口空闲。
+)
+
 echo ----------------------------------------
 echo  前端启动  Vite  :5173
 echo ----------------------------------------
