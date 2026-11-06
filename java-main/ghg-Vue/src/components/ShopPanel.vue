@@ -24,10 +24,16 @@
       <template v-if="worn">
         <span class="wearing-item">{{ worn.ico }} {{ worn.name }}</span>
         <span class="wearing-bonus">修炼加成 +{{ Math.round(worn.bonus * 100) }}%</span>
+        <span class="wearing-stats">
+          <span v-for="st in statChips(worn)" :key="st.key" class="stat-chip">
+            {{ st.ico }} {{ st.name }} +{{ st.val }}{{ st.suffix || '' }}
+          </span>
+        </span>
+        <span class="wearing-power">战力 {{ wornPower }}</span>
         <button class="wearing-unequip" @click="onUnequip">卸下</button>
       </template>
       <template v-else>
-        <span class="wearing-none">未佩戴法宝 · 购入后可佩</span>
+        <span class="wearing-none">未佩戴法宝 · 购入后可佩 · 战力 0</span>
       </template>
     </div>
 
@@ -46,6 +52,13 @@
 
         <div class="goods-bonus">
           <i></i>修炼加成 +{{ Math.round(item.bonus * 100) }}%
+          <em class="goods-power">战力 {{ battlePower(item.stats) }}</em>
+        </div>
+
+        <div class="goods-stats">
+          <span v-for="st in statChips(item)" :key="st.key" class="stat-chip">
+            {{ st.ico }} {{ st.name }} +{{ st.val }}{{ st.suffix || '' }}
+          </span>
         </div>
 
         <div class="goods-foot">
@@ -83,12 +96,16 @@ import { computed } from 'vue'
 import {
   cave,
   EQUIPS,
+  STAT_DEFS,
   hasEquip,
   isEquipped,
   buyEquip,
   equipItem,
   unequipItem,
-  equippedItem
+  equippedItem,
+  equipStats,
+  battlePower,
+  wornPower
 } from '../composables/useCave.js'
 
 const props = defineProps({
@@ -97,6 +114,12 @@ const props = defineProps({
 const emit = defineEmits(['back', 'toast'])
 
 const worn = computed(() => equippedItem.value)
+
+/** 把一件装备的属性转成展示用碎片（只留非零项） */
+function statChips(item) {
+  const st = equipStats(item)
+  return STAT_DEFS.map((d) => ({ ...d, val: st[d.key] })).filter((c) => c.val > 0)
+}
 
 function onBuy(item) {
   const r = buyEquip(item)
@@ -176,6 +199,8 @@ function onUnequip() {
 .wearing-item { color: var(--gold); font-family: var(--font-display); font-size: 17px; letter-spacing: 1px; }
 .wearing-bonus { color: var(--cyan); font-size: 13px; }
 .wearing-none { color: #6f7a9c; }
+.wearing-stats { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.wearing-power { color: var(--gold); font-size: 13px; }
 .wearing-unequip {
   margin-left: auto;
   padding: 5px 16px;
@@ -246,6 +271,31 @@ function onUnequip() {
   width: 18px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--cyan));
+}
+.goods-power {
+  margin-left: auto;
+  font-style: normal;
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+/* ---------- 属性加成碎片 ---------- */
+.goods-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  min-height: 22px;
+}
+.stat-chip {
+  padding: 2px 9px;
+  border: 1px solid rgba(111, 233, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(111, 233, 255, 0.07);
+  font-size: 12px;
+  color: #bfeaff;
+  white-space: nowrap;
 }
 
 .goods-foot {

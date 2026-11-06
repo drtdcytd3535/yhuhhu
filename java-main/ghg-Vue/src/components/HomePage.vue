@@ -366,6 +366,7 @@ import CultivatePanel from './CultivatePanel.vue'
 import ShopPanel from './ShopPanel.vue'
 import BgParticles from './BgParticles.vue'
 import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
+import { clearSect } from '../composables/useSect.js'
 
 const props = defineProps({
   username: { type: String, default: '道友' },
@@ -772,6 +773,7 @@ onBeforeUnmount(() => {
   document.body.classList.remove('page-scroll')
   // 登出后仅清空内存态（数据库存档保留，换号登录不串数据）
   clearCave()
+  clearSect()
 })
 </script>
 

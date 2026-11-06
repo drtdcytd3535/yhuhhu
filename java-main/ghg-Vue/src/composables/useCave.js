@@ -91,6 +91,9 @@ const PUSH_DELAY = 400
  * - from：出处，《仙逆》/《斗破苍穹》
  * - kind：类别（本命至宝 / 护甲 / 兵刃 / 异火 / 身法 …）
  * - bonus：佩戴后每日修炼所得修为加成（0.4 = +40%）
+ * - stats：战斗属性加成（为「挑战宗门」准备）：
+ *     atk 攻击 / def 防御 / hp 气血 / spd 身法 / crit 暴击率(%)
+ *     存档只存装备 id，属性由本目录推导，无需落库
  * - price：售价（灵石）
  */
 export const EQUIPS = [
@@ -102,6 +105,7 @@ export const EQUIPS = [
     bonus: 0.1,
     price: 1200,
     ico: '▬',
+    stats: { atk: 30, def: 8, hp: 60, spd: 0, crit: 0 },
     desc: '萧炎少年时所负黑铁重尺，重逾三千斤，一尺压下万法皆退。'
   },
   {
@@ -112,6 +116,7 @@ export const EQUIPS = [
     bonus: 0.12,
     price: 1500,
     ico: '⇶',
+    stats: { atk: 10, def: 4, hp: 30, spd: 25, crit: 5 },
     desc: '雷族秘传身法，身化雷光，一步三影，来去无痕。'
   },
   {
@@ -122,6 +127,7 @@ export const EQUIPS = [
     bonus: 0.15,
     price: 1600,
     ico: '†',
+    stats: { atk: 38, def: 2, hp: 20, spd: 6, crit: 8 },
     desc: '王林本命飞剑，剑意逆天而行，出鞘即斩因果。'
   },
   {
@@ -132,6 +138,7 @@ export const EQUIPS = [
     bonus: 0.18,
     price: 2000,
     ico: '⋀',
+    stats: { atk: 16, def: 6, hp: 40, spd: 30, crit: 4 },
     desc: '以紫云凝成的双翼，振翅之间冲霄九万，斗气自生。'
   },
   {
@@ -142,6 +149,7 @@ export const EQUIPS = [
     bonus: 0.22,
     price: 2400,
     ico: '⛨',
+    stats: { atk: 6, def: 45, hp: 180, spd: 0, crit: 0 },
     desc: '古神一族血肉秘法所铸，甲在身则万法难侵，肉身成圣之基。'
   },
   {
@@ -152,6 +160,7 @@ export const EQUIPS = [
     bonus: 0.28,
     price: 3000,
     ico: '❀',
+    stats: { atk: 42, def: 10, hp: 80, spd: 8, crit: 6 },
     desc: '异火榜第十九，生于地心青莲，火中藏莲意，可淬体炼丹。'
   },
   {
@@ -162,6 +171,7 @@ export const EQUIPS = [
     bonus: 0.32,
     price: 3400,
     ico: '✹',
+    stats: { atk: 50, def: 8, hp: 60, spd: 12, crit: 10 },
     desc: '异火榜第十四，自天外陨石而生的心火，无形无质，焚魂于默然。'
   },
   {
@@ -172,6 +182,7 @@ export const EQUIPS = [
     bonus: 0.4,
     price: 3600,
     ico: '◉',
+    stats: { atk: 30, def: 25, hp: 150, spd: 15, crit: 8 },
     desc: '王林本命至宝，珠内自成天逆空间，可纳灵力、温养神魂、逆转一线生机。'
   },
   {
@@ -182,9 +193,37 @@ export const EQUIPS = [
     bonus: 0.5,
     price: 5600,
     ico: '✺',
+    stats: { atk: 75, def: 18, hp: 120, spd: 18, crit: 15 },
     desc: '异火榜第三，妖异净莲绽放之时，万里苍穹尽作火海。'
   }
 ]
+
+/**
+ * 战斗属性说明（属性名 → 展示文案），挑战宗门面板可直接复用
+ */
+export const STAT_DEFS = [
+  { key: 'atk', name: '攻击', ico: '⚔' },
+  { key: 'def', name: '防御', ico: '⛨' },
+  { key: 'hp', name: '气血', ico: '❤' },
+  { key: 'spd', name: '身法', ico: '➤' },
+  { key: 'crit', name: '暴击', ico: '✦', suffix: '%' }
+]
+
+/** 取某件装备的战斗属性（无则返回全零） */
+export function equipStats(item) {
+  const zero = { atk: 0, def: 0, hp: 0, spd: 0, crit: 0 }
+  if (!item || !item.stats) return zero
+  return { ...zero, ...item.stats }
+}
+
+/**
+ * 战力评定：把一套属性折算成一个数值，供挑战宗门比对敌我强度
+ * 攻击权重最高，暴击次之，气血按比例折算
+ */
+export function battlePower(stats) {
+  const s = equipStats({ stats })
+  return Math.round(s.atk * 3 + s.def * 2 + s.hp * 0.3 + s.spd * 1.5 + s.crit * 8)
+}
 
 /** 按 id 取装备定义 */
 export function findEquip(id) {
@@ -303,6 +342,29 @@ export function expBonus() {
   const it = equippedItem.value
   return it ? it.bonus : 0
 }
+
+/** 当前佩戴装备的全部 id（现为单件，将来若扩多栏位只需改这里） */
+export const equippedIds = computed(() => (cave.equipped ? [cave.equipped] : []))
+
+/**
+ * 佩戴装备的战斗属性汇总（攻/防/气血/身法/暴击）
+ * 挑战宗门的敌我强度计算直接以这份为准
+ */
+export const wornStats = computed(() => {
+  const sum = { atk: 0, def: 0, hp: 0, spd: 0, crit: 0 }
+  for (const id of equippedIds.value) {
+    const st = equipStats(findEquip(id))
+    sum.atk += st.atk
+    sum.def += st.def
+    sum.hp += st.hp
+    sum.spd += st.spd
+    sum.crit += st.crit
+  }
+  return sum
+})
+
+/** 佩戴装备的总战力（未佩戴为 0），挑战宗门用此判定可否应战 */
+export const wornPower = computed(() => battlePower(wornStats.value))
 
 /* ==================== 工具 ==================== */
 

@@ -272,6 +272,8 @@ CREATE TABLE IF NOT EXISTS t_cave (
   stones       BIGINT       NOT NULL DEFAULT 0      COMMENT '灵石',
   favs_json    TEXT                  DEFAULT NULL   COMMENT '藏书阁（JSON 数组）',
   history_json TEXT                  DEFAULT NULL   COMMENT '研读足迹（JSON 数组）',
+  equips_json  TEXT                  DEFAULT NULL   COMMENT '已购装备（JSON 数组）',
+  equipped     VARCHAR(40)  NOT NULL DEFAULT ''     COMMENT '当前佩戴的装备 id',
   sign_date    VARCHAR(10)           DEFAULT ''     COMMENT '最近签到日期 yyyy-mm-dd',
   train_date   VARCHAR(10)           DEFAULT ''     COMMENT '最近修炼日期 yyyy-mm-dd',
   train_exp    INT          NOT NULL DEFAULT 0      COMMENT '当日修炼已得修为',
@@ -283,6 +285,24 @@ CREATE TABLE IF NOT EXISTS t_cave (
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COMMENT = '洞府存档表';
+
+-- =============================================================
+-- 云岚宗挑战进度表
+-- 一个道号一条记录，只记「已击败成员 id 列表」
+-- 与洞府存档分表：换浏览器 / 清缓存 / 换设备登录，战绩仍在
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_sect (
+  id           BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  username     VARCHAR(50)  NOT NULL                COMMENT '道号（唯一）',
+  cleared_json TEXT                  DEFAULT NULL   COMMENT '已击败成员 id（JSON 数组）',
+  client_time  BIGINT       NOT NULL DEFAULT 0      COMMENT '客户端最后修改时间戳（毫秒）',
+  created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '首次挑战时间',
+  updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_sect_username (username)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '云岚宗挑战进度表';
 
 -- =============================================================
 -- 境界大阶段表（四大步 + 阴虚阳实过渡）

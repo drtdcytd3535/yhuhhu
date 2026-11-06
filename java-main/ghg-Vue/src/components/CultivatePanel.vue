@@ -66,6 +66,9 @@
       </p>
     </div>
 
+    <!-- ================= 宗门挑战：云岚宗 · 十三人试 ================= -->
+    <SectPanel v-if="!game" :username="username" @toast="(m) => emit('toast', m)" />
+
     <!-- ================= 修炼台 ================= -->
     <div v-else class="cv-stage">
       <!-- ---------- 御剑斩妖 ---------- -->
@@ -282,6 +285,7 @@
 <script setup>
 import { ref, reactive, computed, onBeforeUnmount, onMounted, nextTick } from 'vue'
 import RealmTable from './RealmTable.vue'
+import SectPanel from './SectPanel.vue'
 import {
   cave,
   realm,
