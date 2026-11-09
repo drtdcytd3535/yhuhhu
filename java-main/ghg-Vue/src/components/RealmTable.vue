@@ -1,22 +1,28 @@
 <template>
   <div class="realm-card">
-    <!-- 折叠头：随时可见当前境界 -->
-    <button class="rc-head" :class="{ open }" @click="open = !open">
-      <span class="rc-ico">境</span>
-      <span class="rc-title">
-        <b>境界总览</b>
-        <i>仙逆 · 四大步 {{ count }} 境</i>
-      </span>
-      <span class="rc-now">
-        <em>{{ now.name }}{{ now.suffix }}</em>
-        <u>第 {{ now.level }} {{ now.unit }}</u>
-      </span>
-      <span class="rc-arrow" :class="{ up: open }">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
-          <path d="M6 9.5 12 15.5 18 9.5" />
-        </svg>
-      </span>
-    </button>
+    <!-- 折叠头：随时可见当前境界，合并 / 展开状态会被记住 -->
+    <div class="rc-head" :class="{ open }">
+      <button class="rc-head-main" type="button" :aria-expanded="open" @click="toggle">
+        <span class="rc-ico">境</span>
+        <span class="rc-title">
+          <b>境界总览</b>
+          <i>仙逆 · 四大步 {{ count }} 境</i>
+        </span>
+        <span class="rc-now">
+          <em>{{ now.name }}{{ now.suffix }}</em>
+          <u>第 {{ now.level }} {{ now.unit }}</u>
+        </span>
+      </button>
+
+      <button class="rc-toggle" type="button" :class="{ on: open }" :aria-expanded="open" @click="toggle">
+        <span>{{ open ? '合并' : '展开' }}</span>
+        <span class="rc-arrow" :class="{ up: open }">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+            <path d="M6 9.5 12 15.5 18 9.5" />
+          </svg>
+        </span>
+      </button>
+    </div>
 
     <!-- 境界表 -->
     <div v-if="open" class="rc-body">
@@ -27,38 +33,46 @@
         <span>当前状态</span>
       </div>
 
-      <section v-for="g in groups" :key="g.key" class="rc-group">
-        <p class="rc-group-head">
+      <section v-for="g in groups" :key="g.key" class="rc-group" :class="{ folded: isFolded(g.key) }">
+        <button class="rc-group-head" type="button" :aria-expanded="!isFolded(g.key)" @click="toggleGroup(g.key)">
           <span class="rc-badge" :class="{ bridge: g.badge === '过渡' }">{{ g.badge }}</span>
           <b>{{ g.label }}</b>
           <span class="rc-group-range">{{ g.from }} – {{ g.to }}</span>
-        </p>
+          <span class="rc-group-fold">{{ isFolded(g.key) ? `已合并 · ${g.rows.length} 境` : '合并' }}</span>
+          <span class="rc-garrow" :class="{ up: !isFolded(g.key) }">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 9.5 12 15.5 18 9.5" />
+            </svg>
+          </span>
+        </button>
 
-        <ul class="rc-list">
-          <li v-for="r in g.rows" :key="r.name" class="rc-row" :class="r.status">
-            <span class="rc-name">
-              {{ r.name }}
-              <em>{{ r.suffix }}</em>
-            </span>
-            <span class="rc-range">{{ r.from }} – {{ r.to }}</span>
-            <span class="rc-step">
-              {{ r.perLevel }}
-              <i>{{ r.unit }}</i>
-            </span>
-            <span class="rc-state">
-              <template v-if="r.status === 'current'">
-                <b>第 {{ r.level }} {{ r.unit }}</b>
-                <span class="rc-mini">
-                  <span class="rc-mini-fill" :style="{ width: Math.round(r.progress * 100) + '%' }"></span>
-                </span>
-              </template>
-              <template v-else-if="r.status === 'done'">已渡</template>
-              <template v-else>未至</template>
-            </span>
-          </li>
-        </ul>
+        <template v-if="!isFolded(g.key)">
+          <ul class="rc-list">
+            <li v-for="r in g.rows" :key="r.name" class="rc-row" :class="r.status">
+              <span class="rc-name">
+                {{ r.name }}
+                <em>{{ r.suffix }}</em>
+              </span>
+              <span class="rc-range">{{ r.from }} – {{ r.to }}</span>
+              <span class="rc-step">
+                {{ r.perLevel }}
+                <i>{{ r.unit }}</i>
+              </span>
+              <span class="rc-state">
+                <template v-if="r.status === 'current'">
+                  <b>第 {{ r.level }} {{ r.unit }}</b>
+                  <span class="rc-mini">
+                    <span class="rc-mini-fill" :style="{ width: Math.round(r.progress * 100) + '%' }"></span>
+                  </span>
+                </template>
+                <template v-else-if="r.status === 'done'">已渡</template>
+                <template v-else>未至</template>
+              </span>
+            </li>
+          </ul>
 
-        <p class="rc-group-note">{{ g.note }}</p>
+          <p class="rc-group-note">{{ g.note }}</p>
+        </template>
       </section>
 
       <p class="rc-note">
@@ -84,10 +98,62 @@ import {
 } from '../composables/useCave.js'
 
 const props = defineProps({
-  defaultOpen: { type: Boolean, default: false }
+  defaultOpen: { type: Boolean, default: false },
+  /** 各页面各记各的：修炼 / 洞府互不干扰 */
+  storageKey: { type: String, default: 'realm' }
 })
 
-const open = ref(props.defaultOpen)
+/* ---------------- 合并 / 展开状态（脱离组件生命周期，写在本地，刷新与切页都保留） ---------------- */
+const OPEN_KEY = `xianni_${props.storageKey}_realm_open`
+const FOLD_KEY = `xianni_${props.storageKey}_realm_folded`
+
+function readOpen() {
+  try {
+    const v = localStorage.getItem(OPEN_KEY)
+    if (v === '1') return true
+    if (v === '0') return false
+  } catch (e) {
+    /* 隐私模式 / 存储被禁用时，退回默认值即可，不影响使用 */
+  }
+  return props.defaultOpen
+}
+
+function readFolded() {
+  try {
+    const raw = localStorage.getItem(FOLD_KEY)
+    const arr = raw ? JSON.parse(raw) : []
+    return Array.isArray(arr) ? arr.filter((k) => typeof k === 'string') : []
+  } catch (e) {
+    return []
+  }
+}
+
+const open = ref(readOpen())
+function toggle() {
+  open.value = !open.value
+  try {
+    localStorage.setItem(OPEN_KEY, open.value ? '1' : '0')
+  } catch (e) {
+    /* 存不下就只影响记忆，不影响折叠本身 */
+  }
+}
+
+/** 已合并的大阶段 key 列表 */
+const foldedKeys = ref(readFolded())
+const isFolded = (key) => foldedKeys.value.includes(key)
+
+function toggleGroup(key) {
+  const next = isFolded(key)
+    ? foldedKeys.value.filter((k) => k !== key)
+    : [...foldedKeys.value, key]
+  foldedKeys.value = next
+  try {
+    localStorage.setItem(FOLD_KEY, JSON.stringify(next))
+  } catch (e) {
+    /* 同上 */
+  }
+}
+
 const rows = computed(() => realmTable.value)
 const now = computed(() => realm.value)
 const next = computed(() => nextRealm.value)
@@ -123,10 +189,26 @@ const groups = computed(() =>
 .rc-head {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 10px;
   width: 100%;
-  padding: 15px 20px;
+  padding: 7px 14px 7px 10px;
+  transition: 0.24s;
+}
+
+.rc-head.open {
+  border-bottom: 1px solid rgba(160, 190, 230, 0.12);
+}
+
+/* 左侧主区：点标题也能合并 / 展开 */
+.rc-head-main {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 8px 8px 6px;
   border: none;
+  border-radius: 10px;
   background: transparent;
   font-family: inherit;
   color: inherit;
@@ -135,12 +217,38 @@ const groups = computed(() =>
   transition: 0.24s;
 }
 
-.rc-head:hover {
+.rc-head-main:hover {
   background: rgba(111, 233, 255, 0.05);
 }
 
-.rc-head.open {
-  border-bottom: 1px solid rgba(160, 190, 230, 0.12);
+/* 右侧显式的「合并 / 展开」按钮 */
+.rc-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(160, 190, 230, 0.22);
+  background: rgba(255, 255, 255, 0.03);
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: rgba(233, 238, 251, 0.6);
+  cursor: pointer;
+  transition: 0.24s;
+}
+
+.rc-toggle:hover {
+  color: var(--cyan);
+  border-color: rgba(111, 233, 255, 0.5);
+  background: rgba(111, 233, 255, 0.08);
+}
+
+.rc-toggle.on {
+  color: rgba(111, 233, 255, 0.92);
+  border-color: rgba(111, 233, 255, 0.34);
+  background: rgba(111, 233, 255, 0.07);
 }
 
 .rc-ico {
@@ -216,6 +324,12 @@ const groups = computed(() =>
   height: 17px;
 }
 
+/* 折叠按钮里的箭头小一号，避免撑大胶囊按钮 */
+.rc-toggle .rc-arrow svg {
+  width: 13px;
+  height: 13px;
+}
+
 .rc-arrow.up {
   transform: rotate(180deg);
   color: var(--cyan);
@@ -262,7 +376,60 @@ const groups = computed(() =>
   display: flex;
   align-items: center;
   gap: 9px;
+  width: 100%;
   padding: 7px 12px 6px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.22s;
+}
+
+.rc-group-head:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* 分组右侧的合并提示：默认隐去，悬停或已合并时显形 */
+.rc-group-fold {
+  flex-shrink: 0;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(111, 233, 255, 0.55);
+  opacity: 0;
+  transition: 0.22s;
+}
+
+.rc-group-head:hover .rc-group-fold,
+.rc-group.folded .rc-group-fold {
+  opacity: 1;
+}
+
+.rc-group.folded .rc-group-head {
+  background: rgba(255, 255, 255, 0.028);
+}
+
+.rc-group.folded .rc-badge {
+  opacity: 0.72;
+}
+
+.rc-garrow {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: rgba(233, 238, 251, 0.34);
+  transition: 0.26s;
+}
+
+.rc-garrow svg {
+  width: 14px;
+  height: 14px;
+}
+
+.rc-garrow.up {
+  transform: rotate(180deg);
+  color: rgba(111, 233, 255, 0.72);
 }
 
 .rc-badge {
@@ -467,9 +634,18 @@ const groups = computed(() =>
 /* ================= 响应式 ================= */
 @media (max-width: 620px) {
   .rc-head {
+    gap: 8px;
+    padding: 7px 10px;
+  }
+  .rc-head-main {
     flex-wrap: wrap;
     gap: 10px;
-    padding: 13px 16px;
+    padding: 8px 6px;
+  }
+  .rc-toggle {
+    padding: 5px 10px;
+    font-size: 11.5px;
+    letter-spacing: 1px;
   }
   .rc-title i {
     display: none;
@@ -494,6 +670,9 @@ const groups = computed(() =>
     font-size: 18px;
   }
   .rc-group-range {
+    display: none;
+  }
+  .rc-group-fold {
     display: none;
   }
 }

@@ -46,7 +46,7 @@
     </div>
 
     <!-- ================= 境界总览表 ================= -->
-    <RealmTable v-if="!game" class="cv-realm" :default-open="true" />
+    <RealmTable v-if="!game" class="cv-realm" :default-open="true" storage-key="train" />
 
     <!-- ================= 法门选择 ================= -->
     <div v-if="!game" class="cv-games">

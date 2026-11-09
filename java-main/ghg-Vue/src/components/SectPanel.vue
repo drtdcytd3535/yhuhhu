@@ -8,13 +8,13 @@
           <h3>云岚宗 · 十三人试</h3>
           <p>
             由弱到强，自外门弟子起逐位挑战，宗主压轴（修为最高）。须打完一位，方可请下一位；
-            <b>修为定强弱，属性决每一击</b>——修为相近时，法宝便是胜负所在。
+            出手只两手——<b>防御可挡下一切攻击，不问修为</b>；唯双方皆攻，才比修为，高者伤害更重。
           </p>
         </div>
         <div class="sh-right">
           <p class="sh-progress">已败 <b>{{ count }}</b> / {{ SECT_SIZE }}</p>
           <p class="sh-mine">修为 <b>{{ myLabel }}</b></p>
-          <p class="sh-mine">战力 <b>{{ myPower }}</b></p>
+          <p class="sh-mine">气血 <b>{{ myHp }}</b></p>
           <p class="sh-save">{{ saveHint }}</p>
         </div>
       </div>
@@ -46,10 +46,8 @@
           </div>
 
           <div class="sr-power">
-            <p class="sr-power-num">战力 {{ row.power }}</p>
-            <p class="sr-power-sub">
-              攻 {{ row.stats.atk }} · 防 {{ row.stats.def }} · 气血 {{ row.stats.hp }}
-            </p>
+            <p class="sr-power-num">气血 {{ row.hp }}</p>
+            <p class="sr-power-sub">我方修为占 {{ row.share }}%</p>
           </div>
 
           <div class="sr-act">
@@ -64,7 +62,8 @@
 
       <div class="sect-foot">
         <p>
-          首通各得灵石之赏，重战只论高下不再给赏。修为可于上方法门中日渐积攒，属性须往「商店」购法宝佩戴。
+          首通各得灵石之赏，重战只论高下不再给赏。防御能挡下任何来击，但唯有双方皆攻才分高下；
+          修为愈高，对攻时一击愈重，宜于上方法门中勤修。
         </p>
         <button v-if="count > 0" class="sect-reset" @click="onReset">重设名册</button>
       </div>
@@ -82,13 +81,11 @@
         <span class="ar-round">第 {{ battle.state.round }} / {{ battle.state.maxRound }} 回合</span>
       </div>
 
-      <!-- 修为压制提示 -->
+      <!-- 修为对比：只在双方皆攻时起作用 -->
       <p class="ar-sup">
-        <span :class="supClass">
-          修为 {{ sup > 1 ? '压制' : sup < 1 ? '受制' : '持平' }} ×{{ sup.toFixed(2) }}
-        </span>
+        <span :class="edgeClass">修为占比 我 {{ myShare }}% · 敌 {{ 100 - myShare }}%</span>
         <span class="ar-sup-note">{{ supNote }}</span>
-        <span class="ar-first">身法先手 · {{ firstStrike }}</span>
+        <span class="ar-first">对方出手随机</span>
       </p>
 
       <div class="ar-ring" :class="{ fighting: !battle.state.over && battle.state.round > 0 }">
@@ -104,12 +101,10 @@
             气血 <b>{{ me.hp }}</b> / {{ me.maxHp }}
           </p>
 
-          <p class="ar-power">战力 {{ myPower }}　修为 {{ me.exp }}</p>
-          <div class="ar-stats">
-            <span v-for="c in myChips" :key="c.key" class="ar-chip">
-              {{ c.ico }} {{ c.name }} {{ c.val }}{{ c.suffix || '' }}
-            </span>
-          </div>
+          <p class="ar-power">修为 {{ me.exp }}</p>
+          <p class="ar-move">
+            本回合出手 · <b :class="me.move">{{ moveName(me.move) }}</b>
+          </p>
 
           <p v-if="lastHit.me" class="hit-num me-hit" :key="hitKey.me">-{{ lastHit.me }}</p>
         </div>
@@ -119,7 +114,7 @@
             {{ battle.state.over ? (battle.state.win ? '胜' : battle.state.draw ? '平' : '败') : 'VS' }}
           </span>
           <p class="vs-tip">
-            {{ battle.state.over ? '斗法已毕' : battle.state.round ? '法力相激' : '待你出手' }}
+            {{ battle.state.over ? '斗法已毕' : battle.state.round ? roundTip : '待你出手' }}
           </p>
         </div>
 
@@ -135,21 +130,19 @@
             气血 <b>{{ foeHp.hp }}</b> / {{ foeHp.maxHp }}
           </p>
 
-          <p class="ar-power">战力 {{ foePower }}　修为 {{ foe.exp }}</p>
-          <div class="ar-stats">
-            <span v-for="c in foeChips" :key="c.key" class="ar-chip">
-              {{ c.ico }} {{ c.name }} {{ c.val }}{{ c.suffix || '' }}
-            </span>
-          </div>
+          <p class="ar-power">修为 {{ foe.exp }}</p>
+          <p class="ar-move">
+            本回合出手 · <b :class="foe.move">{{ moveName(foe.move) }}</b>
+          </p>
 
           <p v-if="lastHit.foe" class="hit-num foe-hit" :key="hitKey.foe">-{{ lastHit.foe }}</p>
         </div>
       </div>
 
-      <!-- 招式 -->
+      <!-- 招式：只两手 -->
       <div v-if="!battle.state.over" class="ar-tactics">
         <button
-          v-for="t in TACTICS"
+          v-for="t in MOVES"
           :key="t.key"
           class="tac"
           :class="t.key"
@@ -159,7 +152,7 @@
           <span class="tac-name">{{ t.name }}</span>
           <span class="tac-desc">{{ t.desc }}</span>
         </button>
-        <button class="tac-auto" @click="autoFight">速战 · 自动强攻到底</button>
+        <button class="tac-auto" @click="autoFight">速战 · 自动出手到底</button>
       </div>
 
       <!-- 战报 -->
@@ -216,12 +209,12 @@
 
 <script setup>
 import { computed, reactive, onBeforeUnmount, watch } from 'vue'
-import { cave, STAT_DEFS, equipStats } from '../composables/useCave.js'
+import { cave } from '../composables/useCave.js'
 import {
   SECT_NAME,
   SECT_SIZE,
   SECT_MEMBERS,
-  TACTICS,
+  MOVES,
   sect,
   initSect,
   resetSect,
@@ -229,12 +222,12 @@ import {
   isUnlocked,
   clearedCount,
   realmLabel,
-  memberPower,
-  playerPower,
+  memberHp,
+  playerStats,
   startDuel,
   duelRound,
   settleDuel,
-  suppress
+  expShare
 } from '../composables/useSect.js'
 
 const props = defineProps({
@@ -247,7 +240,8 @@ const rows = computed(() =>
   SECT_MEMBERS.map((m, i) => ({
     ...m,
     index: i,
-    power: memberPower(m),
+    hp: memberHp(m),
+    share: Math.round(expShare(cave.exp, m.exp) * 100),
     label: realmLabel(m.exp),
     defeated: isDefeated(m),
     unlocked: isUnlocked(i)
@@ -256,7 +250,7 @@ const rows = computed(() =>
 
 const count = computed(() => clearedCount())
 const myLabel = computed(() => realmLabel(cave.exp))
-const myPower = computed(() => playerPower())
+const myHp = computed(() => playerStats().hp)
 
 /** 战绩存档状态：云端 > 本地 */
 const saveHint = computed(() => {
@@ -272,35 +266,37 @@ const battle = reactive({
   settle: null
 })
 
-const me = computed(() => battle.state?.me || { hp: 0, maxHp: 1, exp: 0, stats: {} })
+const me = computed(() => battle.state?.me || { hp: 0, maxHp: 1, exp: 0, move: '' })
 const foe = computed(() => battle.state?.foe || SECT_MEMBERS[0])
 const foeHp = computed(() => battle.state?.foe || { hp: 0, maxHp: 1 })
-const foePower = computed(() => memberPower(foe.value))
 
 const myHpPct = computed(() => Math.max(0, Math.round((me.value.hp / me.value.maxHp) * 100)))
 const foeHpPct = computed(() => Math.max(0, Math.round((foeHp.value.hp / foeHp.value.maxHp) * 100)))
 
-const sup = computed(() => suppress(me.value.exp, foe.value.exp))
-const supClass = computed(() => (sup.value > 1.02 ? 'sup-up' : sup.value < 0.98 ? 'sup-down' : 'sup-equal'))
+/** 修为占比：只在双方皆攻时决定伤害轻重 */
+const myShare = computed(() => Math.round(expShare(me.value.exp, foe.value.exp) * 100))
+const edgeClass = computed(() =>
+  myShare.value >= 55 ? 'sup-up' : myShare.value <= 45 ? 'sup-down' : 'sup-equal'
+)
 const supNote = computed(() => {
-  if (sup.value > 1.02) return `修为高于对方，伤害与抗伤皆占优`
-  if (sup.value < 0.98) return `修为不及对方，硬拼吃亏，可守御回气再寻破绽`
-  return '修为相当，胜负系于法宝属性与出招'
+  if (myShare.value >= 55) return '对攻时我伤更重，放开手打'
+  if (myShare.value <= 45) return '对攻吃亏，宜以防御相持、先积修为'
+  return '修为相当，对攻两败俱伤'
 })
 
-/** 身法高者先出手 */
-const firstStrike = computed(() => {
-  const a = me.value.stats?.spd ?? 0
-  const b = foe.value.stats?.spd ?? 0
-  return a >= b ? '我方' : foe.value.name
-})
-
-function chips(stats) {
-  const st = equipStats({ stats })
-  return STAT_DEFS.map((d) => ({ ...d, val: st[d.key] })).filter((c) => c.val > 0)
+/** 招式名 */
+function moveName(k) {
+  return k === 'attack' ? '攻击' : k === 'guard' ? '防御' : '—'
 }
-const myChips = computed(() => chips(me.value.stats))
-const foeChips = computed(() => chips(foe.value.stats))
+
+/** VS 处的交手提示 */
+const roundTip = computed(() => {
+  const s = battle.state
+  if (!s || !s.last) return '法力相激'
+  if (s.last.kind === 'clash') return '两攻相接'
+  if (s.last.kind === 'calm') return '双守成平'
+  return '一击被挡'
+})
 
 /* 最近一击的飘伤数字 */
 const lastHit = reactive({ me: 0, foe: 0 })
@@ -322,22 +318,23 @@ const resultReason = computed(() => {
   const s = battle.state
   if (!s) return ''
   if (s.win) {
-    if (s.byTimeout) return `苦战 ${s.round} 回合至时限，以残余气血胜之`
-    return s.round <= 3
-      ? `修为悬殊，三合之内便破了${foe.value.name}的护体罡气`
-      : `第 ${s.round} 回合击溃${foe.value.name}气血`
+    if (s.byTimeout) return `相持 ${s.round} 回合至时限，以残余气血胜之`
+    return `对攻 ${s.clashes} 次，修为压过${foe.value.name}，破其气血`
   }
-  if (s.draw) return '双方气血几近同归于尽，判为平手'
-  return s.byTimeout ? '苦战至时限，残余气血不及对方' : '气血耗尽，力有未逮'
+  if (s.draw) {
+    if (s.mutual) return '最后一记对攻同归于尽，判为平手'
+    if (s.byTimeout) return `相持 ${s.round} 回合未分高下，判为平手`
+    return '双方皆守，久攻不下，判为平手'
+  }
+  return s.byTimeout ? '苦战至时限，残余气血不及对方' : '对攻之下修为不及，气血先竭'
 })
 const advice = computed(() => {
   const s = battle.state
   if (!s) return ''
   const diff = foe.value.exp - me.value.exp
-  if (diff > 0) {
-    return `对方修为高出 ${diff} 点，宜再积修为（修为压制会同时抬高伤害与抗伤）；亦可先守御回气，拖长回合。`
-  }
-  return `修为已足压制，问题在属性：我方战力 ${myPower.value}，对方 ${foePower.value}，可往「商店」换更上品法宝佩戴。`
+  if (diff > 0) return `对方修为高出 ${diff} 点，对攻必吃亏——只守不攻只能拖成平手，先积修为再来。`
+  if (diff < 0) return `修为压过对方 ${-diff} 点，尽管对攻——修为愈高，一击愈重。`
+  return '修为相当，对攻两败俱伤；可多守待机，看谁先失手。'
 })
 
 const nextIndex = computed(() => {
@@ -408,16 +405,18 @@ function choose(key) {
   }, 1200)
 }
 
-/** 速战：自动强攻打到分出胜负 */
+/** 速战：自动随机出手，打到分出胜负 */
 function autoFight() {
   const s = battle.state
   if (!s || s.over) return
   let guard = 0
   while (!s.over && guard < 100) {
-    duelRound(s, 'attack')
+    duelRound(s, Math.random() < 0.5 ? 'attack' : 'guard')
     guard += 1
   }
   if (s.over) {
+    lastHit.me = 0
+    lastHit.foe = 0
     battle.settle = settleDuel(s)
     emit('toast', battle.settle.msg)
   }
@@ -695,15 +694,19 @@ onBeforeUnmount(clearHitTimer)
 .hp-text b { color: #f2e6c8; font-size: 13px; }
 
 .ar-power { margin-top: 6px; font-size: 12px; color: var(--gold); }
-.ar-stats { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-.ar-side.foe .ar-stats { justify-content: flex-end; }
-.ar-chip {
-  padding: 1px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  font-size: 11px;
-  color: #b7c2e0;
+.ar-move {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: #7d89ad;
 }
+.ar-move b {
+  padding: 1px 9px;
+  border-radius: 999px;
+  font-weight: 400;
+  font-size: 11.5px;
+}
+.ar-move b.attack { border: 1px solid rgba(232, 198, 107, 0.45); color: var(--gold); }
+.ar-move b.guard { border: 1px solid rgba(111, 233, 255, 0.45); color: var(--cyan); }
 
 .hit-num {
   position: absolute;
@@ -744,7 +747,7 @@ onBeforeUnmount(clearHitTimer)
 /* ---------- 招式 ---------- */
 .ar-tactics {
   display: grid;
-  grid-template-columns: repeat(3, 1fr) auto;
+  grid-template-columns: 1fr 1fr auto;
   gap: 10px;
   margin-top: 14px;
 }
@@ -766,9 +769,10 @@ onBeforeUnmount(clearHitTimer)
 .tac-name { font-family: var(--font-display); font-size: 15px; letter-spacing: 2px; color: #f2e6c8; }
 .tac-desc { font-size: 10.5px; color: #7d89ad; }
 
+.tac.attack { border-color: rgba(232, 198, 107, 0.28); }
 .tac.attack:hover { border-color: rgba(232, 198, 107, 0.6); background: rgba(60, 48, 22, 0.6); }
+.tac.guard { border-color: rgba(111, 233, 255, 0.28); }
 .tac.guard:hover { border-color: rgba(111, 233, 255, 0.55); background: rgba(18, 44, 58, 0.6); }
-.tac.burst:hover { border-color: rgba(224, 120, 120, 0.6); background: rgba(58, 22, 28, 0.6); }
 
 .tac-auto {
   align-self: stretch;
@@ -872,7 +876,6 @@ onBeforeUnmount(clearHitTimer)
   .sr-realm, .sr-power { display: none; }
   .ar-ring { grid-template-columns: 1fr; }
   .ar-side.foe { text-align: left; }
-  .ar-side.foe .ar-stats { justify-content: flex-start; }
   .ar-vs { flex-direction: row; }
   .vs-tip { display: none; }
   .ar-tactics { grid-template-columns: 1fr 1fr; }

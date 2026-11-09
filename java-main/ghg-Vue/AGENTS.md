@@ -24,11 +24,11 @@
 | 项目根 | `C:\Users\Administrator\Desktop\java-main` |
 | 前端源码 | `ghg-Vue/src/`（`App.vue`、`components/LoginCard.vue`、`components/RegisterCard.vue`、`components/StarField.vue`、`components/ArtBackground.vue`、`components/HomePage.vue`、`components/CavePanel.vue`、`components/AdminLogin.vue`、`components/AdminPanel.vue`、`composables/useCave.js`） |
 | 页面切换 | 未用 vue-router，`App.vue` 三层状态：`adminState`（null 前台 / `login` 后台登录 / `panel` 后台主页）优先于 `logged`（登录注册 / 首页）；`logged` 为真后进入 `HomePage`，其内部再用 `view`（`home` / `cave`）在「仙门首页」与「我的洞府」间切换 |
-| 前端调试 | 开发态访问 `http://127.0.0.1:5173/?preview=home` 直达首页、`?preview=cave` 直达「我的洞府」、`?preview=admin` 直达后台登录页、`?preview=register` 直达注册页 |
+| 前端调试 | 开发态访问 `http://192.168.68.26:5173/?preview=home` 直达首页、`?preview=cave` 直达「我的洞府」、`?preview=admin` 直达后台登录页、`?preview=register` 直达注册页（vite 监听 `0.0.0.0`，本机 `127.0.0.1:5173` 同样可用） |
 | 外链入口 | 首页导航「动漫」= `https://v.qq.com/x/cover/mzc00200aaogpgh.html`（腾讯视频《仙逆》动漫专辑页），`window.open` 新标签打开，常量在 `HomePage.vue` 的 `ANIME_URL` |
-| 前端构建 | `ghg-Vue/vite.config.js`（`/api` 代理到 `http://127.0.0.1:8081`） |
+| 前端构建 | `ghg-Vue/vite.config.js`（`LAN_HOST = 192.168.68.26`，`/api` 代理到 `http://192.168.68.26:8081`） |
 | 后端工程 | `springBootTest/` |
-| 后端端口 | **8081** |
+| 后端地址 | **http://192.168.68.26:8081**（`server.address=0.0.0.0`，127.0.0.1 也通） |
 | 前端开发端口 | **5173** |
 
 后端接口（前缀 `/api`）：

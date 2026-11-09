@@ -55,7 +55,7 @@ if !WAITED! GEQ 120 (
 goto :wait_backend
 
 :backend_ok
-echo [成功] 后端已就绪：http://127.0.0.1:8081
+echo [成功] 后端已就绪：http://192.168.68.26:8081
 
 :start_frontend
 echo.
@@ -81,15 +81,15 @@ pause
 goto :summary
 
 :frontend_ok
-echo [成功] 前端地址：http://127.0.0.1:5173
-start "" "http://127.0.0.1:5173"
+echo [成功] 前端地址：http://192.168.68.26:5173
+start "" "http://192.168.68.26:5173"
 
 :summary
 echo.
 echo ============================================================
 echo    启动完成
-echo      前端  http://127.0.0.1:5173
-echo      后端  http://127.0.0.1:8081
+echo      前端  http://192.168.68.26:5173
+echo      后端  http://192.168.68.26:8081
 echo    停止项目请运行 stop.bat
 echo ============================================================
 echo.

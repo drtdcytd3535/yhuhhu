@@ -1,9 +1,11 @@
 <template>
   <div class="home">
-    <!-- ================= 主页背景（等比铺满视口） ================= -->
+    <!-- ============ 主页背景：与登录页共用同一套主视觉 ============ -->
     <div class="home-bg" aria-hidden="true">
-      <img class="home-bg-img" src="../assets/home-bg.png" alt="" draggable="false" />
-      <div class="home-bg-veil"></div>
+      <!-- 登录 / 注册页的那张仙逆主视觉：底图 + 血色灵光 + 流光 + 灵烬 + 鼠标视差 -->
+      <ArtBackground />
+      <!-- 首页专用薄纱：只压一层轻暗，保证导航、标题与检索栏可读 -->
+      <div class="home-veil"></div>
       <!-- 灵光粒子：浮尘 + 金色火星，随气息轻移 -->
       <BgParticles />
     </div>
@@ -365,6 +367,7 @@ import CavePanel from './CavePanel.vue'
 import CultivatePanel from './CultivatePanel.vue'
 import ShopPanel from './ShopPanel.vue'
 import BgParticles from './BgParticles.vue'
+import ArtBackground from './ArtBackground.vue'
 import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
 import { clearSect } from '../composables/useSect.js'
 
@@ -786,7 +789,8 @@ onBeforeUnmount(() => {
 }
 
 /* ================= 主页背景 ================= */
-/* 固定铺满视口：无论窗口多宽多窄，都按 16:9 原图等比覆盖、不拉伸变形 */
+/* 固定铺满视口，内含登录页同款主视觉组件 ArtBackground。
+ * 底图、灵光、流光、灵烬全部复用那一份，改图只需改 assets/hhh.jpg */
 .home-bg {
   position: fixed;
   inset: 0;
@@ -796,54 +800,32 @@ onBeforeUnmount(() => {
   background: #05060c;
 }
 
-.home-bg-img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover; /* 等比铺满，多余部分裁切 */
-  object-position: 50% 40%; /* 主角二人居中，裁切时优先保留面部区域 */
-  user-select: none;
-  /* 入场淡入 + 之后极缓慢的推近呼吸（60s 一轮，几乎察觉不到在变，但画面"活着"） */
-  animation:
-    homeBgIn 1.2s ease both,
-    homeBgBreathe 60s ease-in-out 1.4s infinite alternate;
-  will-change: transform;
-}
-
-/* 暗色纱罩：压住亮部，保证卡片与文字可读 */
-.home-bg-veil {
+/* 登录页里 ArtBackground 是 fixed 全屏；放进本层后改成铺满这一层即可 */
+.home-bg :deep(.art-bg) {
   position: absolute;
   inset: 0;
+  z-index: 0;
+}
+
+.home-bg :deep(.bg-particles) {
+  z-index: 2;
+}
+
+/* 首页专用薄纱：叠在登录页自带暗角之上，只补导航与英雄区的一点压暗，
+ * 比原来的整块深色纱罩轻得多，主视觉仍看得清 */
+.home-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
   background:
     linear-gradient(
       180deg,
-      rgba(5, 6, 12, 0.74) 0%,
-      rgba(5, 6, 12, 0.34) 20%,
-      rgba(5, 6, 12, 0.46) 56%,
-      rgba(5, 6, 12, 0.88) 100%
+      rgba(5, 6, 12, 0.7) 0%,
+      rgba(5, 6, 12, 0.26) 118px,
+      rgba(5, 6, 12, 0.2) 52%,
+      rgba(5, 6, 12, 0.58) 100%
     ),
-    radial-gradient(98% 82% at 50% 38%, rgba(6, 10, 12, 0.04), rgba(5, 6, 12, 0.55));
-}
-
-@keyframes homeBgIn {
-  from {
-    opacity: 0;
-    transform: scale(1.04);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* 极缓慢推近 + 微微上移：给静态背景一点"呼吸"，配合粒子的动态 */
-@keyframes homeBgBreathe {
-  from {
-    transform: scale(1) translate3d(0, 0, 0);
-  }
-  to {
-    transform: scale(1.07) translate3d(0, -0.8%, 0);
-  }
+    radial-gradient(98% 78% at 50% 36%, rgba(5, 6, 12, 0.02), rgba(5, 6, 12, 0.3));
 }
 
 /* ================= 导航栏 ================= */
@@ -2269,15 +2251,9 @@ onBeforeUnmount(() => {
   .dt-title {
     font-size: 24px;
   }
-  /* 窄屏竖向裁切较多，主体再往上提一点 */
-  .home-bg-img {
-    object-position: 50% 32%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-bg-img {
-    animation: none;
+  /* 窄屏竖向裁切较多，主体再往上提一点（与登录页同一张图，裁切策略一致） */
+  .home-bg :deep(.art-img) {
+    object-position: 50% 30%;
   }
 }
 </style>

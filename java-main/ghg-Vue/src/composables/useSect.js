@@ -7,9 +7,11 @@ import { cave, realms, wornStats, battlePower, addStones } from './useCave.js'
  * 玩法规则（需求对齐）：
  *   1. 名册十三人，由弱到强：自外门弟子起修为逐位递增，宗主压轴且修为最高；
  *   2. 须「打完一个再打一个」——前一位未败，后一位不可挑战；
- *   3. 胜负先比修为：修为高者胜；
- *   4. 修为相同则比属性（装备加成折算的战力），战力高者胜；
- *   5. 修为与战力皆同，判为平手，需精进后再来。
+ *   3. 出手只两手：攻击、防御；
+ *   4. 防御可挡下一切攻击，不论修为高低——我攻他守、他攻我守，皆是分毫不伤；
+ *   5. 双方皆守，此回合平局，无人得手；
+ *   6. 双方皆攻，则看修为：修为高者伤害更重，两边同时受创；
+ *   7. 敌手的出手纯属随机（攻守各半），不因气血、修为而变。
  *
  * 进度只记「已击败成员 id」，按道号存数据库（t_sect，/api/sect），
  * localStorage 仅作离线缓存：换浏览器、清缓存、换设备登录，战绩都还在。
@@ -187,6 +189,11 @@ export function realmLabel(exp) {
 /** 某人的战力（含底子，与我方同口径） */
 export function memberPower(m) {
   return battlePower(withBase(m.stats))
+}
+
+/** 某人的气血（含底子）——斗法中唯一的耐久 */
+export function memberHp(m) {
+  return withBase(m.stats).hp
 }
 
 /* ==================== 进度（本地缓存 + 云端落库） ==================== */
@@ -403,72 +410,54 @@ export function playerPower() {
 export const MAX_ROUND = 20
 
 /**
- * 修为压制：修为高者伤害更重、受创更轻
- * 修为等同 → 1.00；高出一半 → 约 1.5；不及其半 → 约 0.4，差距愈大愈悬殊
+ * 修为比重：我在两人修为总和里占几成（0 ~ 1）
+ * 双方皆攻时，伤害即按此比重分配——修为愈高，出手愈重。
  */
-export function suppress(myExp, theirExp) {
-  const a = Math.max(0, Number(myExp) || 0)
-  const b = Math.max(0, Number(theirExp) || 0)
-  const m = Math.max(a, b, 1)
-  const diff = (a - b) / m           // -1 ~ 1
-  return Math.min(2.4, Math.max(0.25, 1 + 1.25 * diff))
+export function expShare(myExp, theirExp) {
+  const a = Math.max(1, Number(myExp) || 0)
+  const b = Math.max(1, Number(theirExp) || 0)
+  return a / (a + b)
+}
+
+/** 双方皆攻时，一击削去对方多少气血（按修为比重放大，修为相当时约 2~3 击） */
+export const CLASH_RATE = 0.4
+
+function clashDamage(attackerExp, defenderExp, defenderMaxHp) {
+  const r = expShare(attackerExp, defenderExp)
+  // 修为占五成 → 1 倍；占七成 → 约 1.6 倍；占三成 → 约 0.44 倍（有下限，不至毫无还手之力）
+  const pressure = Math.max(0.25, Math.min(1.6, Math.pow(r * 2, 1.6)))
+  return Math.max(1, Math.round(defenderMaxHp * CLASH_RATE * pressure))
 }
 
 /**
- * 招式：每回合三选一，攻守各有取舍
- * - atk：本回合攻击倍率
- * - def：本回合防御倍率（同时抵挡对方来袭）
- * - taken：本回合受创倍率
- * - heal：本回合回气比例（占最大气血）
+ * 招式：只有「攻击」与「防御」两手
+ * 规则（需求对齐）：
+ *   · 我攻 · 敌守 → 被挡下，无论修为高低皆挡得住；
+ *   · 我守 · 敌攻 → 我亦挡下，分毫不伤；
+ *   · 双方皆守 → 此回合平局，无人得手；
+ *   · 双方皆攻 → 修为高者伤害更重，两边同时受创。
  */
-export const TACTICS = [
+export const MOVES = [
   {
     key: 'attack',
-    name: '强攻',
+    name: '攻击',
     ico: '⚔',
-    desc: '攻势凌厉 · 攻 +30% · 守 -20%',
-    atk: 1.3,
-    def: 0.8,
-    taken: 1,
-    heal: 0
+    desc: '出手伤人 · 遇对方防御则被挡下'
   },
   {
     key: 'guard',
-    name: '守御',
+    name: '防御',
     ico: '⛨',
-    desc: '以守待攻 · 守 +70% · 攻 -30% · 回气 6%',
-    atk: 0.7,
-    def: 1.7,
-    taken: 0.85,
-    heal: 0.06
-  },
-  {
-    key: 'burst',
-    name: '拼死',
-    ico: '✺',
-    desc: '搏命一击 · 攻 +75% · 自伤 +35%',
-    atk: 1.75,
-    def: 0.9,
-    taken: 1.35,
-    heal: 0
+    desc: '挡下一切来击 · 双方皆防则平'
   }
 ]
 
-/** 一击伤害：攻击 × 招式 × 修为压制 × 防御减免 × 暴击 × 受创系数 */
-function strike(attacker, defender, sup, atkMul, defMul, takenMul) {
-  const crit = Math.random() * 100 < attacker.crit
-  const effDef = defender.def * defMul
-  const raw = attacker.atk * atkMul * sup * (100 / (100 + effDef))
-  const dmg = Math.max(1, Math.round(raw * (crit ? 1.8 : 1) * takenMul))
-  return { dmg, crit }
-}
+/** 旧名保留，避免外部引用报错 */
+export const TACTICS = MOVES
 
-/** 对方的出招：血少拼命，血厚试探，偶尔守御 */
-function foeTactic(foe) {
-  const ratio = foe.hp / foe.maxHp
-  if (ratio < 0.3) return TACTICS[2]
-  if (ratio < 0.65) return TACTICS[0]
-  return Math.random() < 0.3 ? TACTICS[1] : TACTICS[0]
+/** 敌手出手：纯随机，五五开 */
+function foeMove() {
+  return Math.random() < 0.5 ? 'attack' : 'guard'
 }
 
 /* ==================== 斗法：开战与回合 ==================== */
@@ -500,20 +489,27 @@ export function startDuel(index) {
       win: false,
       draw: false,
       byTimeout: false,
+      mutual: false,      // 两败俱伤
+      clashes: 0,         // 双方皆攻的次数
+      blocked: 0,         // 被挡下的次数
+      calm: 0,            // 双方皆防的次数
+      last: null,         // 上回合交手：{ mine, foe, kind }
       log: [],
       me: {
         name: '我',
         exp: Math.max(0, Number(cave.exp) || 0),
         stats: ps,
         hp: ps.hp,
-        maxHp: ps.hp
+        maxHp: ps.hp,
+        move: ''
       },
       foe: {
         name: member.name,
         exp: member.exp,
         stats: fs,
         hp: fs.hp,
-        maxHp: fs.hp
+        maxHp: fs.hp,
+        move: ''
       }
     }
   }
@@ -521,66 +517,77 @@ export function startDuel(index) {
 
 /**
  * 走一回合（原地修改 state）
+ *
+ * 只有两手，同时出手，照面即判：
+ *   我攻 · 敌守 → 攻被挡下，双方无伤
+ *   我守 · 敌攻 → 攻被挡下，双方无伤
+ *   双方皆守   → 此回合平，双方无伤
+ *   双方皆攻   → 各挨一击，修为高者伤害更重
+ *
  * @param {object} st startDuel 给出的 state
- * @param {string} tacticKey attack | guard | burst
- * @returns {{events:Array<{side:string, crit:boolean, text:string}>, over:boolean, win:boolean, draw:boolean}}
+ * @param {string} moveKey attack | guard
+ * @returns {{events:Array<{side:string, crit:boolean, text:string}>, over:boolean, win:boolean, draw:boolean, kind:string}}
  */
-export function duelRound(st, tacticKey) {
+export function duelRound(st, moveKey) {
   if (!st || st.over) {
-    return { events: [], over: true, win: st ? st.win : false, draw: st ? st.draw : false }
+    return { events: [], over: true, win: st ? st.win : false, draw: st ? st.draw : false, kind: '' }
   }
 
   const me = st.me
   const foe = st.foe
-  const t = TACTICS.find((x) => x.key === tacticKey) || TACTICS[0]
-  const ft = foeTactic(foe)
+  const mine = moveKey === 'guard' ? 'guard' : 'attack'
+  const theirs = foeMove()
   const events = []
+  let kind = ''
 
   st.round += 1
+  me.move = mine
+  foe.move = theirs
 
-  // 守御调息：先回一口气
-  if (t.heal > 0 && me.hp > 0) {
-    const n = Math.min(me.maxHp - me.hp, Math.round(me.maxHp * t.heal))
-    if (n > 0) {
-      me.hp += n
-      events.push({ side: 'me', crit: false, text: `调息回气 +${n}` })
-    }
-  }
-
-  const mySup = suppress(me.exp, foe.exp)
-  const foeSup = suppress(foe.exp, me.exp)
-
-  const myHit = () => {
-    if (foe.hp <= 0) return
-    const r = strike(me.stats, foe.stats, mySup, t.atk, ft.def, ft.taken)
-    foe.hp = Math.max(0, foe.hp - r.dmg)
+  if (mine === 'guard' && theirs === 'guard') {
+    // 双方皆防：谁也奈何不了谁
+    kind = 'calm'
+    st.calm += 1
+    events.push({ side: 'none', crit: false, text: '双方皆防 · 此回合平' })
+  } else if (mine === 'attack' && theirs === 'guard') {
+    // 防御挡下一切攻击，不看修为
+    kind = 'blocked'
+    st.blocked += 1
+    events.push({ side: 'none', crit: false, text: `${foe.name}以防御挡下我这一击` })
+  } else if (mine === 'guard' && theirs === 'attack') {
+    kind = 'blocked'
+    st.blocked += 1
+    events.push({ side: 'none', crit: false, text: `我以防御挡下${foe.name}的攻势` })
+  } else {
+    // 双方皆攻：修为高者伤害更重，两边同时受创
+    kind = 'clash'
+    st.clashes += 1
+    const dmgToFoe = clashDamage(me.exp, foe.exp, foe.maxHp)
+    const dmgToMe = clashDamage(foe.exp, me.exp, me.maxHp)
+    foe.hp = Math.max(0, foe.hp - dmgToFoe)
+    me.hp = Math.max(0, me.hp - dmgToMe)
+    const edge = Math.max(0, me.exp) === Math.max(0, foe.exp) ? 0 : me.exp > foe.exp ? 1 : -1
     events.push({
       side: 'me',
-      crit: r.crit,
-      text: `${t.name}一击${r.crit ? ' · 暴击' : ''} · 伤其 ${r.dmg}`
+      crit: edge > 0,
+      text: `双方对攻 · 我伤其 ${dmgToFoe}`
     })
-  }
-  const foeHit = () => {
-    if (me.hp <= 0) return
-    const r = strike(foe.stats, me.stats, foeSup, ft.atk, t.def, t.taken)
-    me.hp = Math.max(0, me.hp - r.dmg)
     events.push({
       side: 'foe',
-      crit: r.crit,
-      text: `${foe.name}${ft.name}${r.crit ? ' · 暴击' : ''} · 伤我 ${r.dmg}`
+      crit: edge < 0,
+      text: `其伤我 ${dmgToMe}`
     })
   }
 
-  // 身法高者先出手；先手若将对方打空，则无还手之机
-  if (me.stats.spd >= foe.stats.spd) {
-    myHit()
-    if (foe.hp > 0) foeHit()
-  } else {
-    foeHit()
-    if (me.hp > 0) myHit()
-  }
+  st.last = { mine, foe: theirs, kind }
 
-  if (foe.hp <= 0) {
+  if (me.hp <= 0 && foe.hp <= 0) {
+    // 同归于尽
+    st.over = true
+    st.draw = true
+    st.win = false
+    st.mutual = true
+  } else if (foe.hp <= 0) {
     st.over = true
     st.win = true
   } else if (me.hp <= 0) {
@@ -602,11 +609,14 @@ export function duelRound(st, tacticKey) {
 
   st.log.push({
     round: st.round,
+    mine,
+    foe: theirs,
+    kind,
     line: events.map((e) => e.text).join('　'),
     win: st.over ? st.win : null
   })
 
-  return { events, over: st.over, win: st.win, draw: st.draw }
+  return { events, over: st.over, win: st.win, draw: st.draw, kind }
 }
 
 /**
@@ -628,7 +638,9 @@ export function settleDuel(st) {
       ? `胜「${member.name}」· 灵石 +${reward}`
       : `再胜「${member.name}」· 首通之赏已领`
     : st.draw
-      ? `与「${member.name}」战至力竭，未分胜负`
+      ? st.mutual
+        ? `与「${member.name}」同归于尽，判为平手`
+        : `与「${member.name}」相持不下，未分胜负`
       : `败于「${member.name}」之手`
 
   return { win: st.win, draw: st.draw, first, reward, member, msg }

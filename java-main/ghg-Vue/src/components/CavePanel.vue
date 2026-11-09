@@ -47,7 +47,7 @@
     </div>
 
     <!-- ================= 境界总览 ================= -->
-    <RealmTable class="cave-realm" />
+    <RealmTable class="cave-realm" storage-key="cave" />
 
     <!-- ================= 仙逆动漫 ================= -->
     <div class="cave-panel">
