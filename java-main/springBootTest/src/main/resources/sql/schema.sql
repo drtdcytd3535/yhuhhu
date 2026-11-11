@@ -112,6 +112,24 @@ CREATE TABLE IF NOT EXISTS t_friend (
   COMMENT = '结交道友表';
 
 -- =============================================================
+-- 洞天修炼记录表（洞天福地：每处洞天每日可入定一次，得修为 70）
+-- 唯一键兜底：username + content_id + train_date
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_cave_train (
+  id         BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  username   VARCHAR(50) NOT NULL                COMMENT '道号',
+  content_id BIGINT      NOT NULL                COMMENT '洞天内容ID',
+  train_date DATE        NOT NULL                COMMENT '修炼日期',
+  exp        INT         NOT NULL DEFAULT 70     COMMENT '本次所得修为',
+  created_at DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '修炼时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_user_content_date (username, content_id, train_date),
+  KEY idx_user_date (username, train_date)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '洞天修炼记录表';
+
+-- =============================================================
 -- 种子数据（幂等：INSERT IGNORE + 显式主键，重复启动不会产生脏数据）
 -- =============================================================
 

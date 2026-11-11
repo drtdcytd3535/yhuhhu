@@ -840,6 +840,14 @@ export function setStones(value) {
   return n
 }
 
+/** 修为按服务端结算结果同步（洞天入定所得由后端入账，返回累计修为） */
+export function setExp(value) {
+  const n = Math.max(0, Math.floor(Number(value) || 0))
+  cave.exp = n
+  persist()
+  return n
+}
+
 /* ==================== 商店 · 购买与佩戴 ==================== */
 
 /** 是否已拥有某装备 */

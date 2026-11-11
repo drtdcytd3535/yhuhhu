@@ -374,8 +374,35 @@
             </button>
           </div>
 
+          <!-- 洞天福地：在此入定三十息，得修为七十（每处洞天每日一次） -->
+          <div v-if="detail.topCategory === '洞天'" class="dt-train">
+            <template v-if="isCaveTrained(detail.id)">
+              <span class="train-state">✦ 今日已在此洞天入定 · 明日再来</span>
+            </template>
+            <template v-else>
+              <p class="train-tip">
+                于此洞天拂尘入定三十息，可得修为 +{{ CAVE_TRAIN_REWARD }} · 每处洞天每日仅可修炼一次
+              </p>
+              <button
+                class="train-btn"
+                :class="{ running: trainRunning }"
+                @click="trainRunning ? cancelCaveTrain() : startCaveTrain()"
+              >
+                {{ trainRunning ? `入定中 · 余 ${trainLeft} 息（点击中止）` : '在此修炼' }}
+              </button>
+              <div v-if="trainRunning" class="train-bar">
+                <i :style="{ width: trainPct + '%' }"></i>
+              </div>
+            </template>
+          </div>
+
           <div class="dt-acts">
-            <button v-if="!detail.locked" class="dt-act" :class="{ on: isFav(detail.id) }" @click="toggleFav(detail)">
+            <button
+              v-if="!detail.locked && detail.topCategory !== '洞天'"
+              class="dt-act"
+              :class="{ on: isFav(detail.id) }"
+              @click="toggleFav(detail)"
+            >
               {{ isFav(detail.id) ? '★ 已藏于阁' : '☆ 收入藏书阁' }}
             </button>
             <button class="dt-act ghost" @click="closeDetail(); enterCave()">我的洞府 →</button>
@@ -405,7 +432,7 @@ import CultivatePanel from './CultivatePanel.vue'
 import ShopPanel from './ShopPanel.vue'
 import BgParticles from './BgParticles.vue'
 import ArtBackground from './ArtBackground.vue'
-import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory, setStones } from '../composables/useCave.js'
+import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory, setStones, setExp } from '../composables/useCave.js'
 import { clearSect } from '../composables/useSect.js'
 
 const props = defineProps({
@@ -717,11 +744,116 @@ async function openDetail(id) {
   detail.value = data
   // 换了一位道友/一卷内容，清掉上一位所授功法提示
   friendGift.value = null
+  // 换了一处洞天：上一处的入定计时作废
+  stopCaveTrain()
+  // 洞天福地：查询今日是否已在此处修炼
+  if (data.topCategory === '洞天') loadCaveTrainToday()
   // 未购入的功法 / 丹药不记足迹，购入研读后才算开卷
   if (data.locked) return
   // 记入洞府足迹：首次研读另有修为与灵石进账
   const r = pushHistory({ id: data.id, title: data.title, categoryPath: data.categoryPath })
   if (r.first) toast(`首次研读 · 修为 +${r.exp}`)
+}
+
+/* ---------------- 洞天福地：在此修炼（三十息 · +70 修为） ---------------- */
+/** 每次入定所得修为，与后端 CaveTrainController.REWARD 保持一致 */
+const CAVE_TRAIN_REWARD = 70
+/** 入定时长（秒），与后端 SECONDS 保持一致 */
+const CAVE_TRAIN_SECONDS = 30
+
+const trainRunning = ref(false)
+const trainLeft = ref(CAVE_TRAIN_SECONDS)
+/** 今日已入定的洞天内容 id（字符串，便于与 detail.id 比较） */
+const caveTrainedIds = ref([])
+
+/** 入定进度 0~100 */
+const trainPct = computed(() => {
+  const done = CAVE_TRAIN_SECONDS - trainLeft.value
+  return Math.max(0, Math.min(100, (done / CAVE_TRAIN_SECONDS) * 100))
+})
+
+function isCaveTrained(id) {
+  return id == null ? false : caveTrainedIds.value.includes(String(id))
+}
+
+let caveTrainTimer = null
+
+/** 拉取今日已修炼的洞天列表（跨设备也一致，以数据库为准） */
+async function loadCaveTrainToday() {
+  try {
+    const res = await fetch(`/api/cave/train/today?username=${encodeURIComponent(props.username || '')}`)
+    const body = await res.json().catch(() => null)
+    if (body?.success) {
+      caveTrainedIds.value = (body.data?.ids || []).map(String)
+    }
+  } catch {
+    /* 后端未启动时保持原状态 */
+  }
+}
+
+/** 停止计时（不发奖励），用于关闭弹窗 / 切换内容 */
+function stopCaveTrain() {
+  if (caveTrainTimer) {
+    clearInterval(caveTrainTimer)
+    caveTrainTimer = null
+  }
+  trainRunning.value = false
+  trainLeft.value = CAVE_TRAIN_SECONDS
+}
+
+function startCaveTrain() {
+  const d = detail.value
+  if (!d || d.topCategory !== '洞天' || trainRunning.value) return
+  if (isCaveTrained(d.id)) {
+    toast('今日已在此洞天修炼，明日再来')
+    return
+  }
+  trainRunning.value = true
+  trainLeft.value = CAVE_TRAIN_SECONDS
+  clearInterval(caveTrainTimer)
+  caveTrainTimer = setInterval(() => {
+    trainLeft.value -= 1
+    if (trainLeft.value <= 0) {
+      clearInterval(caveTrainTimer)
+      caveTrainTimer = null
+      finishCaveTrain()
+    }
+  }, 1000)
+}
+
+/** 中途起身：作废本次入定 */
+function cancelCaveTrain() {
+  if (!trainRunning.value) return
+  stopCaveTrain()
+  toast('已起身离定 · 此番无功')
+}
+
+/** 三十息圆满：交后端结算，修为以云端为准 */
+async function finishCaveTrain() {
+  const d = detail.value
+  trainRunning.value = false
+  if (!d) return
+  try {
+    const res = await fetch(
+      `/api/cave/train?username=${encodeURIComponent(props.username || '')}&contentId=${d.id}`,
+      { method: 'POST' }
+    )
+    const body = await res.json().catch(() => null)
+    if (!body?.success) {
+      toast(body?.message || '此番入定未成，请稍后再试')
+      loadCaveTrainToday()
+      return
+    }
+    const r = body.data || {}
+    // 修为由后端累加，返回累计值，同步回洞府
+    if (r.exp != null) setExp(r.exp)
+    caveTrainedIds.value = Array.from(new Set([...caveTrainedIds.value, String(d.id)]))
+    const rw = r.reward ?? CAVE_TRAIN_REWARD
+    const cur = realm.value
+    toast(`${d.title} · 入定三十息，修为 +${rw}（${cur.name}${cur.suffix}第 ${cur.level} ${cur.unit}）`)
+  } catch {
+    toast('仙门暂时无应，请稍后再试')
+  }
 }
 
 /* ---------------- 道友录：结交即得其功法 ---------------- */
@@ -792,6 +924,7 @@ async function buyDetail() {
 }
 
 function closeDetail() {
+  stopCaveTrain()
   detail.value = null
 }
 
@@ -881,6 +1014,11 @@ onBeforeUnmount(() => {
   document.removeEventListener('click', onDocClick)
   document.removeEventListener('keydown', onKeydown)
   clearTimeout(toastTimer)
+  // 洞天入定计时器随页面卸载作废
+  if (caveTrainTimer) {
+    clearInterval(caveTrainTimer)
+    caveTrainTimer = null
+  }
   document.body.classList.remove('page-scroll')
   // 登出后仅清空内存态（数据库存档保留，换号登录不串数据）
   clearCave()
@@ -2295,6 +2433,73 @@ onBeforeUnmount(() => {
   transition: 0.22s;
 }
 .friend-gift:hover { background: rgba(232, 198, 107, 0.22); }
+
+/* 详情弹窗：洞天福地入定（三十息 · +70 修为） */
+.dt-train {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px dashed rgba(111, 233, 255, 0.32);
+  background: radial-gradient(circle at 18% 0%, rgba(111, 233, 255, 0.12), rgba(111, 233, 255, 0.02));
+}
+
+.train-tip {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #9fb0d6;
+  letter-spacing: 1px;
+}
+
+.train-state { font-size: 13px; color: var(--cyan); letter-spacing: 1px; }
+
+.train-btn {
+  padding: 8px 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(111, 233, 255, 0.6);
+  background: linear-gradient(135deg, rgba(111, 233, 255, 0.18), rgba(111, 233, 255, 0.06));
+  color: var(--cyan);
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.22s;
+}
+.train-btn:hover { background: rgba(111, 233, 255, 0.28); transform: scale(1.04); }
+
+/* 入定中：转为金色微光，提示可点击中止 */
+.train-btn.running {
+  border-color: rgba(232, 198, 107, 0.6);
+  background: linear-gradient(135deg, rgba(232, 198, 107, 0.2), rgba(232, 198, 107, 0.06));
+  color: var(--gold);
+  animation: caveBreath 2.4s ease-in-out infinite;
+}
+
+.train-bar {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(111, 233, 255, 0.12);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+.train-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cyan), var(--gold));
+  box-shadow: 0 0 10px rgba(111, 233, 255, 0.6);
+  transition: width 1s linear;
+}
+
+@keyframes caveBreath {
+  0%, 100% { box-shadow: 0 0 0 rgba(232, 198, 107, 0); }
+  50% { box-shadow: 0 0 16px rgba(232, 198, 107, 0.45); }
+}
 
 /* 详情弹窗操作：收入藏书阁 / 前往洞府 */
 .dt-acts {
