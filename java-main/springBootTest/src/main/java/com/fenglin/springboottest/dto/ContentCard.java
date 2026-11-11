@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
  * @param hot          热度
  * @param views        浏览量
  * @param createdAt    创建时间
+ * @param price        灵石售价（0 表示免费；功法 200 / 丹药 100）
  */
 public record ContentCard(
         Long id,
@@ -28,6 +29,7 @@ public record ContentCard(
         String author,
         Integer hot,
         Integer views,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        long price
 ) {
 }

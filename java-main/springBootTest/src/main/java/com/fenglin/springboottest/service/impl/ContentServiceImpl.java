@@ -12,11 +12,9 @@ import com.fenglin.springboottest.entity.Cave;
 import com.fenglin.springboottest.entity.Category;
 import com.fenglin.springboottest.entity.Content;
 import com.fenglin.springboottest.entity.Purchase;
-import com.fenglin.springboottest.entity.User;
 import com.fenglin.springboottest.mapper.CaveMapper;
 import com.fenglin.springboottest.mapper.ContentMapper;
 import com.fenglin.springboottest.mapper.PurchaseMapper;
-import com.fenglin.springboottest.mapper.UserMapper;
 import com.fenglin.springboottest.service.ICategoryService;
 import com.fenglin.springboottest.service.IContentService;
 import org.springframework.stereotype.Service;
@@ -36,22 +34,17 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     private static final long PRICE_GONGFA = 200L;
     /** 丹药类内容售价（灵石） */
     private static final long PRICE_DANYAO = 100L;
-    /** 管理员权限值（见 t_user.permission） */
-    private static final int PERM_ADMIN = 0;
 
     private final ICategoryService categoryService;
     private final CaveMapper caveMapper;
     private final PurchaseMapper purchaseMapper;
-    private final UserMapper userMapper;
 
     public ContentServiceImpl(ICategoryService categoryService,
                               CaveMapper caveMapper,
-                              PurchaseMapper purchaseMapper,
-                              UserMapper userMapper) {
+                              PurchaseMapper purchaseMapper) {
         this.categoryService = categoryService;
         this.caveMapper = caveMapper;
         this.purchaseMapper = purchaseMapper;
-        this.userMapper = userMapper;
     }
 
     @Override
@@ -287,18 +280,12 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     }
 
     /**
-     * 当前道号能否免费阅读该内容：管理员（permission = 0）全免，其余需已购入
+     * 当前道号能否阅读该内容：功法 / 丹药一律需以灵石购入，管理员亦不例外
      */
     private boolean hasAccess(Long contentId, String username) {
         String name = username == null ? "" : username.trim();
         if (name.isEmpty()) {
             return false;
-        }
-        List<User> users = userMapper.selectList(
-                new LambdaQueryWrapper<User>().eq(User::getUsername, name).last("LIMIT 1"));
-        if (!users.isEmpty() && users.get(0).getPermission() != null
-                && users.get(0).getPermission() == PERM_ADMIN) {
-            return true;
         }
         return hasPurchased(name, contentId);
     }
@@ -381,7 +368,8 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
                 c.getAuthor(),
                 c.getHot(),
                 c.getViews(),
-                c.getCreatedAt()
+                c.getCreatedAt(),
+                priceOf(c.getCategoryId())
         );
     }
 }

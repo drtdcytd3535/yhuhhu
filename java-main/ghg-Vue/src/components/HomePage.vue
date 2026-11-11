@@ -224,6 +224,7 @@
               @click="openDetail(c.id)"
             >
               <span class="card-tag">{{ c.tag || c.categoryName }}</span>
+              <span v-if="c.price > 0" class="card-price">◈ {{ c.price }}</span>
               <h3>{{ c.title }}</h3>
               <p class="card-desc">{{ c.summary }}</p>
               <div class="card-foot">
@@ -257,6 +258,7 @@
               @click="openDetail(c.id)"
             >
               <span class="card-tag">{{ c.tag || c.categoryName }}</span>
+              <span v-if="c.price > 0" class="card-price">◈ {{ c.price }}</span>
               <h3>{{ c.title }}</h3>
               <p class="card-desc">{{ c.summary }}</p>
               <div class="card-foot">
@@ -1774,6 +1776,20 @@ onBeforeUnmount(() => {
   color: var(--cyan);
   background: rgba(111, 233, 255, 0.1);
   border: 1px solid rgba(111, 233, 255, 0.3);
+}
+
+/* 卡片右上角：灵石售价（功法 / 丹药需购入） */
+.card-price {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--gold);
+  background: rgba(232, 198, 107, 0.12);
+  border: 1px solid rgba(232, 198, 107, 0.45);
 }
 
 .card h3 {

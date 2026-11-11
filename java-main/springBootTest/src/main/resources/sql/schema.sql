@@ -79,6 +79,22 @@ CREATE TABLE IF NOT EXISTS t_notice (
   COMMENT = '宗门公告表';
 
 -- =============================================================
+-- 灵石购买记录表（功法 / 丹药需以灵石购入后方可研读）
+-- 一个道号对一卷内容唯一：username + content_id 唯一键
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_purchase (
+  id         BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  username   VARCHAR(50) NOT NULL                COMMENT '道号（买家）',
+  content_id BIGINT      NOT NULL                COMMENT '内容ID',
+  price      BIGINT      NOT NULL DEFAULT 0      COMMENT '成交价（灵石）',
+  created_at DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '购入时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_user_content (username, content_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '灵石购买记录表';
+
+-- =============================================================
 -- 种子数据（幂等：INSERT IGNORE + 显式主键，重复启动不会产生脏数据）
 -- =============================================================
 

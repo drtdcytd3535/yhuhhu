@@ -1,436 +1,345 @@
-/*
- Navicat Premium Dump SQL
+-- MySQL dump 10.13  Distrib 8.0.39, for Win64 (x86_64)
+--
+-- Host: 127.0.0.1    Database: spring_boot_test
+-- ------------------------------------------------------
+-- Server version	8.0.39
 
- Source Server         : test
- Source Server Type    : MySQL
- Source Server Version : 80039 (8.0.39)
- Source Host           : localhost:3306
- Source Schema         : spring_boot_test
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
- Target Server Type    : MySQL
- Target Server Version : 80039 (8.0.39)
- File Encoding         : 65001
+--
+-- Table structure for table `t_admin`
+--
 
- Date: 09/11/2026 11:59:56
-*/
-
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for t_admin
--- ----------------------------
 DROP TABLE IF EXISTS `t_admin`;
-CREATE TABLE `t_admin`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_admin` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '后台账号（唯一）',
   `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '密码（BCrypt 密文）',
-  `real_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '执事名号（展示用）',
+  `real_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '执事名号（展示用）',
   `role` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'ADMIN' COMMENT '角色：ADMIN 执事',
-  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1 启用 / 0 停用',
+  `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态：1 启用 / 0 停用',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_admin_username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '后台管理员表' ROW_FORMAT = DYNAMIC;
+  UNIQUE KEY `uk_admin_username` (`username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='后台管理员表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_admin
--- ----------------------------
-INSERT INTO `t_admin` VALUES (1, 'admin', '$2a$10$hKuW6XQUa6X44fXIXn8.SOZ2HzTZf2nl6uNpqf6awTrQcGkSK8ShO', '仙门执事', 'ADMIN', 1, '2026-10-23 16:36:33');
+--
+-- Dumping data for table `t_admin`
+--
 
--- ----------------------------
--- Table structure for t_category
--- ----------------------------
+LOCK TABLES `t_admin` WRITE;
+/*!40000 ALTER TABLE `t_admin` DISABLE KEYS */;
+INSERT INTO `t_admin` VALUES (1,'admin','$2a$10$hKuW6XQUa6X44fXIXn8.SOZ2HzTZf2nl6uNpqf6awTrQcGkSK8ShO','仙门执事','ADMIN',1,'2026-10-23 16:36:33');
+/*!40000 ALTER TABLE `t_admin` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_category`
+--
+
 DROP TABLE IF EXISTS `t_category`;
-CREATE TABLE `t_category`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_category` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '分类名称',
-  `parent_id` bigint NOT NULL DEFAULT 0 COMMENT '父分类ID（0=顶级）',
-  `level` tinyint NOT NULL DEFAULT 1 COMMENT '层级：1 顶级 / 2 子级',
-  `icon` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '图标字符',
-  `description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '分类描述',
-  `sort_no` int NOT NULL DEFAULT 0 COMMENT '排序号（越小越前）',
+  `parent_id` bigint NOT NULL DEFAULT '0' COMMENT '父分类ID（0=顶级）',
+  `level` tinyint NOT NULL DEFAULT '1' COMMENT '层级：1 顶级 / 2 子级',
+  `icon` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '图标字符',
+  `description` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '分类描述',
+  `sort_no` int NOT NULL DEFAULT '0' COMMENT '排序号（越小越前）',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_parent_name`(`parent_id` ASC, `name` ASC) USING BTREE,
-  INDEX `idx_parent`(`parent_id` ASC) USING BTREE,
-  INDEX `idx_level`(`level` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 54 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '分级分类表' ROW_FORMAT = DYNAMIC;
+  UNIQUE KEY `uk_parent_name` (`parent_id`,`name`) USING BTREE,
+  KEY `idx_parent` (`parent_id`) USING BTREE,
+  KEY `idx_level` (`level`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='分级分类表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_category
--- ----------------------------
-INSERT INTO `t_category` VALUES (1, '功法', 0, 1, '⚔', '剑诀、火法、体修、身法、御兽诸般法门', 1, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (2, '丹药', 0, 1, '❖', '疗伤、突破、淬毒各类丹方', 2, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (3, '洞天', 0, 1, '⛰', '秘境与灵脉所在之地', 3, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (4, '道友', 0, 1, '✦', '仙门同修名录', 4, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (5, '论道', 0, 1, '✍', '修行心得与问答', 5, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (11, '剑诀', 1, 2, '·', '以剑证道，锋芒无匹', 1, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (12, '火法', 1, 2, '·', '烈焰焚天，焚尽诸邪', 2, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (13, '体修', 1, 2, '·', '以身为炉，淬炼道体', 3, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (14, '身法', 1, 2, '·', '来去无痕，踏虚而行', 4, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (15, '御兽', 1, 2, '·', '万灵臣服，听我号令', 5, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (16, '凝气', 1, 2, '·', '修真根基，凝气十层', 6, '2026-10-26 11:40:56');
-INSERT INTO `t_category` VALUES (17, '魂修', 1, 2, '·', '魂魄之道，向死而生', 7, '2026-10-26 11:40:56');
-INSERT INTO `t_category` VALUES (18, '道法', 1, 2, '·', '大道感悟，诸天法则', 8, '2026-10-26 11:40:56');
-INSERT INTO `t_category` VALUES (21, '疗伤丹', 2, 2, '·', '生死人肉白骨', 1, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (22, '突破丹', 2, 2, '·', '助破境凝婴', 2, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (23, '毒丹', 2, 2, '·', '阴毒之物，慎用', 3, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (31, '秘境', 3, 2, '·', '险境藏机缘', 1, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (32, '灵脉', 3, 2, '·', '灵气汇聚之地', 2, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (41, '剑修', 4, 2, '·', '执剑者', 1, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (42, '丹修', 4, 2, '·', '炼丹者', 2, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (43, '体修', 4, 2, '·', '炼体者', 3, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (44, '魔修', 4, 2, '·', '魔道修士，杀伐无忌', 4, '2026-11-09 10:59:39');
-INSERT INTO `t_category` VALUES (45, '魂修', 4, 2, '·', '炼魂驭魄，元神为道', 5, '2026-11-09 10:59:39');
-INSERT INTO `t_category` VALUES (46, '古神', 4, 2, '·', '古神一脉，以身为天', 6, '2026-11-09 10:59:39');
-INSERT INTO `t_category` VALUES (47, '道修', 4, 2, '·', '悟道者，意境为宗', 7, '2026-11-09 10:59:39');
-INSERT INTO `t_category` VALUES (51, '心得', 5, 2, '·', '修行体悟', 1, '2026-10-16 16:31:40');
-INSERT INTO `t_category` VALUES (52, '问答', 5, 2, '·', '疑难互答', 2, '2026-10-16 16:31:40');
+--
+-- Dumping data for table `t_category`
+--
 
--- ----------------------------
--- Table structure for t_cave
--- ----------------------------
+LOCK TABLES `t_category` WRITE;
+/*!40000 ALTER TABLE `t_category` DISABLE KEYS */;
+INSERT INTO `t_category` VALUES (1,'功法',0,1,'⚔','剑诀、火法、体修、身法、御兽诸般法门',1,'2026-10-16 16:31:40'),(2,'丹药',0,1,'❖','疗伤、突破、淬毒各类丹方',2,'2026-10-16 16:31:40'),(3,'洞天',0,1,'⛰','秘境与灵脉所在之地',3,'2026-10-16 16:31:40'),(4,'道友',0,1,'✦','仙门同修名录',4,'2026-10-16 16:31:40'),(5,'论道',0,1,'✍','修行心得与问答',5,'2026-10-16 16:31:40'),(11,'剑诀',1,2,'·','以剑证道，锋芒无匹',1,'2026-10-16 16:31:40'),(12,'火法',1,2,'·','烈焰焚天，焚尽诸邪',2,'2026-10-16 16:31:40'),(13,'体修',1,2,'·','以身为炉，淬炼道体',3,'2026-10-16 16:31:40'),(14,'身法',1,2,'·','来去无痕，踏虚而行',4,'2026-10-16 16:31:40'),(15,'御兽',1,2,'·','万灵臣服，听我号令',5,'2026-10-16 16:31:40'),(16,'凝气',1,2,'·','修真根基，凝气十层',6,'2026-10-26 11:40:56'),(17,'魂修',1,2,'·','魂魄之道，向死而生',7,'2026-10-26 11:40:56'),(18,'道法',1,2,'·','大道感悟，诸天法则',8,'2026-10-26 11:40:56'),(21,'疗伤丹',2,2,'·','生死人肉白骨',1,'2026-10-16 16:31:40'),(22,'突破丹',2,2,'·','助破境凝婴',2,'2026-10-16 16:31:40'),(23,'毒丹',2,2,'·','阴毒之物，慎用',3,'2026-10-16 16:31:40'),(31,'秘境',3,2,'·','险境藏机缘',1,'2026-10-16 16:31:40'),(32,'灵脉',3,2,'·','灵气汇聚之地',2,'2026-10-16 16:31:40'),(41,'剑修',4,2,'·','执剑者',1,'2026-10-16 16:31:40'),(42,'丹修',4,2,'·','炼丹者',2,'2026-10-16 16:31:40'),(43,'体修',4,2,'·','炼体者',3,'2026-10-16 16:31:40'),(44,'魔修',4,2,'·','魔道修士，杀伐无忌',4,'2026-11-09 10:59:39'),(45,'魂修',4,2,'·','炼魂驭魄，元神为道',5,'2026-11-09 10:59:39'),(46,'古神',4,2,'·','古神一脉，以身为天',6,'2026-11-09 10:59:39'),(47,'道修',4,2,'·','悟道者，意境为宗',7,'2026-11-09 10:59:39'),(51,'心得',5,2,'·','修行体悟',1,'2026-10-16 16:31:40'),(52,'问答',5,2,'·','疑难互答',2,'2026-10-16 16:31:40');
+/*!40000 ALTER TABLE `t_category` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_cave`
+--
+
 DROP TABLE IF EXISTS `t_cave`;
-CREATE TABLE `t_cave`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_cave` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '道号（唯一）',
-  `exp` bigint NOT NULL DEFAULT 0 COMMENT '累计修为',
-  `stones` bigint NOT NULL DEFAULT 0 COMMENT '灵石',
-  `favs_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '藏书阁（JSON 数组）',
-  `history_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '研读足迹（JSON 数组）',
-  `equips_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '已购装备（JSON 数组）',
+  `exp` bigint NOT NULL DEFAULT '0' COMMENT '累计修为',
+  `stones` bigint NOT NULL DEFAULT '0' COMMENT '灵石',
+  `favs_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '藏书阁（JSON 数组）',
+  `history_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '研读足迹（JSON 数组）',
+  `equips_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '已购装备（JSON 数组）',
   `equipped` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' COMMENT '当前佩戴的装备 id',
-  `sign_date` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最近签到日期 yyyy-mm-dd',
-  `train_date` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT '' COMMENT '最近修炼日期 yyyy-mm-dd',
-  `train_exp` int NOT NULL DEFAULT 0 COMMENT '当日修炼已得修为',
-  `client_time` bigint NOT NULL DEFAULT 0 COMMENT '客户端最后修改时间戳（毫秒）',
+  `sign_date` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '最近签到日期 yyyy-mm-dd',
+  `train_date` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '最近修炼日期 yyyy-mm-dd',
+  `train_exp` int NOT NULL DEFAULT '0' COMMENT '当日修炼已得修为',
+  `client_time` bigint NOT NULL DEFAULT '0' COMMENT '客户端最后修改时间戳（毫秒）',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开辟时间',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_cave_username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '洞府存档表' ROW_FORMAT = DYNAMIC;
+  UNIQUE KEY `uk_cave_username` (`username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='洞府存档表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_cave
--- ----------------------------
-INSERT INTO `t_cave` VALUES (5, 'wanglin', 141150, 22040, '[{\"id\":311,\"title\":\"凝气十五层\",\"categoryPath\":\"功法 › 凝气\",\"createdAt\":1794193444049},{\"id\":253,\"title\":\"炼药三要\",\"categoryPath\":\"论道 › 心得\",\"createdAt\":1793955005305},{\"id\":252,\"title\":\"斗气根基篇·心得\",\"categoryPath\":\"论道 › 心得\",\"createdAt\":1793955003664},{\"id\":256,\"title\":\"异火相冲怎么办\",\"categoryPath\":\"论道 › 问答\",\"createdAt\":1793955002231},{\"id\":31,\"title\":\"拜师求道须知\",\"categoryPath\":\"论道 › 问答\",\"createdAt\":1793955000384},{\"id\":254,\"title\":\"炼药十问\",\"categoryPath\":\"论道 › 问答\",\"createdAt\":1793954998007},{\"id\":255,\"title\":\"斗宗之槛问答\",\"categoryPath\":\"论道 › 问答\",\"createdAt\":1793954995967},{\"id\":257,\"title\":\"斗帝为何绝迹\",\"categoryPath\":\"论道 › 问答\",\"createdAt\":1793954991231},{\"id\":250,\"title\":\"炼药心得·火候篇\",\"categoryPath\":\"论道 › 心得\",\"createdAt\":1793954988624},{\"id\":251,\"title\":\"异火吞噬心得\",\"categoryPath\":\"论道 › 心得\",\"createdAt\":1793954986896},{\"id\":104,\"title\":\"生死之道\",\"categoryPath\":\"功法 › 道法\",\"createdAt\":1793954973778},{\"id\":200,\"title\":\"焚诀\",\"categoryPath\":\"功法 › 火法\",\"createdAt\":1793954972167},{\"id\":202,\"title\":\"佛怒火莲\",\"categoryPath\":\"功法 › 火法\",\"createdAt\":1793954968672},{\"id\":233,\"title\":\"迦南学院·内院\",\"categoryPath\":\"洞天 › 秘境\",\"createdAt\":1793951490129},{\"id\":230,\"title\":\"云岚山\",\"categoryPath\":\"洞天 › 秘境\",\"createdAt\":1793951486929},{\"id\":236,\"title\":\"无尽火域\",\"categoryPath\":\"洞天 › 灵脉\",\"createdAt\":1793951483025},{\"id\":232,\"title\":\"黑角域\",\"categoryPath\":\"洞天 › 秘境\",\"createdAt\":1793951479497},{\"id\":234,\"title\":\"陀舍古帝洞府\",\"categoryPath\":\"洞天 › 秘境\",\"createdAt\":1793951476857},{\"id\":242,\"title\":\"药尘\",\"categoryPath\":\"道友 › 丹修\",\"createdAt\":1793951460145},{\"id\":243,\"title\":\"萧炎\",\"categoryPath\":\"道友 › 丹修\",\"createdAt\":1793951458257},{\"id\":248,\"title\":\"雷赢\",\"categoryPath\":\"道友 › 体修\",\"createdAt\":1793951454672},{\"id\":247,\"title\":\"紫妍\",\"categoryPath\":\"道友 › 体修\",\"createdAt\":1793951452089},{\"id\":246,\"title\":\"彩鳞\",\"categoryPath\":\"道友 › 体修\",\"createdAt\":1793951449656},{\"id\":245,\"title\":\"小医仙\",\"categoryPath\":\"道友 › 丹修\",\"createdAt\":1793951447441},{\"id\":212,\"title\":\"异火榜·廿三火\",\"categoryPath\":\"功法 › 道法\",\"createdAt\":1793951439209},{\"id\":1,\"title\":\"太虚剑典\",\"categoryPath\":\"功法 › 剑诀\",\"createdAt\":1793951425577},{\"id\":100,\"title\":\"凝气诀\",\"categoryPath\":\"功法 › 凝气\",\"createdAt\":1793951421977}]', '[{\"id\":344,\"title\":\"十三\",\"categoryPath\":\"道友 › 体修\",\"readAt\":1794193665278},{\"id\":351,\"title\":\"许立国\",\"categoryPath\":\"道友 › 魔修\",\"readAt\":1794193642975},{\"id\":23,\"title\":\"墨长歌\",\"categoryPath\":\"道友 › 剑修\",\"readAt\":1794193636218},{\"id\":349,\"title\":\"红蝶\",\"categoryPath\":\"道友 › 剑修\",\"readAt\":1794193618037},{\"id\":345,\"title\":\"藤化元\",\"categoryPath\":\"道友 › 魔修\",\"readAt\":1794193609311},{\"id\":343,\"title\":\"清水\",\"categoryPath\":\"道友 › 剑修\",\"readAt\":1794193591201},{\"id\":341,\"title\":\"李慕婉\",\"categoryPath\":\"道友 › 丹修\",\"readAt\":1794193564263},{\"id\":340,\"title\":\"王林\",\"categoryPath\":\"道友 › 古神\",\"readAt\":1794193535071},{\"id\":332,\"title\":\"修魔海\",\"categoryPath\":\"洞天 › 秘境\",\"readAt\":1794193518048},{\"id\":311,\"title\":\"凝气十五层\",\"categoryPath\":\"功法 › 凝气\",\"readAt\":1794193442879},{\"id\":253,\"title\":\"炼药三要\",\"categoryPath\":\"论道 › 心得\",\"readAt\":1793955004598},{\"id\":252,\"title\":\"斗气根基篇·心得\",\"categoryPath\":\"论道 › 心得\",\"readAt\":1793955003055},{\"id\":256,\"title\":\"异火相冲怎么办\",\"categoryPath\":\"论道 › 问答\",\"readAt\":1793955001182},{\"id\":31,\"title\":\"拜师求道须知\",\"categoryPath\":\"论道 › 问答\",\"readAt\":1793954999388},{\"id\":254,\"title\":\"炼药十问\",\"categoryPath\":\"论道 › 问答\",\"readAt\":1793954997267},{\"id\":255,\"title\":\"斗宗之槛问答\",\"categoryPath\":\"论道 › 问答\",\"readAt\":1793954994981},{\"id\":257,\"title\":\"斗帝为何绝迹\",\"categoryPath\":\"论道 › 问答\",\"readAt\":1793954990089},{\"id\":250,\"title\":\"炼药心得·火候篇\",\"categoryPath\":\"论道 › 心得\",\"readAt\":1793954987766},{\"id\":251,\"title\":\"异火吞噬心得\",\"categoryPath\":\"论道 › 心得\",\"readAt\":1793954986064},{\"id\":104,\"title\":\"生死之道\",\"categoryPath\":\"功法 › 道法\",\"readAt\":1793954973039},{\"id\":200,\"title\":\"焚诀\",\"categoryPath\":\"功法 › 火法\",\"readAt\":1793954971239},{\"id\":202,\"title\":\"佛怒火莲\",\"categoryPath\":\"功法 › 火法\",\"readAt\":1793954967830},{\"id\":233,\"title\":\"迦南学院·内院\",\"categoryPath\":\"洞天 › 秘境\",\"readAt\":1793951489123},{\"id\":230,\"title\":\"云岚山\",\"categoryPath\":\"洞天 › 秘境\",\"readAt\":1793951485489},{\"id\":236,\"title\":\"无尽火域\",\"categoryPath\":\"洞天 › 灵脉\",\"readAt\":1793951482199},{\"id\":232,\"title\":\"黑角域\",\"categoryPath\":\"洞天 › 秘境\",\"readAt\":1793951478742},{\"id\":234,\"title\":\"陀舍古帝洞府\",\"categoryPath\":\"洞天 › 秘境\",\"readAt\":1793951475831},{\"id\":242,\"title\":\"药尘\",\"categoryPath\":\"道友 › 丹修\",\"readAt\":1793951459370},{\"id\":243,\"title\":\"萧炎\",\"categoryPath\":\"道友 › 丹修\",\"readAt\":1793951457329},{\"id\":248,\"title\":\"雷赢\",\"categoryPath\":\"道友 › 体修\",\"readAt\":1793951453297},{\"id\":247,\"title\":\"紫妍\",\"categoryPath\":\"道友 › 体修\",\"readAt\":1793951451401},{\"id\":246,\"title\":\"彩鳞\",\"categoryPath\":\"道友 › 体修\",\"readAt\":1793951449091},{\"id\":245,\"title\":\"小医仙\",\"categoryPath\":\"道友 › 丹修\",\"readAt\":1793951446593},{\"id\":1,\"title\":\"太虚剑典\",\"categoryPath\":\"功法 › 剑诀\",\"readAt\":1793951424659},{\"id\":212,\"title\":\"异火榜·廿三火\",\"categoryPath\":\"功法 › 道法\",\"readAt\":1793951423003},{\"id\":100,\"title\":\"凝气诀\",\"categoryPath\":\"功法 › 凝气\",\"readAt\":1793951420887}]', '[\"jinglian-yaohuo\",\"tianni-zhu\"]', 'jinglian-yaohuo', '2026-11-06', '2026-11-09', 300, 1794196415330, '2026-10-30 16:02:38', '2026-10-30 16:02:38');
-INSERT INTO `t_cave` VALUES (6, '周圣榕', 5040, 50, '[{\"id\":242,\"title\":\"药尘\",\"categoryPath\":\"道友 › 丹修\",\"createdAt\":1793587733958}]', '[{\"id\":242,\"title\":\"药尘\",\"categoryPath\":\"道友 › 丹修\",\"readAt\":1793587732660},{\"id\":257,\"title\":\"斗帝为何绝迹\",\"categoryPath\":\"论道 › 问答\",\"readAt\":1793587704438}]', NULL, '', '2026-11-02', '', 0, 1793587733958, '2026-11-02 10:48:24', '2026-11-02 10:48:24');
-INSERT INTO `t_cave` VALUES (9, '道友', 0, 0, '[]', '[]', '[]', '', '', '', 0, 1794196568610, '2026-11-04 09:58:02', '2026-11-04 09:58:02');
-INSERT INTO `t_cave` VALUES (10, '王林', 10, 50, '[]', '[]', '[]', '', '2026-11-09', '', 0, 1794196231209, '2026-11-09 11:46:09', '2026-11-09 11:46:09');
-INSERT INTO `t_cave` VALUES (11, '预览道友', 0, 0, '[]', '[]', '[]', '', '', '', 0, 1794196583317, '2026-11-09 11:53:04', '2026-11-09 11:53:04');
+--
+-- Dumping data for table `t_cave`
+--
 
--- ----------------------------
--- Table structure for t_content
--- ----------------------------
+LOCK TABLES `t_cave` WRITE;
+/*!40000 ALTER TABLE `t_cave` DISABLE KEYS */;
+INSERT INTO `t_cave` VALUES (6,'周圣榕',5040,50,'[{\"id\":242,\"title\":\"药尘\",\"categoryPath\":\"道友 › 丹修\",\"createdAt\":1793587733958}]','[{\"id\":242,\"title\":\"药尘\",\"categoryPath\":\"道友 › 丹修\",\"readAt\":1793587732660},{\"id\":257,\"title\":\"斗帝为何绝迹\",\"categoryPath\":\"论道 › 问答\",\"readAt\":1793587704438}]',NULL,'','2026-11-02','',0,1793587733958,'2026-11-02 10:48:24','2026-11-02 10:48:24'),(9,'道友',0,0,'[]','[]','[]','','','',0,1794196568610,'2026-11-04 09:58:02','2026-11-04 09:58:02'),(10,'王林',0,0,'[]','[]','[]','','','',0,1794359894347,'2026-11-09 11:46:09','2026-11-09 11:46:09'),(11,'预览道友',0,0,'[]','[]','[]','','','',0,1794196583317,'2026-11-09 11:53:04','2026-11-09 11:53:04'),(12,'wanglin',15,0,'[]','[{\"id\":202,\"title\":\"佛怒火莲\",\"categoryPath\":\"功法 › 火法\",\"readAt\":1794360178419}]','[]','','','',0,1794360178419,'2026-11-11 09:22:58','2026-11-11 09:22:58');
+/*!40000 ALTER TABLE `t_cave` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_content`
+--
+
 DROP TABLE IF EXISTS `t_content`;
-CREATE TABLE `t_content`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_content` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `title` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '标题',
-  `summary` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '简介',
-  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '正文详情',
+  `summary` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '简介',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '正文详情',
   `category_id` bigint NOT NULL COMMENT '所属分类ID（最末级）',
-  `tags` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '标签（逗号分隔）',
-  `author` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '作者 / 出处',
-  `hot` int NOT NULL DEFAULT 0 COMMENT '热度',
-  `views` int NOT NULL DEFAULT 0 COMMENT '浏览量',
-  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：1 上架 / 0 下架',
+  `tags` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '标签（逗号分隔）',
+  `author` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '作者 / 出处',
+  `hot` int NOT NULL DEFAULT '0' COMMENT '热度',
+  `views` int NOT NULL DEFAULT '0' COMMENT '浏览量',
+  `status` tinyint NOT NULL DEFAULT '1' COMMENT '状态：1 上架 / 0 下架',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_category`(`category_id` ASC) USING BTREE,
-  INDEX `idx_hot`(`hot` ASC) USING BTREE,
-  INDEX `idx_status`(`status` ASC) USING BTREE,
-  INDEX `idx_title`(`title` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 370 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '内容表（功法/丹药/洞天/道友/论道）' ROW_FORMAT = DYNAMIC;
+  KEY `idx_category` (`category_id`) USING BTREE,
+  KEY `idx_hot` (`hot`) USING BTREE,
+  KEY `idx_status` (`status`) USING BTREE,
+  KEY `idx_title` (`title`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=370 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='内容表（功法/丹药/洞天/道友/论道）';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_content
--- ----------------------------
-INSERT INTO `t_content` VALUES (1, '太虚剑典', '剑气纵横三万里，一剑光寒十九州。', '太虚剑典乃太虚剑尊所创，共分九重。初重练剑意，三重可斩灵，六重剑出如龙，九重则一剑破空、剑光寒彻十九州。修习者需以剑为友、以心为鞘，切忌贪快求成。', 11, '剑诀,太虚,上乘', '太虚剑尊', 98000, 12607, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (2, '斩灵十三剑', '十三剑落，灵亦为刍狗。', '斩灵十三剑共有十三式，招招断灵脉、斩元神。第七式「断魂」最险，若心境不稳易反噬自身，故需筑基后期方可习练。', 11, '剑诀,杀伐', '墨长歌', 61000, 8201, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (3, '星辰剑诀', '以星河为剑，剑落星辰坠。', '星辰剑诀借星河之力，于夜半子时引星辉入剑，剑身星辰流转。适合资质中上、耐得住寂寞的剑修。', 11, '剑诀,星辰', '苏九霄', 42000, 5301, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (4, '焚天诀', '焚尽苍穹，烈焰之下寸草不存。', '焚天诀以真火焚烧经脉再塑，修炼时痛楚难当，然成者一身真火焚山煮海。第三重「焚心」须以清心丹辅助，否则易走火。', 12, '火法,真火', '焚天老祖', 72000, 9101, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (5, '赤炎焚世录', '赤炎过处，山河俱焚。', '赤炎焚世录记载火法七篇，另有控火诀要。修至第五篇可隔空引火，第六篇焚世需合体期修为。', 12, '火法,焚世', '焚天老祖', 35000, 4300, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (6, '星辰炼体术', '以星河为炉，淬炼不朽道体。', '星辰炼体术于星辉最盛处引星力入体，日积月累，皮肉如精铁、骨骼如星辰。大成一拳可崩山，然需极强忍耐力。', 13, '体修,星辰,炼体', '星辰道人', 56000, 7801, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (7, '不灭金身诀', '金身不灭，万法难伤。', '不灭金身诀以身炼金身，需三味真火反复淬炼。金身成时可硬抗同阶三击而不损，是体修立身之本。', 13, '体修,金身', '顾青冥', 47000, 6201, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (8, '御风踏虚步', '踏虚而行，身随风动，来去无痕。', '御风踏虚步以身合风，初成可踏枝而行，大成则借风腾空，百丈之内转瞬即至。适合身手灵巧、擅长袭杀的道友。', 14, '身法,御风', '风行者', 33000, 4600, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (9, '九天雷影步', '雷落之前，影已先行。', '九天雷影步引天雷入步，动若雷霆。以雷淬足，初练时足下焦黑，须以灵药护体。成者身法快逾奔雷。', 14, '身法,雷', '雷影道人', 29000, 3800, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (10, '万灵御兽录', '万灵臣服，听我号令而行。', '万灵御兽录载有契约之法与驭兽之术。以血契为始，以心契为上。可为灵兽疗伤、共修，切忌强虐，否则契约反噬。', 15, '御兽,契约', '万兽真人', 28000, 3700, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (11, '灵兽契约术', '一纸血契，两心相通。', '灵兽契约术详解血契、魂契、心契三门。魂契最稳，可与灵兽共享修为气息；血契最速，然灵兽寿元有损。', 15, '御兽,契约', '万兽真人', 19000, 2400, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (12, '九转回春丹', '一丹入口，断肢可续。', '九转回春丹以九味灵药九转炉炼，成丹时丹香十里。重伤垂死服之可续命，断肢服之可复生。药材难得，一炉常只成三枚。', 21, '丹药,疗伤,九转', '玄天丹师', 68000, 8902, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (13, '生生造化丹', '造化之力，起死回生。', '生生造化丹需千年灵芝与地心火炉相合，丹成之时有造化之气环绕。仅存于古籍，能炼者不过三人。', 21, '丹药,疗伤,造化', '玄天丹师', 41000, 5201, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (14, '破境丹', '一丹破境，桎梏全消。', '破境丹专助卡在瓶颈的道友冲关。服用后经脉灵气暴涨，若心境不足则易爆体而亡，务必在静室中闭关服用。', 22, '丹药,突破', '白凤眠', 58000, 7301, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (15, '凝婴丹', '元婴凝，大道初成。', '凝婴丹以元婴期灵兽内丹为主药，助金丹圆满者凝成元婴。丹成率极低，故价高且常为大宗门垄断。', 22, '丹药,突破,元婴', '白凤眠', 52000, 6803, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (16, '蚀骨销魂散', '无声无息，蚀骨销魂。', '蚀骨销魂散无色无味，中者经脉渐腐而不自知。解药难寻，唯九转回春丹可缓。此物为仙门禁品，慎之慎之。', 23, '毒丹,禁品', '暗影客', 23000, 3002, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (17, '万毒腐心丹', '万毒入心，神仙难救。', '万毒腐心丹以百种毒物炼就，专破护体罡气。然炼制者常自伤，故世间存量极少。', 23, '毒丹,禁品', '暗影客', 15000, 1901, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (18, '落霞谷', '落霞与灵雾齐飞，灵气渐复之地。', '落霞谷深藏群山之间，谷中灵雾终年不散，灵药遍地。每月初一十五灵潮最盛，适合闭关与采药。近期灵气渐复，开放时间调整为先辰。', 31, '秘境,落霞,灵药', '仙门执事', 54000, 7101, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (19, '万骨窟', '枯骨成山，机缘与凶险并存。', '万骨窟乃上古战场遗迹，白骨堆积如山，怨气极重。深处藏有上古法宝碎片，然也有化神级尸傀游荡，非结伴不可入。', 31, '秘境,险地', '仙门执事', 49000, 6401, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (20, '云梦泽', '云梦浩渺，水气化灵。', '云梦泽水汽氤氲，日久化灵，泽中灵鱼可食可炼。泽心有一孤岛，岛上石台据传为古修讲道之处。', 31, '秘境,云梦', '云梦真人', 31000, 4201, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (21, '青龙灵脉', '龙气蜿蜒，灵气如泉。', '青龙灵脉横贯三百里，脉眼灵气浓郁如泉，于其中打坐一日可抵外间十日。灵脉归属仙门，需凭功勋换取修行时日。', 32, '灵脉,青龙', '仙门执事', 60000, 7902, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (22, '太阴灵泉', '太阴之气，滋养生机。', '太阴灵泉自地底涌出，泉水偏寒，可洗髓伐骨、调和爆裂功法之后患。体修尤为钟爱。', 32, '灵脉,太阴', '仙门执事', 37000, 4801, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (23, '墨长歌', '大乘圆满，剑修之冠，斩灵十三剑独步天下。', '墨长歌出身寒微，以凡俗之身一步步入道，历时八百载至大乘圆满。手中长剑「问心」随其走过百余场生死之战。', 41, '道友,剑修,大乘', '仙门名录', 88000, 11203, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (24, '苏九霄', '渡劫中期，善以星河之力炼剑。', '苏九霄年少成名，喜观星，自创星辰剑诀。性孤僻，不喜应酬，常年居于观星崖。', 41, '道友,剑修,渡劫', '仙门名录', 66000, 8401, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (25, '白凤眠', '合体后期，丹道大家，一炉可通生死。', '白凤眠执掌丹阁三十载，所炼破境丹、凝婴丹为仙门立下大功。其人温和，凡有求丹者皆不拒，唯要求以药换药。', 42, '道友,丹修,丹阁', '仙门名录', 71000, 9002, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (26, '玄天丹师', '丹道宗师，九转回春丹传世。', '玄天丹师为上古丹修，著有玄天丹经。传闻其已飞升，唯留丹经与三炉丹方于人间。', 42, '道友,丹修,上古', '仙门名录', 63000, 8101, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (27, '顾青冥', '合体初期，体修新秀，不灭金身初成。', '顾青冥以炼体入道，日行万仞山间，肉身为炉。金身初成之日，硬抗合体期一击而退半步，震动仙门。', 43, '道友,体修,金身', '仙门名录', 45000, 5901, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (28, '云无咎', '元婴圆满，以星辰炼体术破境在即。', '云无咎资质平平，然勤修不辍，以勤补拙。同门皆言其破境只差一线机缘。', 43, '道友,体修,元婴', '仙门名录', 34000, 4401, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (29, '论道三问', '修道者当自问：为何修、修向何处、修成如何。', '修行之路，最忌盲从。道友当自问三事：一问我为何修行，二问我欲修向何处，三问修成之后欲作何为。三问有答，道心方稳。', 51, '论道,心得,道心', '仙门长老', 40000, 5100, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (30, '破境心得录', '破境之要，在于心境先足，灵力后至。', '多数道友破境失败，非灵力不足，而是心境未稳。建议破境前先静心三月，观云、听泉、弈棋皆可。心境足则灵力自至。', 51, '论道,心得,破境', '白凤眠', 38000, 4900, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (31, '拜师求道须知', '择师三看：看道心、看耐心、看品行。', '拜师求道，非择名头。一看道心是否正，二看是否有教人之耐心，三看品行是否可为师表。三者齐备，纵然境界不高，亦是良师。', 52, '论道,问答,拜师', '仙门长老', 44000, 5702, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (32, '渡劫十二问', '渡劫常见疑难十二则，逐条解答。', '汇总道友渡劫常见十二问：雷劫可否借外力、丹劫如何护炉、心劫怎么破……每问附一二解法，供道友参考。', 52, '论道,问答,渡劫', '雷影道人', 36000, 4700, 1, '2026-10-16 16:31:40');
-INSERT INTO `t_content` VALUES (100, '凝气诀', '顺为凡，逆则仙，只在心中一念间。', '凝气诀为恒岳派入门根基法门，共分十五层，引天地灵气入体，洗筋伐髓。王林身负三属废灵根，本与此道无缘，却凭天逆珠中一日抵十日的苦修，以十年之功凝气十五层圆满，于仙门大比一鸣惊人。此诀虽是入门功法，却是万法之基——根基不牢，纵得仙缘也是空中楼阁。', 16, '凝气,王林,恒岳派,根基,仙逆', '王林', 99000, 15203, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (101, '尸魅', '炼尸为傀，驱魅护主，左道亦可通天。', '尸魅之术乃铁柱所传左道秘法，采新尸炼为傀儡，以生魂驭死气。尸傀不知痛楚、不畏刀剑，越凶险之地越见其用。王林早年修为低微，凭一具尸傀周旋于藤家追杀之间，藤厉殒命于此术之下。修此术者须以自身精血温养，尸傀与主人心念相连，切忌心生怠慢，否则反噬只在顷刻。', 17, '魂修,尸魅,王林,左道,仙逆', '王林', 87000, 12800, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (102, '吞魂', '噬人魂魄，夺人修为，吾以吞魂证长生。', '吞魂之法逆天而行，噬取他人魂魄炼为己用，神识与修为皆可暴涨。王林凭此法吞尽藤家修士魂魄，一夜之间连破数境，自此「杀神」之名传遍赵国。然此法戾气极重，吞魂越多、心魔越炽，须以大定力压服，否则魂魄反噬、性情大变，终沦为只知杀戮的凶魂。', 17, '魂修,吞魂,王林,杀神,仙逆', '王林', 96000, 14305, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (103, '移魂大法', '魂迁他体，向死而生。', '移魂大法可于肉身将毁之际，迁神魂入他体夺舍重生，是保命的第一等秘术。王林数度身陷绝境，皆以移魂遁出死局——肉身可弃，道心不可失。修此法者神识须强横至极，且夺舍之体亦需温养调和，否则两魂相争，同归于尽。', 17, '魂修,移魂,夺舍,王林,仙逆', '王林', 78000, 10400, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (104, '生死之道', '生之极意可活死人，死之极意可葬天地。', '生死之道乃王林主修的无上大道。生之极意，枯木逢春、白骨生肉；死之极意，一念之下万灵俱寂。生死本是轮回两端，悟透生死，方知长生不过一场执念——而他偏要以这场执念，逆天改命。王林自筑基起参悟生死，至踏天之境生死由心，一念之间可判诸天生死。', 18, '道法,生死,王林,大道,仙逆', '王林', 99900, 16808, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (105, '因果之道', '一念种因，一念得果，因果线断诸天皆惊。', '因果之道讲究万般皆有因果，种何因、得何果。修至大成可显化因果线，牵一发而动全身：顺因果者借力打力，逆因果者斩断前缘。王林以因果之道护道侣、灭强敌，凡与之为敌者，皆在因果簿上记下一笔，迟早要还。', 18, '道法,因果,王林,仙逆', '王林', 92000, 13502, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (106, '真假之道', '虚虚实实，真真假假，诸天万界皆为我幻。', '真假之道参悟虚实本源，修至深处，假可乱真、真可作幻。王林以真假之道瞒天过海，一具化身可敌真身，诸般大能的神识探查在他面前形同虚设。此道练的是「心明」——识得破万象皆虚，方能以假证真。', 18, '道法,真假,虚实,王林,仙逆', '王林', 85000, 11900, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (107, '时光之道', '岁月长河，唯我独行，逆转光阴续命改命。', '时光之道乃诸天至高法则之一。王林于天逆珠中窥得时光本源，自此岁月于他如长河可溯——逆转光阴可改既定之局，加速流转可催生灵药，驻颜驻寿更是等闲。然时光最是无情，逆改岁月必承天道反噬，一念不慎，形神俱灭于长河之中。', 18, '道法,时光,岁月,王林,天逆珠,仙逆', '王林', 97000, 14903, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (108, '御剑凝芒术', '青芒一现，斩敌千里。', '御剑凝芒术以神识驭剑、凝芒化虹，剑光离手千里之外取人首级。王林的本命飞剑通体青芒，随其修为一同成长——凝气时不过尺许青光，踏天之境一剑可裂星河。此术要诀在「人剑合一」，神识与剑心相融，剑随意动、意到剑至。', 11, '剑诀,御剑,青芒,王林,仙逆', '王林', 89000, 12600, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (109, '淬体逆修篇', '灵根残缺？那便以肉身补天。', '淬体逆修篇为体修旁门，专为灵根残缺者所创——既然灵气入体艰难，便以万般苦楚淬炼肉身，皮膜、筋骨、脏腑、骨髓层层逆锻。王林早年在恒岳派杂役期间暗修此篇，肉身之强横远超同阶，硬接结丹修士一击而不倒。此篇要诀唯「忍」之一字：痛极则强，破而后立。', 13, '体修,淬体,逆修,王林,仙逆', '王林', 83000, 11601, 1, '2026-10-26 11:40:56');
-INSERT INTO `t_content` VALUES (200, '焚诀', '吞尽天下异火，一部可以进化的奇功。', '焚诀乃是陀舍古帝遗留的奇功，起点不过黄阶，却能吞噬异火、以火养功，每纳一道异火便攀升一阶，最终可至天阶。萧炎得药老所授此诀，从乌坦城的废柴少年一路吞火而行，青莲地心火、陨落心炎、三千焱炎火皆入其腹。此诀凶险之处在于火性相冲——吞火之时若经脉承受不住，便是自焚而亡，故须以炼药师灵魂之力时时压制。', 12, '火法,焚诀,异火,萧炎,斗破', '陀舍古帝', 99600, 17310, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (201, '焰分噬浪尺', '一尺落处，浪分两岸。', '焰分噬浪尺为药老所传的高阶尺法斗技，以火属性斗气凝于重尺之上，挥出时自带焰浪，尺势过处气流如浪被生生劈开。萧炎持玄重尺修此技，初成时只能分浪三尺，大成时一尺劈落，山岩如豆腐般中分。此技重「势」不重「巧」，尺越沉、斗气越烈，威力越盛。', 12, '火法,尺法,斗技,萧炎,斗破', '药尘', 93500, 13600, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (202, '佛怒火莲', '诸火相融，莲开一朵，万火朝宗。', '佛怒火莲乃萧炎自创的斗技，以数道异火强行压缩融合，凝成一朵火莲掷出，莲开之时火浪席卷数十里。此技最难处不在威力，而在「控」——异火各有灵性、彼此不容，稍有失控便先炸伤自己。萧炎初成时炸断一臂，后以灵魂之力反复淬炼，方能做到莲开有序、收放由心。', 12, '火法,佛怒火莲,异火,自创,斗破', '萧炎', 99100, 16801, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (203, '五轮离火法', '五轮环身，离火炼形。', '五轮离火法为药老所传火系斗技，斗气化出五道火轮绕身旋转，攻可环切、守可成壁。五轮运转之际火势层层叠加，第五轮成时周身如坠熔炉，近身者皆被灼退。此法与炼药之道相通，火候圆熟者学之事半功倍。', 12, '火法,五轮离火,斗技,斗破', '药尘', 86000, 11400, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (204, '帝印诀', '五印叠落，一印重于一印。', '帝印诀为古族秘传的天阶斗技，以斗气凝印，一印落地、二印裂石、三印断流，五印齐落时方圆百丈尽成齑粉。此诀讲究印势叠加，前印未散、后印已至，故修习者斗气须浑厚至极，斗尊之下强修，往往一印未成便脱力。', 18, '道法,帝印诀,古族,天阶,斗破', '古族', 90500, 12300, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (205, '三千雷动', '雷动三千，影未至而雷先闻。', '三千雷动乃风雷阁镇阁身法，属天阶斗技残卷，修至大成可于雷光中分出三千残影，真身藏在雷势之中。此技须身负雷属性斗气，且要熬过引雷淬体之苦——初练者往往被雷劈得皮开肉绽，能忍过前三百道雷者，十中无一。', 14, '身法,三千雷动,风雷阁,雷,斗破', '风雷阁', 92000, 12900, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (206, '紫云翼', '双翼展开，紫云漫天。', '紫云翼是斗气化翼之上的飞行斗技，斗气凝成双翼，翼展处紫云翻涌，可借云气攀升、亦可化云隐匿。修习者需先能稳定化翼，再以斗气养翼，翼越养越实，日后纵入禁空之地，亦能凭翼滑翔数十里。', 14, '身法,紫云翼,飞行,斗破', '斗气大陆', 78000, 10300, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (207, '金刚琉璃身', '身如琉璃，刀兵不入。', '金刚琉璃身为炼体天阶斗技，以斗气反复淬炼皮、肉、筋、骨、髓五脏六层，成时肌肤泛琉璃之色，寻常刀剑落身如击钟磬。萧炎曾以此身硬接同阶强者连击而寸步不退。淬炼之苦非常人可受，每一层都要经历「破而后立」，故修此技者多为心志极坚之辈。', 13, '体修,金刚琉璃身,炼体,斗破', '斗气大陆', 84500, 11200, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (208, '大天造化掌', '一掌落下，万物归造化。', '大天造化掌为天阶掌法斗技，掌中藏造化之力，看似轻飘飘一掌，落下时山体崩裂、河谷改道。此技耗斗气极巨，寻常斗皇全力一击也不过凝出半个掌印。相传创此技者本意不在杀伐，而在以造化之力演化天地——掌法练到深处，杀人只是顺手。', 18, '道法,大天造化掌,天阶,斗破', '斗气大陆', 88000, 11800, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (209, '风之极·陨杀', '风至极处，无物不陨。', '风之极·陨杀乃风系天阶斗技的极致之法，斗气化风成刃，万千风刃藏于一击之中，出手时只见风过，不见形迹。风本无形，故最难防；而此技最凶险者，是施术者自身也要置身风眼之内，风刃无眼，先伤己、后伤人。', 18, '道法,风系,天阶,斗破', '斗气大陆', 79000, 10200, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (210, '斗气修炼总纲', '斗之气九段起，一路斗帝为终。', '斗气大陆修行以斗之气为始，一至九段筑基，其后斗者、斗师、大斗师、斗灵、斗王、斗皇、斗宗、斗尊、斗圣，直至斗帝。斗王可斗气化翼、斗皇能虚空而行、斗宗以上可开辟空间。此纲为入门第一课：境界不可僭越，斗之气未满而强求斗者，轻则经脉受损，重则终生止步。', 16, '凝气,斗气,根基,境界,斗破', '斗气大陆', 97200, 15400, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (211, '灵魂境界篇', '凡境、灵境、天境、帝境，魂强则丹成。', '炼药师之魂另有境界：凡境观物、灵境外放、天境化物、帝境通神。灵魂越强，丹火越稳、丹成率越高，斗技中的控火、控器亦全赖魂力。萧炎以灵魂之力压服异火、以魂御火成莲，皆是此道之功。魂修之法最忌贪进，魂力躁进者，往往先疯后亡。', 17, '魂修,灵魂,炼药师,斗破', '斗气大陆', 91000, 12400, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (212, '异火榜·廿三火', '天地间二十三种异火，各有其主，各择其缘。', '异火榜录天地异火二十三种，帝炎居首，虚无吞炎、净莲妖火次之，其后陨落心炎、三千焱炎火、青莲地心火、海心焰等各有性灵。异火不认主、只认缘：火性烈者反噬其主，火性温者可养丹炉。得火者若无力压制，不如早早放手——异火焚身之事，斗气大陆从不少见。', 18, '道法,异火榜,异火,斗破', '斗气大陆', 98600, 15903, 1, '2026-10-30 15:57:39');
-INSERT INTO `t_content` VALUES (220, '回气丹', '斗气大陆最常见的疗伤丹，一丹可复斗气。', '回气丹为一品丹药，是药老最初传授萧炎的炼药入门方，成丹只需三味寻常药材，却能迅速补足斗气、愈合皮肉之伤。萧炎在乌坦城初学炼药时，废了数十炉药材才成第一枚。此丹虽贱，却是所有炼药师的起点——火候、灵魂、心性，皆要在这枚丹里走一遍。', 21, '丹药,疗伤,回气,入门,斗破', '药尘', 76200, 11800, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (221, '三纹清灵丹', '丹分三纹，纹多则效奇。', '三纹清灵丹为四品丹药，能疗内伤、清淤塞、复斗气，成丹时以丹纹多寡分品：一纹为下，三纹为上。萧炎在黑角域以三纹之品压过同阶药师，一战成名。炼此丹的关窍在于凝纹——丹成前一息火候稍烈则纹散，稍弱则纹不显，全凭灵魂感知那一线之差。', 21, '丹药,疗伤,丹纹,萧炎,斗破', '药尘', 88400, 13200, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (222, '复灵紫丹', '魂伤难医，唯此丹可补。', '复灵紫丹专疗灵魂创伤，五品丹药，丹成时紫气萦绕不散。药老残魂得以稳固、萧炎灵魂境界屡次暴涨，皆赖此类丹药。灵魂之伤最是难查：斗气无损而魂已裂，若不早治，轻则魂力倒退，重则痴傻疯癫。故高阶炼药师受人敬重，正因他们能医别人医不了的地方。', 21, '丹药,疗伤,灵魂,五品,斗破', '药尘', 86900, 12600, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (223, '破宗丹', '一丹破宗，斗皇亦可窥斗宗。', '破宗丹为六品丹药，专助斗皇巅峰冲击斗宗之境。斗宗之槛在于开辟空间、领悟空间之力，此丹不能替人参悟，只能将斗气推至圆满，让那层窗纸薄到一戳即破。服之若心境不足，暴涨的斗气会先撑裂经脉——破境丹从来只渡有缘人，不渡贪心人。', 22, '丹药,突破,斗宗,六品,斗破', '药尘', 91300, 14101, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (224, '斗灵丹', '大斗师窥斗灵，一丹定去留。', '斗灵丹为三品丹药，助大斗师圆满者凝出斗灵之相。斗灵之境重在灵字：斗气化灵、灵随身走，能借天地灵气为用，此后方可言斗王。萧炎早年靠此丹连破两境，也在那时明白——丹药是舟，渡得过河，渡不过命。', 22, '丹药,突破,斗灵,三品,斗破', '古河', 79500, 10900, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (225, '洗髓寒灵液', '寒液浸骨，洗髓伐毛。', '洗髓寒灵液非丹而液，性极寒，浸体时可洗去经脉杂质、重塑根基，最适合幼时根基受损者。萧炎经此液洗髓，方从废柴重新起步。洗髓之痛如万针穿骨，全程须有强者护法；体质太弱者，往往在寒液中冻断经脉，反成废人。', 22, '丹药,突破,洗髓,根基,斗破', '药尘', 84700, 12300, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (226, '噬生丹', '以命换力，三年之期。', '噬生丹为禁品，服之可于一瞬暴涨数阶，代价是燃尽寿元——药老曾言，服此丹者活不过三年。萧炎在绝境中以此丹搏命，力压强敌后便陷入油尽灯枯。此丹不是机缘，是借命：借时容易，还时拿命还。', 22, '丹药,突破,禁品,搏命,斗破', '药尘', 82100, 11700, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (227, '厄难毒丹', '厄难毒体所凝，一丹可枯千里。', '厄难毒丹由厄难毒体自行凝炼，聚万毒于一丸，毒气外泄则草木尽枯、鸟兽绝迹。小医仙毒体觉醒时，所过之处千里无人，正是此丹之威的反面。此丹无解，唯有毒体自己能收；故世人皆惧毒体，而毒体者自己也惧。', 23, '毒丹,禁品,厄难毒体,小医仙,斗破', '小医仙', 78600, 10400, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (228, '化骨腐心散', '骨化如沙，心神俱腐。', '化骨腐心散为黑角域流传的暗毒，无色无味，入体后骨节先软，其后心神昏乱。中毒者三日内若无解药，便化为一滩腐泥。黑市价高，因其炼法简单、踪迹难寻；正道丹师皆耻于炼此物，却也无人敢不防它。', 23, '毒丹,禁品,黑角域,暗毒,斗破', '黑角域', 71900, 9600, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (230, '云岚山', '云岚宗根基所在，山中有云，云中藏剑。', '云岚山终年云雾不散，山势陡峭而灵气清淡，是云岚宗立派数千年的根基。纳兰嫣然在此修行，云山在此闭关，萧炎亦三上云岚山——第一次被逼退婚，最后一次把山门踏平。山中云雾能乱人神识，初次登临者常于云中迷失方向，绕一日仍在原地。', 31, '秘境,云岚宗,加玛,斗破', '云岚宗', 85200, 13100, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (231, '魔兽山脉', '魔兽成群，机缘与凶险同路。', '魔兽山脉横亘加玛帝国边境，山中魔兽按阶而居，一阶至高阶皆有，弱者入山十死无生。萧炎在此猎杀魔兽、采得诸多药材，也在此初遇云韵。山中有一个说法：越往深处，魔兽越强，而灵药也越珍贵——敢不敢往里走，是修行者的第一道考题。', 31, '秘境,魔兽,险地,萧炎,斗破', '加玛帝国', 90400, 14600, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (232, '黑角域', '无主之地，万恶汇集，也藏万般机缘。', '黑角域位于数国交界，无王法、无宗门，谁的拳头大谁说了算。丹药、功法、异火、奴隶皆在此流通，杀人越货亦是日常。萧炎在此以炼药起家，在此结仇，也在此结缘。此地最不缺机缘，最缺的是活着把机缘带走的本事。', 31, '秘境,黑角域,混乱,机缘,斗破', '斗气大陆', 92800, 15200, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (233, '迦南学院·内院', '天焚炼气塔下，压着一缕陨落心炎。', '迦南学院内院不对外招，入院者皆是各国翘楚。内院真正的底蕴是那座天焚炼气塔——塔中火气可助修炼，塔底却封着一缕陨落心炎。萧炎正是在塔底得此异火，修为暴涨，也从此背上了火的反噬。内院规矩只有一句：塔可以进，火不能贪。', 31, '秘境,迦南学院,内院,斗破', '迦南学院', 87600, 13800, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (234, '陀舍古帝洞府', '斗帝遗府，一府藏尽天下机缘。', '陀舍古帝洞府为斗帝所留，府中藏异火榜残卷、帝品丹方与陀舍古帝玉。古族、魂族、炎族、雷族为此府明争暗斗千年。洞府开启须以帝玉为引，无玉者强闯，多半死在府外的空间乱流里——机缘越大的地方，门口的尸骨也越多。', 31, '秘境,斗帝,洞府,古玉,斗破', '陀舍古帝', 96600, 16200, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (235, '天焚炼气塔', '火气成塔，塔底有炎。', '天焚炼气塔共分九层，越往下火气越烈，塔中修炼一日，抵外界十日。塔底镇压着一缕陨落心炎——那火不甘被囚，日夜灼烧塔壁，故塔下层常年无人敢入。此塔既是灵脉，也是牢笼：灵脉养人，牢笼养火。', 32, '灵脉,天焚炼气塔,异火,斗破', '迦南学院', 93300, 14900, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (236, '无尽火域', '一域皆火，火中有人。', '无尽火域为炎族祖地，亦是后世萧炎所立之域，域内火灵之气浓到凝液，火属性修者入之如鱼得水，异火在此更易驯服。然此域对外来者极不友好：非火属性者入域片刻，便会被火气蒸干经脉，连退路都烧断。', 32, '灵脉,无尽火域,火灵,斗破', '炎族', 89100, 13701, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (237, '风雷山脉', '雷出山巅，风起谷底。', '风雷山脉为风雷阁根基，山巅终年雷云不散、谷底罡风如刀。阁中弟子在此引雷淬体、借风练身，三千雷动便是依此地势而创。能在此山脉熬过前三百道雷者，方算入了风雷阁的门；熬不过的，连名字都不会被记下。', 32, '灵脉,风雷阁,雷,风,斗破', '风雷阁', 82300, 12100, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (240, '云山', '云岚宗老祖，一剑藏于风云之间。', '云山为云岚宗老祖，斗宗强者，风属性斗气练至化境，出手时风化为剑、剑隐于风。他护短、傲气，也确实把云岚宗带到了加玛帝国之巅；与萧炎三度交手，最后一战败于火莲之下。风本无形，故他的剑也无人能看清。', 41, '道友,剑修,斗宗,云岚宗,斗破', '仙门名录', 88400, 13403, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (241, '纳兰嫣然', '云岚宗天才，一剑挑退婚约。', '纳兰嫣然为云岚宗百年一遇的天才，年十六便入斗者，性子倔、骨头硬。她三年前上门退婚，一句莫欺少年穷逼出了萧炎的三年之约；三年后再战，败得干脆，也认得干脆。她的剑气走的是风之极一路：快、直、不留余地，像她做人。', 41, '道友,剑修,天才,云岚宗,斗破', '仙门名录', 81200, 11600, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (242, '药尘', '九品炼药师，一炉可夺天地造化。', '药老本名药尘，出身药族，为大陆第一炼药师，九品丹药亦能炼出。他被弟子背叛、肉身毁去，残魂寄于骨灵冷火之中，后遇萧炎，以师徒之名重走一遍炼药路。他教萧炎的不只是丹方，还有火候即心性这四个字。', 42, '道友,丹修,九品,炼药师,斗破', '仙门名录', 96400, 15803, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (243, '萧炎', '从废柴到炎帝，一路吞火而行。', '萧炎出自乌坦城萧家，少年时斗之气停滞三年，被讥为废柴；得药老残魂后重修，兼修炼药与斗气，以焚诀吞异火、以佛怒火莲破强敌，最终成就斗帝，号炎帝。此处的他不只是强者，更是把炼药与杀伐练到一处的人——左手丹炉，右手重尺。', 42, '道友,丹修,斗帝,炎帝,斗破', '仙门名录', 98900, 17402, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (244, '古河', '丹王之名，六品之下无丹不可炼。', '古河为加玛帝国丹王，六品炼药师，性情高傲、讲究排场，却也确有真才实学。他受云岚宗礼遇，与萧炎在炼药大会上较技，败于三纹清灵丹之下。此后收敛傲气，专心丹道——输给年轻人不可怕，输完还端着架子才可怕。', 42, '道友,丹修,六品,丹王,斗破', '仙门名录', 79600, 11100, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (245, '小医仙', '厄难毒体，救人者自成剧毒。', '小医仙本心仁善，习医救人，却不料身负厄难毒体——越是救人，毒力越盛，最终所过之处草木尽枯。她曾躲入深山不愿害人，也在萧炎最险之时以毒解局。医与毒本是一体：能救人的人，最知道该怎么杀人。', 42, '道友,丹修,毒体,医,斗破', '仙门名录', 85800, 12901, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (246, '彩鳞', '蛇人族女王，妖躯即是道。', '彩鳞即美杜莎，蛇人族女王，以妖躯硬抗斗宗而不落下风，肉身之强在同阶中罕有敌手。她冷厉、干脆，出手从不拖泥带水，与萧炎从敌对到并肩，靠的不是情分，是一次次把命交给对方的默契。', 43, '道友,体修,美杜莎,蛇人族,斗破', '仙门名录', 87200, 13302, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (247, '紫妍', '太虚古龙幼女，龙躯天生。', '紫妍为太虚古龙一族，本体强横，肉身之力远超同阶人族，且天生能控空间。她性子贪吃单纯，却在族群存亡之际担起古龙皇之位。龙族不靠修炼长肉身，靠血脉；血脉既是她的天赋，也是她躲不掉的担子。', 43, '道友,体修,古龙,血脉,斗破', '仙门名录', 80600, 11400, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (248, '雷赢', '雷族族长，引雷淬体五十年。', '雷赢为雷族族长，斗圣强者，以雷属性斗气引雷淬体，一炼便是五十年。雷族素来强势好斗，他行事亦如雷：不问缘由，先落下来再说。族长之位不只意味着权，也意味着整族的仇都要他一个人扛。', 43, '道友,体修,雷族,斗圣,斗破', '仙门名录', 83900, 12400, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (250, '炼药心得·火候篇', '控火为炼药第一关，火不听话，丹必不成。', '药老常言：炼药三分成药，七分控火。火候有文武之分，文火养药性、武火逼杂质，一炉之中要换火数十次——换慢则药性散，换快则炉炸。初学炼药者多败在舍不得：舍不得停火、舍不得弃材，最后把炉一起毁了。', 51, '论道,心得,炼药,控火,斗破', '药尘', 89100, 14202, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (251, '异火吞噬心得', '吞火不是抢，是熬。', '焚诀吞异火，看似霸道，实则最忌心急。吞火之前须先以灵魂之力缠住火灵，再引火入经脉，一寸寸磨合；火性烈者先以丹火驯之，火性异者先断其灵。萧炎每纳一火，都要在生死边缘走一遭——吞火的人若先怕了，火便先吃了他。', 51, '论道,心得,异火,焚诀,斗破', '萧炎', 92600, 15101, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (252, '斗气根基篇·心得', '斗之气未满，不可言斗者。', '斗气大陆以斗之气九段筑基，此阶看似低微，却是决定一生上限的地方。药老曾令萧炎反复打磨斗之气至圆满，才准入斗者，理由是：根基薄者纵一时破境，日后必在斗王、斗宗前止步。修行一途，快从来不等于远。', 51, '论道,心得,根基,斗气,斗破', '药尘', 84300, 12802, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (253, '炼药三要', '药材、灵魂、丹火，缺一不成丹。', '炼药之要有三：药材须真、灵魂须强、丹火须稳。药材造假者丹必废，灵魂孱弱者控不住火，丹火不稳者成丹无纹。世人多盯着丹方，其实丹方只是纸——同样的方子，有人炼出废丹，有人炼出三纹。', 51, '论道,心得,炼药,丹火,斗破', '药尘', 81800, 11902, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (254, '炼药十问', '初学炼药最常见的十个疑惑，逐一作答。', '问：药材能否替换？答：性相近者可替，效必减。问：炸炉如何补救？答：救不了，先保命。问：灵魂力不足可否强修？答：可以，但先疯的是自己。问：兽火可否炼丹？答：可，然兽火躁烈，丹成率低。问：丹纹如何增多？答：凝纹在火候最后一息，不在药材多寡。其余五问，答在火里，不在纸上。', 52, '论道,问答,炼药,入门,斗破', '药尘', 77400, 10601, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (255, '斗宗之槛问答', '斗皇到斗宗，隔着一层空间。', '问：破宗丹能否助人成斗宗？答：只能推斗气至圆满，参悟空间之力终究要靠自己。问：为何多数人卡在斗皇？答：斗皇靠积累，斗宗靠悟性，积累到头而悟性不足者，生生卡死。问：可否强冲？答：可以，成功率不足一成，失败者经脉尽废。', 52, '论道,问答,破境,斗宗,斗破', '仙门长老', 80700, 11501, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (256, '异火相冲怎么办', '两火不相容，先分后合。', '问：体内已有异火，再吞一道会否相冲？答：必冲，火各有灵，互不服。问：如何化解？答：以灵魂之力为界，先分域、再慢慢融合，急则自焚。问：佛怒火莲为何能合诸火？答：因为萧炎先学会了放——把诸火同时放出体外再压成一朵，火不在体内争，便炸不到自己。', 52, '论道,问答,异火,佛怒火莲,斗破', '萧炎', 85900, 13003, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (257, '斗帝为何绝迹', '斗帝不在人间，人间也无路可走。', '问：斗气大陆为何千年无斗帝？答：不是无人能至，是天地不给——帝境需帝之源气，而源气早被前人耗尽。问：有无他法？答：陀舍古帝洞府、异火榜尽头，皆是一线生机。问：这条路还走得通吗？答：萧炎走过一次，只是那一次，整个大陆都陪他赌了一把。', 52, '论道,问答,斗帝,源气,斗破', '仙门长老', 88100, 13603, 1, '2026-10-30 16:38:11');
-INSERT INTO `t_content` VALUES (300, '流月之术', '一念流月，光阴倒卷，昨日之局今日可改。', '流月之术乃王林以时光本源推演出的至高神通。术起之时，天地如被按入水中，光影滞流、尘埃悬停，施术者可于这一线间隙里看清一息之内的所有可能。王林曾以此术将戮默送往无数万年前，只为寻一个让李慕婉活过来的法子。此术最忌贪多——光阴不是任人揉捏的泥，逆改一分，天道便记一分，反噬迟早要还。修习者须先悟时光之「顺」，方知何为「逆」。', 18, '道法,时光,流月,王林,仙逆', '王林', 99200, 16400, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (301, '梦道之术', '一梦一轮回，梦醒已是百年身。', '梦道之术以神识造梦，梦中自成天地、自有时序，可演一生、可历一劫。戮默曾以此术一遍遍模拟王林的人生，才在无数次轮回里读懂了执念二字；王林亦以此术陪木冰眉走完一轮轮回，还了她一场不曾亏欠的相守。此术伤人最深之处不在梦中凶险，而在梦醒之后——梦里所得皆是虚的，唯有那份情是真的，真假之间，最易道心裂痕。', 18, '道法,梦道,轮回,王林,仙逆', '王林', 97800, 15500, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (302, '踏天一步', '一步落下，天亦为阶。', '踏天一步为第四步踏天境的神通显化。此步不看脚下有无路，只看心中有无「我」——九桥踏尽、轮回看透者，一步落下便踏在天道之上。王林以此术击败古道大天尊，也以此术劈开了逆尘界的门。踏天不是踩在别人头上，是踩在自己这一生的因果之上：踏得稳，天为阶；踏不稳，天为刃。', 18, '道法,踏天,第四步,王林,仙逆', '王林', 99600, 17100, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (303, '古神术·虚', '古神一术，虚中生灭。', '古神术·虚出自八星古神涂司的记忆，以虚为体、以无作刃，出手时不见形迹，只余一片被生生挖空的天地。王林以之与月噬族一战，一击之下月噬族强者连惨叫都发不出来——因为虚先吞了声音。此术修的是「空」，最难的不是放开，而是敢让自己也空上一瞬：心有一丝牵挂，术便不成。', 18, '道法,古神,涂司,王林,仙逆', '王林', 96400, 14800, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (304, '极境', '恨至极处，自成极境。', '极境非功法，是意境。藤化元灭王家满门那夜，王林心中生出一样东西——不是悲，不是惧，是把一切都烧尽的恨。此恨凝成极境，令他在同阶之中战力暴涨，越境而战亦不落下风。极境是双刃：给你力，也要你的心；恨得越深，陷得越沉。王林后来能走出极境，不是忘了那夜，是把恨收进了道心里。', 18, '道法,极境,意境,复仇,仙逆', '王林', 98700, 16000, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (305, '吞灵噬体绝天大法', '吞人元神，噬人体魄，一线生机皆不留。', '此术为清水所创，只授王林一人。术成之际，受术者元神、魂魄、元力、生机尽被抽走，连转世的机会都被一并抹去，故名绝天。王林平生极少动用——不是不敢，是不愿：用一次，便欠天道一笔。清水创此术本是为守天门，界内大战一人一剑独挡界外群雄，术落之处尸骸成山，自此再无人敢轻言踏门。', 17, '魂修,吞灵,清水,禁术,仙逆', '清水', 94100, 13700, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (306, '十亿尊魂幡', '一幡十亿魂，魂兵过处，天亦低眉。', '尊魂幡为炼魂宗镇宗之宝，遁天倾尽传承相赠，幡中炼有十亿魂兵。魂兵不知痛、不畏死，战力随主人神识高低而涨，神识越强，魂兵越凶。此幡凶名极盛，却也是护身最好的东西——魂兵可以死十亿次，主人只能死一次。遁天战死那日，王林第一次为旁人落了泪。', 17, '魂修,尊魂幡,炼魂宗,遁天,仙逆', '遁天', 93500, 13300, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (307, '杀戮剑道', '剑出不为胜负，只为杀。', '杀戮剑道以杀为本源，剑意一起，天地间只剩一个念头：此剑落处，必有人死。清水以之守天门，一剑封喉血羽子，界内界外皆知其名。此道不讲招式、不求好看，只讲一个字：准。修道者若心慈手软，剑便迟一息，迟一息就是自己先死。王林学此道不学其杀，只学那一分「决」。', 11, '剑诀,杀戮,剑本源,清水,仙逆', '清水', 95800, 14600, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (308, '道古之躯', '二十七星道古，肉身为天，血为江河。', '王林本尊为二十七星道古体，乃古神一脉中的顶尖根骨。道古之躯不修灵气、只炼身体：皮为地、肉为山、骨为柱、血为江河，一身即是天地。炼至深处，刀兵加身如击钟磬，星域之力落下只留白痕。此路极苦——古神一族的每一星，都是以肉身扛过一次天罚换来的，扛不过的，连骨头都留不下。', 13, '体修,古神,道古体,王林,仙逆', '王林', 96200, 14900, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (309, '瞬移', '一步之间，已在百里之外。', '瞬移是元婴之后方可行的手段，以神识锁定方位，一念动而身在彼处，中间的距离被生生抹去。仙逆之界的厮杀，胜负往往就差这一念：追得上你的人不多，逃得掉的人更少。然瞬移有忌：神识不济者强用，落地之时人已散了半身；锁定之地若有禁制，便等于自己撞进网里。', 14, '身法,瞬移,遁术,元婴,仙逆', '仙门长老', 87200, 12100, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (310, '万灵血契', '雷蛙、蚊兽、九幽龙、星痕貂，一契一命。', '王林一路所收神兽，皆以血契相连：雷蛙能引天雷、蚊兽可化千军、九幽龙衔幽冥之气、星痕貂遁于星影之间。血契不是主仆，是共命——兽死契损，主亡兽殉。故仙逆之界的强者多半不轻易结契：多一头兽，就多一条要护的命。若只把神兽当作刀，迟早会被这把刀反噬。', 15, '御兽,血契,神兽,王林,仙逆', '王林', 85900, 11800, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (311, '凝气十五层', '十四层是假圆满，十五层才是真圆满。', '凝气一层引气入体，三层生神识，可施展法术；往后每进一层，经脉便宽一分、灵气便厚一分。修至第十四层时灵气已满，司徒南称之为灵动期假圆满——此时破境，十人九废。唯有再熬一层，把满溢的灵气重新压回骨血里去，才算十五层圆满。王林在恒岳派做杂役那几年，就是靠天逆珠里一日抵十日的苦修，一层一层磨过去的。', 16, '凝气,十五层,灵动,根基,仙逆', '王林', 94400, 14601, 1, '2026-11-09 11:01:22');
-INSERT INTO `t_content` VALUES (320, '回春丹', '恒岳派弟子人人一枚的保命丹。', '回春丹是恒岳派外门配发的常备丹药，药材寻常，成丹不难，治不了大伤，却能吊住一口气。王林初入恒岳派做杂役时，一月的月例也只换得三枚；后来他在山崖洞中苦修，靠的就是这三枚丹撑过反复震伤。修真界第一课从来不是杀敌，是怎么活到能杀敌的那天。', 21, '丹药,疗伤,恒岳派,入门,仙逆', '恒岳派丹房', 78600, 11200, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (321, '续命丹', '以寿换命，续得一日是一日。', '续命丹不能治伤，只能拖命，一枚续三月，药力一过便更虚一分。李慕婉早年以寿元为王林刻保命玉简，根基大损，此后常年以此丹吊着——她比谁都清楚这丹是借来的日子，可她仍要借：她还想再看他一眼，看他破境、看他报仇、看他从少年变成传说。此丹最苦之处不在药味，在服药人心里的明白。', 21, '丹药,疗伤,续命,李慕婉,仙逆', '李慕婉', 91200, 14200, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (322, '养魂丹', '肉可毁，魂可养，一线残魂亦能重来。', '养魂丹专温养残魂，神魂受损者服之，可保灵智不散。司徒南当年肉身被毁，只余一缕残魂藏于天逆珠中，靠的正是此类丹药与珠中的时光之力，一点点把魂养回来。魂之伤最难查：修为无损而人已混沌，等旁人看出来时，往往已经救不回了。', 21, '丹药,疗伤,养魂,残魂,仙逆', '司徒南', 87400, 12600, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (323, '筑基丹', '凡体蜕仙胎，此丹是第一道门。', '筑基丹助凝气圆满者蜕变凡胎，是修真路上第一道门槛。恒岳派内门弟子破境前须先领丹，再入静室闭关七日，七日内不出，便算成了。王林当年灵根三属驳杂，凭此丹与天逆珠中一日抵十日的苦修，硬生生把这道门砸开——资质能定起步，定不了终点。', 22, '丹药,突破,筑基,恒岳派,仙逆', '恒岳派丹房', 84600, 12300, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (324, '结婴丹', '元婴一关，困住多少天骄。', '结婴丹为五品上丹，专助金丹圆满者碎丹成婴。结婴之难，难在一个碎字：金丹是修士半生修为所凝，谁敢亲手把它砸了？李慕婉天赋寻常、根基已损，多次结婴不成，最后靠王林寻来的六品丹药勉强成婴，寿元却已耗尽。元婴是逃出轮回的第一步，也是最多人倒下的那一步。', 22, '丹药,突破,结婴,李慕婉,仙逆', '李慕婉', 92100, 14500, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (325, '洗髓伐骨丹', '洗去灵根杂质，重塑修行根骨。', '洗髓丹入体如万针穿骨，痛过之后，经脉拓宽、灵根杂质尽去，修行速度可增三成。此丹对灵根越驳杂者越痛，也越有用——上天给的根骨改不了，只能自己一刀一刀削出来。服丹须有强者护法，体弱者往往痛到魂散，丹未化尽，人已不在了。', 22, '丹药,突破,洗髓,灵根,仙逆', '玄天丹师', 82800, 11900, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (326, '六品天灵丹', '六品之丹，一线生机。', '六品丹药在仙逆之界已是难得的珍物，一枚可换一城。李慕婉寿元将尽时，正是靠这一线丹力撑到结婴；若非王林执意去寻，她连这点机会都没有。丹道至此，已不只是炼药——五品能炼是本事，六品能成是天意，而肯为一个人去求天意的，才是道侣。', 22, '丹药,突破,六品,天灵,仙逆', '王林', 93400, 14700, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (327, '藤家百枯散', '一撮入井，一村无声。', '百枯散为藤家秘炼之毒，无色无味，入水即化，服者三日内经脉枯萎如秋草，死后尸身不腐不僵，看不出半分中毒之相。藤化元灭王家满门，用的便是此物——他不屑于动手，只让人自己死干净。此毒后来成了王林心里的一根刺：不是怕它，是恨这世上竟有如此阴毒的手段，还被人用得如此理所当然。', 23, '毒丹,禁品,藤家,藤化元,仙逆', '藤化元', 81300, 11400, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (328, '噬魂香', '香烟一起，魂先散。', '噬魂香燃时无烟无味，只让人觉着困，睡过去便再醒不来——魂被一丝丝抽走，皮囊还活着。此物多见于魔道阴私之地，许立国当年便是以此术暗算了不知多少修士。仙逆之界的狠，不在刀剑，在这种让你死得不明不白的东西上。', 23, '毒丹,禁品,噬魂,魔道,仙逆', '许立国', 76200, 10400, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (330, '天逆珠内天地', '珠中一日，世上数日。', '天逆珠是王林在悬崖山洞白鸟尸身中所得的石珠，内藏一方天地，时光流速远胜外界，灵气亦自成循环。王林早年被讥为废柴，靠的就是这方天地：旁人在外修一日，他在珠内修十日。珠非无忧之地——珠中修得再久，破境那一关仍要回到世上，对着天雷、对着仇人、对着自己的心。', 32, '灵脉,天逆珠,时光,王林,仙逆', '王林', 99400, 16900, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (331, '恒岳山', '赵国第一山门，也是王林修仙的起点。', '恒岳山高逾千丈，山门立于云上，外门弟子住山脚、内门住山腰、长老居山巅，一层石阶一层人。王林十五岁未被收为弟子，徒步登山，跌落崖下得遇天逆珠，后经四叔引荐才入外门做了杂役。此山于他，是屈辱之地，也是道心生根之地——他后来踏平过许多山门，唯独没踏过这一座。', 31, '秘境,恒岳派,赵国,起点,仙逆', '恒岳派', 88600, 13200, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (332, '修魔海', '魔气如海，正邪不拘，只认强弱。', '修魔海是散修与魔道混居之地，无宗门、无王法。海水呈暗红，魔气浓郁却混杂，正修入之如逆水行舟。王林被追杀时携李慕婉遁入此海，在此结丹，成就元婴之下第一强者；也在此与她暗生情愫，却因大仇未报而不敢应。修魔海不问出身，只问一句：你活得到明天吗？', 31, '秘境,修魔海,结丹,李慕婉,仙逆', '仙门执事', 91800, 14001, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (333, '妖灵之地', '妖灵横行，人族偏居一隅。', '妖灵之地灵智之属与妖灵混居，凶险远胜外界，人族在此不过偏安。十三便是王林在此收下的首徒，替他掌炼魂部落、修习炼魂禁制。此地最不缺的就是厮杀，也最不缺机缘——妖灵内丹、上古遗物、失传禁制，皆在尸骨堆里。想在这里活下去，靠的不是境界，是身边肯替你挡一刀的人。', 31, '秘境,妖灵,十三,炼魂部落,仙逆', '十三', 84300, 12000, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (334, '古神之地', '古神陨落之处，血肉化作山河。', '古神之地是古神一族葬身之所，巨骸横卧成山，血凝为矿，骨化为脉。王林在此得古神传承、成二十七星道古之体，也在此第一次明白以身为天四个字有多重。古神之道无捷径：每一星都要以肉身扛天罚，扛过一次，肉身便厚一分；扛不过，尸骨就留在这片土地上，与前辈们躺在一处。', 31, '秘境,古神,传承,道古体,仙逆', '王林', 93700, 14500, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (335, '罗天星域', '星域辽阔，一域一规矩。', '罗天星域横跨数星，宗门林立、修真国割据，势力盘根错节。王林化名潜入，被人称作魔道子——那几年他杀的人太多，多到名字成了忌讳。星域之大，大到一个人可以彻底消失；星域之小，小到仇人总会在某处遇见。', 31, '秘境,星域,魔道子,王林,仙逆', '仙门执事', 86900, 12700, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (336, '昆虚之境', '圣女所居，天魂道统。', '昆虚之境为昆虚一脉根本之地，历代圣女修天魂道，神魂之强冠绝一域。木冰眉为第七代圣女，分身柳眉行走世间，与王林的恩怨便从那里起。此地规矩极严：圣女不得动情，动了情便不再是圣女——可情之一字从来不听规矩，这才是最难的地方。', 31, '秘境,昆虚,圣女,木冰眉,仙逆', '木冰眉', 82400, 11700, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (337, '仙罡大陆', '界外大陆，本源之气充盈如海。', '仙罡大陆是界外之地，法则完整、本源充沛，修士在此修行一日，可抵界内数日。大陆之上宗族林立，仙族、古族、道古国各有其主，一步踏错便是灭族之祸。王林在此闭关百年，修为再上一层，也在此地明白：所谓界内界外，不过是天道划下的两层牢笼。', 32, '灵脉,仙罡,本源,界外,仙逆', '仙门执事', 90200, 13800, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (338, '朱雀星', '王林的故土，朱雀一脉的星。', '朱雀星为三级修真国所在，赵国不过是其中一隅。星上有朱雀传承，二代朱雀子司徒南曾是此星第一高手。王林生于斯、长于斯，父母族人在此惨死，也在此踏上逆仙之路。多年后他以六代朱雀圣皇之身归返，山还是那座山，人已不是那群人。', 32, '灵脉,朱雀星,故土,王林,仙逆', '王林', 94700, 15100, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (340, '王林', '小名铁柱，二十七星道古体，一生只做一件事——逆。', '王林生于朱雀星赵国山村，十五岁未被恒岳派收录，徒步登山、跌落悬崖，于白鸟尸身中得天逆珠，自此走上修行路。他灵根驳杂、天赋平庸，凭的是别人十倍的苦修与一分不肯低头的狠。灭藤家、吞魂魄、成古神、悟轮回，最终踏天。他的道只有一句：顺为凡，逆则仙。', 46, '道友,古神,道古体,王林,主角,仙逆', '仙门名录', 99900, 17802, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (341, '李慕婉', '五品丹阵大师，王林一生唯一的执念。', '李慕婉与王林在火焚国初识，被追杀时同入修魔海，以丹道助他结丹，成就元婴之下第一人。她天赋寻常，却把寿元熬成了刻给王林的保命玉简，导致此后结婴无望、寿元枯竭。王林为救她，从化神走到踏天，从界内杀到界外，最终以逆尘界本源将她唤回。全书七百万字，写的就是一个人怎么把另一个人从轮回里抢回来。', 42, '道友,丹修,李慕婉,道侣,仙逆', '仙门名录', 99500, 17201, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (342, '司徒南', '二代朱雀子，残魂寄珠，王林的引路人。', '司徒南曾是朱雀星第一高手，与叶无忧共筑朱雀辉煌。争夺天逆珠时被追杀，只余残魂藏于珠内；王林得珠后偶然将他唤醒，他传王林杀伐道心、授古神传承，数次舍命断后。后经王林相助重生，拜仙帝青霖为师。他教王林的第一课不是功法，是别把命交给别人。', 47, '道友,道修,朱雀子,司徒南,仙逆', '仙门名录', 97300, 15800, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (343, '清水', '雷仙殿真传，一剑守天门。', '清水为王林师兄，掌杀戮剑本源，剑出必见血。界内大战时他一人一剑独守天门，界外群雄无人能越；血羽子便是被他一剑封喉。他护短、记仇、重情，把吞灵噬体绝天大法只授王林一人。剑修之道在他身上最明白：不求天下无敌，只求身后之人无恙。', 41, '道友,剑修,清水,杀戮本源,仙逆', '仙门名录', 95800, 14701, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (344, '十三', '王林首徒，妖灵之地守门人。', '十三乃王林在妖灵之地炼魂部落所收首徒，忠诚坚毅，代师掌部落、修习炼魂禁制，境界至化神。他不算出彩，却是王林最放心的那类人：交代的事一定办到，办不到便死在那里。仙途漫长，聪明人太多，肯死的人太少。', 43, '道友,体修,十三,炼魂部落,仙逆', '仙门名录', 81200, 11301, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (345, '藤化元', '赵国藤家老祖，元婴后期，一夜间灭了王家满门。', '藤化元为赵国藤家老祖，元婴后期修为，行事阴狠，用毒而不沾手。他灭王家全族那夜，成了王林一生的转折点——极境由此而生，逆仙之路由此而始。后来王林元婴归来，将藤家满门连根拔起。他不是坏在强，是坏在理所当然：在他眼里，弱者本就该去死。', 44, '道友,魔修,藤家,藤化元,仇敌,仙逆', '仙门名录', 92100, 13901, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (346, '遁天', '炼魂宗宗主，赠幡十亿，待王林如亲。', '遁天与王林无师徒之名，却有师徒之实：倾囊相授炼魂之术，将镇宗至宝十亿尊魂幡一并相赠。仙途冷硬，他给了王林少见的一点暖。后战死，王林落泪——那是全书里他为数不多的几次。修真界的眼泪不轻易流，流了便是一辈子记着。', 45, '道友,魂修,炼魂宗,遁天,仙逆', '仙门名录', 85600, 12400, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (347, '天运子', '命运道代言人，以王林为种，布局万年。', '天运子曾为王林之师，实则是命运道的化身，把王林当作命运之种养了万年，等他自己长成一把能撬动天道的刀。他算尽人心，唯独算漏了一件事：被当作棋子的人，也会有自己想要护住的东西。最终王林斩断所有因果，天运子谋算落空，本体黑鹤崩散，一界本源归于王林之手。', 47, '道友,道修,命运道,天运子,仙逆', '仙门名录', 91400, 13600, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (348, '拓森', '八星古神，嗜杀成性，与王林死战而后相认。', '拓森本是八星王族古神涂司修墨流分神术失败所生的一丝魔念，凶戾嗜杀，与王林结下死仇，数度死战。后王林将忆之传承归还，他才认可这个对手，最终与涂司意识重叠。古神之道讲传承不讲情面：你打得过我，我才听你说话。', 46, '道友,古神,八星,拓森,仙逆', '仙门名录', 88700, 13100, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (349, '红蝶', '雪域天骄，与王林亦敌亦友，前世惨死，转世青虹。', '红蝶为清水仙君之女，转世青虹，性孤傲清冷，剑法与心性皆是顶尖。她与王林在罗天星域情愫暗生，却始终不曾越过那条线，是全书最像遗憾二字的一个人。转世之后她选择放下前尘——不是不爱，是不想再为一段旧缘赔上这一世。', 41, '道友,剑修,红蝶,雪域,仙逆', '仙门名录', 89500, 13401, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (350, '木冰眉', '昆虚圣女，十大分身，天魂道第七代传人。', '木冰眉修天魂道，神魂之强冠绝昆虚，十大分身行走各界，其中柳眉与王林有一段孽缘，诞下长子王平。她与王林纠缠半生，恨过、也帮过；最终王林以梦道陪她走完一轮轮回，算作还清。圣女的规矩是不动情，可她偏偏动了，这才有了后面所有的故事。', 45, '道友,魂修,天魂道,木冰眉,仙逆', '仙门名录', 87200, 12800, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (351, '许立国', '王林的魔头，贪生怕死，却跟了他一辈子。', '许立国本是魔道修士，被王林抹去神志炼为魔头，后又赐剑灵之体。他贪婪、好色、嘴上从不积德，几次想叛逃都被抓回来，堪称全书最不像魔头的魔头。可就是这样一个人，从赵国一路跟到仙罡，王林身边换了无数强者，他还赖着不走。仙逆里最靠得住的关系，往往最难听。', 44, '道友,魔修,魔头,许立国,仙逆', '仙门名录', 83600, 12001, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (360, '顺为凡，逆则仙', '顺为凡，逆则仙，只在心中一念间。', '这句话不是口号，是王林一辈子走出来的路。天道给的规矩很简单：灵根差者止步、寿元尽者当死、强者说了算。顺着它走，人人安稳；逆着走，处处是刀。他偏要逆——不是不知天高地厚，是知道天高地厚仍不肯低头。修道者先要问自己一件事：你想做顺从的那个，还是逆行的那个？想清楚了，路就有了。', 51, '论道,心得,道心,逆,仙逆', '王林', 98900, 16600, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (361, '极境心得·恨不是终点', '以恨入道很快，以恨证道很难。', '家族被灭那一夜，我得了极境。同阶无敌、越境可战，一时间以为恨是世上最好的东西。后来才知极境是陷阱：它把所有的痛换成力，却不曾把痛拿走，用得越久，人越像一把只剩杀意的刀。真正走出来那年，我把恨收回了道心——不是忘了那夜，是不再让它替我作决定。', 51, '论道,心得,极境,仇恨,仙逆', '王林', 93400, 14400, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (362, '化凡心得', '欲化神，先化凡。', '化神不难，难在化凡。要化神，得先下山做几年凡人：种田、挑水、看人间喜怒，把仙的架子卸了，才能生出意境。许多人卡在化神，不是修为不够，是舍不得那一身仙气——放不下的人，天不会替他放下。我在凡间待了几年，学会了不急，后来的每一境都从这两个字里来。', 51, '论道,心得,化神,化凡,仙逆', '王林', 91600, 13900, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (363, '问鼎之悟', '意境入体，方知元力何物。', '问鼎是意境与仙力在元神之内相融，凝成问鼎之晶。此前的修行都在往外求：求灵气、求丹、求师；到了这一步要往里收，把所有感悟压成一颗晶。压得进去，元力自来；压不进去，神通再多也不过是花架子。意境是虚的，问鼎之晶是实的——修道就是把虚的东西做实。', 51, '论道,心得,问鼎,意境,仙逆', '王林', 90300, 13500, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (364, '因果与命运之别', '因果是自己走出来的，命运是别人替你写好的。', '因果讲究种瓜得瓜，每一步都自己下的手，账也自己还；命运不同，命运是有人在纸上先写好了结局，再让你照着演。天运子修的是命运道，把王林当作笔下的字；王林走的是因果道，一笔一笔都要自己写。二者之别就在这儿：一个把责任推给安排，一个把责任扛在肩上。', 51, '论道,心得,因果,命运,仙逆', '王林', 89800, 13300, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (365, '轮回问答', '轮回在何处？在心里那一处不肯放手的地方。', '问：轮回是天定的，还是人可改的？答：天定的是形式，人可改的是内容。问：踏天之后便能不入轮回？答：踏天是看清轮回，不是逃开轮回。问：看清了又有什么用？答：看清了才知道，你拼了一辈子要抢回来的那个人，从来不在轮回里，而在你心里。', 52, '论道,问答,轮回,踏天,仙逆', '王林', 92600, 14300, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (366, '灵根低劣可否修仙', '能。只是要多走十倍的路。', '问：三属驳杂的废灵根，有无可能结丹？答：有，我便是。问：靠什么？答：靠别人修一日你修十日，靠别人歇的时候你还在修。问：这公平吗？答：不公平。可修行本来就不是比公平，是比谁能忍到最后。问：有没有更快的法子？答：有，走旁门，代价是把自己耗空。你想快，还是想走得远？', 52, '论道,问答,灵根,天赋,仙逆', '王林', 90800, 13800, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (367, '天逆珠之问', '珠是好珠，问题是它认不认你。', '问：天逆珠可否抢夺？答：珠在人身，认的是心不是手，抢去也无用。问：珠中最贵的是什么？答：不是灵气，是时间。问：有了时间便能成强者？答：多的是在珠中修了百年仍旧走不出去的人——珠给你多十倍的日子，走不出去的还是走不出去。问：那珠到底算什么？答：算一个机会，仅此而已。', 52, '论道,问答,天逆珠,机缘,仙逆', '王林', 89700, 13200, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (368, '结婴失败怎么办', '先问自己还剩多少年，再问还值不值得。', '问：结婴多次失败，还有机会吗？答：有，但一次比一次难，寿元也在一次比一次少。问：可否以丹药强撑？答：可，但撑住的只是时间，不是根基。问：那该怎么办？答：先算清自己剩几年，再决定是继续冲，还是把剩下的日子留给自己想留的人。这不是认输，是知道什么更要紧。', 52, '论道,问答,结婴,寿元,仙逆', '李慕婉', 86400, 12600, 1, '2026-11-09 10:59:39');
-INSERT INTO `t_content` VALUES (369, '古神之路问答', '肉身成道，走的是最笨也最直的一条路。', '问：古神之道为何不修灵气？答：古神以身证道，皮肉筋骨便是丹田。问：为何要扛天罚？答：天罚不是罚，是锤——每扛一次，肉身厚一分。问：可否借丹药走捷径？答：可缩短时间，不可代替挨打。问：此路最难处？答：痛。痛到想放手的那一刻，就是这一星的关口。', 52, '论道,问答,古神,道古体,仙逆', '王林', 88100, 12900, 1, '2026-11-09 10:59:39');
+--
+-- Dumping data for table `t_content`
+--
 
--- ----------------------------
--- Table structure for t_notice
--- ----------------------------
+LOCK TABLES `t_content` WRITE;
+/*!40000 ALTER TABLE `t_content` DISABLE KEYS */;
+INSERT INTO `t_content` VALUES (1,'太虚剑典','剑气纵横三万里，一剑光寒十九州。','太虚剑典乃太虚剑尊所创，共分九重。初重练剑意，三重可斩灵，六重剑出如龙，九重则一剑破空、剑光寒彻十九州。修习者需以剑为友、以心为鞘，切忌贪快求成。',11,'剑诀,太虚,上乘','太虚剑尊',98000,12607,1,'2026-10-16 16:31:40'),(2,'斩灵十三剑','十三剑落，灵亦为刍狗。','斩灵十三剑共有十三式，招招断灵脉、斩元神。第七式「断魂」最险，若心境不稳易反噬自身，故需筑基后期方可习练。',11,'剑诀,杀伐','墨长歌',61000,8201,1,'2026-10-16 16:31:40'),(3,'星辰剑诀','以星河为剑，剑落星辰坠。','星辰剑诀借星河之力，于夜半子时引星辉入剑，剑身星辰流转。适合资质中上、耐得住寂寞的剑修。',11,'剑诀,星辰','苏九霄',42000,5301,1,'2026-10-16 16:31:40'),(4,'焚天诀','焚尽苍穹，烈焰之下寸草不存。','焚天诀以真火焚烧经脉再塑，修炼时痛楚难当，然成者一身真火焚山煮海。第三重「焚心」须以清心丹辅助，否则易走火。',12,'火法,真火','焚天老祖',72000,9101,1,'2026-10-16 16:31:40'),(5,'赤炎焚世录','赤炎过处，山河俱焚。','赤炎焚世录记载火法七篇，另有控火诀要。修至第五篇可隔空引火，第六篇焚世需合体期修为。',12,'火法,焚世','焚天老祖',35000,4300,1,'2026-10-16 16:31:40'),(6,'星辰炼体术','以星河为炉，淬炼不朽道体。','星辰炼体术于星辉最盛处引星力入体，日积月累，皮肉如精铁、骨骼如星辰。大成一拳可崩山，然需极强忍耐力。',13,'体修,星辰,炼体','星辰道人',56000,7801,1,'2026-10-16 16:31:40'),(7,'不灭金身诀','金身不灭，万法难伤。','不灭金身诀以身炼金身，需三味真火反复淬炼。金身成时可硬抗同阶三击而不损，是体修立身之本。',13,'体修,金身','顾青冥',47000,6201,1,'2026-10-16 16:31:40'),(8,'御风踏虚步','踏虚而行，身随风动，来去无痕。','御风踏虚步以身合风，初成可踏枝而行，大成则借风腾空，百丈之内转瞬即至。适合身手灵巧、擅长袭杀的道友。',14,'身法,御风','风行者',33000,4600,1,'2026-10-16 16:31:40'),(9,'九天雷影步','雷落之前，影已先行。','九天雷影步引天雷入步，动若雷霆。以雷淬足，初练时足下焦黑，须以灵药护体。成者身法快逾奔雷。',14,'身法,雷','雷影道人',29000,3800,1,'2026-10-16 16:31:40'),(10,'万灵御兽录','万灵臣服，听我号令而行。','万灵御兽录载有契约之法与驭兽之术。以血契为始，以心契为上。可为灵兽疗伤、共修，切忌强虐，否则契约反噬。',15,'御兽,契约','万兽真人',28000,3700,1,'2026-10-16 16:31:40'),(11,'灵兽契约术','一纸血契，两心相通。','灵兽契约术详解血契、魂契、心契三门。魂契最稳，可与灵兽共享修为气息；血契最速，然灵兽寿元有损。',15,'御兽,契约','万兽真人',19000,2400,1,'2026-10-16 16:31:40'),(12,'九转回春丹','一丹入口，断肢可续。','九转回春丹以九味灵药九转炉炼，成丹时丹香十里。重伤垂死服之可续命，断肢服之可复生。药材难得，一炉常只成三枚。',21,'丹药,疗伤,九转','玄天丹师',68000,8902,1,'2026-10-16 16:31:40'),(13,'生生造化丹','造化之力，起死回生。','生生造化丹需千年灵芝与地心火炉相合，丹成之时有造化之气环绕。仅存于古籍，能炼者不过三人。',21,'丹药,疗伤,造化','玄天丹师',41000,5201,1,'2026-10-16 16:31:40'),(14,'破境丹','一丹破境，桎梏全消。','破境丹专助卡在瓶颈的道友冲关。服用后经脉灵气暴涨，若心境不足则易爆体而亡，务必在静室中闭关服用。',22,'丹药,突破','白凤眠',58000,7301,1,'2026-10-16 16:31:40'),(15,'凝婴丹','元婴凝，大道初成。','凝婴丹以元婴期灵兽内丹为主药，助金丹圆满者凝成元婴。丹成率极低，故价高且常为大宗门垄断。',22,'丹药,突破,元婴','白凤眠',52000,6803,1,'2026-10-16 16:31:40'),(16,'蚀骨销魂散','无声无息，蚀骨销魂。','蚀骨销魂散无色无味，中者经脉渐腐而不自知。解药难寻，唯九转回春丹可缓。此物为仙门禁品，慎之慎之。',23,'毒丹,禁品','暗影客',23000,3002,1,'2026-10-16 16:31:40'),(17,'万毒腐心丹','万毒入心，神仙难救。','万毒腐心丹以百种毒物炼就，专破护体罡气。然炼制者常自伤，故世间存量极少。',23,'毒丹,禁品','暗影客',15000,1901,1,'2026-10-16 16:31:40'),(18,'落霞谷','落霞与灵雾齐飞，灵气渐复之地。','落霞谷深藏群山之间，谷中灵雾终年不散，灵药遍地。每月初一十五灵潮最盛，适合闭关与采药。近期灵气渐复，开放时间调整为先辰。',31,'秘境,落霞,灵药','仙门执事',54000,7101,1,'2026-10-16 16:31:40'),(19,'万骨窟','枯骨成山，机缘与凶险并存。','万骨窟乃上古战场遗迹，白骨堆积如山，怨气极重。深处藏有上古法宝碎片，然也有化神级尸傀游荡，非结伴不可入。',31,'秘境,险地','仙门执事',49000,6401,1,'2026-10-16 16:31:40'),(20,'云梦泽','云梦浩渺，水气化灵。','云梦泽水汽氤氲，日久化灵，泽中灵鱼可食可炼。泽心有一孤岛，岛上石台据传为古修讲道之处。',31,'秘境,云梦','云梦真人',31000,4201,1,'2026-10-16 16:31:40'),(21,'青龙灵脉','龙气蜿蜒，灵气如泉。','青龙灵脉横贯三百里，脉眼灵气浓郁如泉，于其中打坐一日可抵外间十日。灵脉归属仙门，需凭功勋换取修行时日。',32,'灵脉,青龙','仙门执事',60000,7902,1,'2026-10-16 16:31:40'),(22,'太阴灵泉','太阴之气，滋养生机。','太阴灵泉自地底涌出，泉水偏寒，可洗髓伐骨、调和爆裂功法之后患。体修尤为钟爱。',32,'灵脉,太阴','仙门执事',37000,4801,1,'2026-10-16 16:31:40'),(23,'墨长歌','大乘圆满，剑修之冠，斩灵十三剑独步天下。','墨长歌出身寒微，以凡俗之身一步步入道，历时八百载至大乘圆满。手中长剑「问心」随其走过百余场生死之战。',41,'道友,剑修,大乘','仙门名录',88000,11204,1,'2026-10-16 16:31:40'),(24,'苏九霄','渡劫中期，善以星河之力炼剑。','苏九霄年少成名，喜观星，自创星辰剑诀。性孤僻，不喜应酬，常年居于观星崖。',41,'道友,剑修,渡劫','仙门名录',66000,8401,1,'2026-10-16 16:31:40'),(25,'白凤眠','合体后期，丹道大家，一炉可通生死。','白凤眠执掌丹阁三十载，所炼破境丹、凝婴丹为仙门立下大功。其人温和，凡有求丹者皆不拒，唯要求以药换药。',42,'道友,丹修,丹阁','仙门名录',71000,9002,1,'2026-10-16 16:31:40'),(26,'玄天丹师','丹道宗师，九转回春丹传世。','玄天丹师为上古丹修，著有玄天丹经。传闻其已飞升，唯留丹经与三炉丹方于人间。',42,'道友,丹修,上古','仙门名录',63000,8101,1,'2026-10-16 16:31:40'),(27,'顾青冥','合体初期，体修新秀，不灭金身初成。','顾青冥以炼体入道，日行万仞山间，肉身为炉。金身初成之日，硬抗合体期一击而退半步，震动仙门。',43,'道友,体修,金身','仙门名录',45000,5901,1,'2026-10-16 16:31:40'),(28,'云无咎','元婴圆满，以星辰炼体术破境在即。','云无咎资质平平，然勤修不辍，以勤补拙。同门皆言其破境只差一线机缘。',43,'道友,体修,元婴','仙门名录',34000,4401,1,'2026-10-16 16:31:40'),(29,'论道三问','修道者当自问：为何修、修向何处、修成如何。','修行之路，最忌盲从。道友当自问三事：一问我为何修行，二问我欲修向何处，三问修成之后欲作何为。三问有答，道心方稳。',51,'论道,心得,道心','仙门长老',40000,5100,1,'2026-10-16 16:31:40'),(30,'破境心得录','破境之要，在于心境先足，灵力后至。','多数道友破境失败，非灵力不足，而是心境未稳。建议破境前先静心三月，观云、听泉、弈棋皆可。心境足则灵力自至。',51,'论道,心得,破境','白凤眠',38000,4900,1,'2026-10-16 16:31:40'),(31,'拜师求道须知','择师三看：看道心、看耐心、看品行。','拜师求道，非择名头。一看道心是否正，二看是否有教人之耐心，三看品行是否可为师表。三者齐备，纵然境界不高，亦是良师。',52,'论道,问答,拜师','仙门长老',44000,5702,1,'2026-10-16 16:31:40'),(32,'渡劫十二问','渡劫常见疑难十二则，逐条解答。','汇总道友渡劫常见十二问：雷劫可否借外力、丹劫如何护炉、心劫怎么破……每问附一二解法，供道友参考。',52,'论道,问答,渡劫','雷影道人',36000,4700,1,'2026-10-16 16:31:40'),(100,'凝气诀','顺为凡，逆则仙，只在心中一念间。','凝气诀为恒岳派入门根基法门，共分十五层，引天地灵气入体，洗筋伐髓。王林身负三属废灵根，本与此道无缘，却凭天逆珠中一日抵十日的苦修，以十年之功凝气十五层圆满，于仙门大比一鸣惊人。此诀虽是入门功法，却是万法之基——根基不牢，纵得仙缘也是空中楼阁。',16,'凝气,王林,恒岳派,根基,仙逆','王林',99000,15205,1,'2026-10-26 11:40:56'),(101,'尸魅','炼尸为傀，驱魅护主，左道亦可通天。','尸魅之术乃铁柱所传左道秘法，采新尸炼为傀儡，以生魂驭死气。尸傀不知痛楚、不畏刀剑，越凶险之地越见其用。王林早年修为低微，凭一具尸傀周旋于藤家追杀之间，藤厉殒命于此术之下。修此术者须以自身精血温养，尸傀与主人心念相连，切忌心生怠慢，否则反噬只在顷刻。',17,'魂修,尸魅,王林,左道,仙逆','王林',87000,12800,1,'2026-10-26 11:40:56'),(102,'吞魂','噬人魂魄，夺人修为，吾以吞魂证长生。','吞魂之法逆天而行，噬取他人魂魄炼为己用，神识与修为皆可暴涨。王林凭此法吞尽藤家修士魂魄，一夜之间连破数境，自此「杀神」之名传遍赵国。然此法戾气极重，吞魂越多、心魔越炽，须以大定力压服，否则魂魄反噬、性情大变，终沦为只知杀戮的凶魂。',17,'魂修,吞魂,王林,杀神,仙逆','王林',96000,14305,1,'2026-10-26 11:40:56'),(103,'移魂大法','魂迁他体，向死而生。','移魂大法可于肉身将毁之际，迁神魂入他体夺舍重生，是保命的第一等秘术。王林数度身陷绝境，皆以移魂遁出死局——肉身可弃，道心不可失。修此法者神识须强横至极，且夺舍之体亦需温养调和，否则两魂相争，同归于尽。',17,'魂修,移魂,夺舍,王林,仙逆','王林',78000,10400,1,'2026-10-26 11:40:56'),(104,'生死之道','生之极意可活死人，死之极意可葬天地。','生死之道乃王林主修的无上大道。生之极意，枯木逢春、白骨生肉；死之极意，一念之下万灵俱寂。生死本是轮回两端，悟透生死，方知长生不过一场执念——而他偏要以这场执念，逆天改命。王林自筑基起参悟生死，至踏天之境生死由心，一念之间可判诸天生死。',18,'道法,生死,王林,大道,仙逆','王林',99900,16809,1,'2026-10-26 11:40:56'),(105,'因果之道','一念种因，一念得果，因果线断诸天皆惊。','因果之道讲究万般皆有因果，种何因、得何果。修至大成可显化因果线，牵一发而动全身：顺因果者借力打力，逆因果者斩断前缘。王林以因果之道护道侣、灭强敌，凡与之为敌者，皆在因果簿上记下一笔，迟早要还。',18,'道法,因果,王林,仙逆','王林',92000,13502,1,'2026-10-26 11:40:56'),(106,'真假之道','虚虚实实，真真假假，诸天万界皆为我幻。','真假之道参悟虚实本源，修至深处，假可乱真、真可作幻。王林以真假之道瞒天过海，一具化身可敌真身，诸般大能的神识探查在他面前形同虚设。此道练的是「心明」——识得破万象皆虚，方能以假证真。',18,'道法,真假,虚实,王林,仙逆','王林',85000,11900,1,'2026-10-26 11:40:56'),(107,'时光之道','岁月长河，唯我独行，逆转光阴续命改命。','时光之道乃诸天至高法则之一。王林于天逆珠中窥得时光本源，自此岁月于他如长河可溯——逆转光阴可改既定之局，加速流转可催生灵药，驻颜驻寿更是等闲。然时光最是无情，逆改岁月必承天道反噬，一念不慎，形神俱灭于长河之中。',18,'道法,时光,岁月,王林,天逆珠,仙逆','王林',97000,14903,1,'2026-10-26 11:40:56'),(108,'御剑凝芒术','青芒一现，斩敌千里。','御剑凝芒术以神识驭剑、凝芒化虹，剑光离手千里之外取人首级。王林的本命飞剑通体青芒，随其修为一同成长——凝气时不过尺许青光，踏天之境一剑可裂星河。此术要诀在「人剑合一」，神识与剑心相融，剑随意动、意到剑至。',11,'剑诀,御剑,青芒,王林,仙逆','王林',89000,12600,1,'2026-10-26 11:40:56'),(109,'淬体逆修篇','灵根残缺？那便以肉身补天。','淬体逆修篇为体修旁门，专为灵根残缺者所创——既然灵气入体艰难，便以万般苦楚淬炼肉身，皮膜、筋骨、脏腑、骨髓层层逆锻。王林早年在恒岳派杂役期间暗修此篇，肉身之强横远超同阶，硬接结丹修士一击而不倒。此篇要诀唯「忍」之一字：痛极则强，破而后立。',13,'体修,淬体,逆修,王林,仙逆','王林',83000,11601,1,'2026-10-26 11:40:56'),(200,'焚诀','吞尽天下异火，一部可以进化的奇功。','焚诀乃是陀舍古帝遗留的奇功，起点不过黄阶，却能吞噬异火、以火养功，每纳一道异火便攀升一阶，最终可至天阶。萧炎得药老所授此诀，从乌坦城的废柴少年一路吞火而行，青莲地心火、陨落心炎、三千焱炎火皆入其腹。此诀凶险之处在于火性相冲——吞火之时若经脉承受不住，便是自焚而亡，故须以炼药师灵魂之力时时压制。',12,'火法,焚诀,异火,萧炎,斗破','陀舍古帝',99600,17313,1,'2026-10-30 15:57:39'),(201,'焰分噬浪尺','一尺落处，浪分两岸。','焰分噬浪尺为药老所传的高阶尺法斗技，以火属性斗气凝于重尺之上，挥出时自带焰浪，尺势过处气流如浪被生生劈开。萧炎持玄重尺修此技，初成时只能分浪三尺，大成时一尺劈落，山岩如豆腐般中分。此技重「势」不重「巧」，尺越沉、斗气越烈，威力越盛。',12,'火法,尺法,斗技,萧炎,斗破','药尘',93500,13600,1,'2026-10-30 15:57:39'),(202,'佛怒火莲','诸火相融，莲开一朵，万火朝宗。','佛怒火莲乃萧炎自创的斗技，以数道异火强行压缩融合，凝成一朵火莲掷出，莲开之时火浪席卷数十里。此技最难处不在威力，而在「控」——异火各有灵性、彼此不容，稍有失控便先炸伤自己。萧炎初成时炸断一臂，后以灵魂之力反复淬炼，方能做到莲开有序、收放由心。',12,'火法,佛怒火莲,异火,自创,斗破','萧炎',99100,16803,1,'2026-10-30 15:57:39'),(203,'五轮离火法','五轮环身，离火炼形。','五轮离火法为药老所传火系斗技，斗气化出五道火轮绕身旋转，攻可环切、守可成壁。五轮运转之际火势层层叠加，第五轮成时周身如坠熔炉，近身者皆被灼退。此法与炼药之道相通，火候圆熟者学之事半功倍。',12,'火法,五轮离火,斗技,斗破','药尘',86000,11400,1,'2026-10-30 15:57:39'),(204,'帝印诀','五印叠落，一印重于一印。','帝印诀为古族秘传的天阶斗技，以斗气凝印，一印落地、二印裂石、三印断流，五印齐落时方圆百丈尽成齑粉。此诀讲究印势叠加，前印未散、后印已至，故修习者斗气须浑厚至极，斗尊之下强修，往往一印未成便脱力。',18,'道法,帝印诀,古族,天阶,斗破','古族',90500,12300,1,'2026-10-30 15:57:39'),(205,'三千雷动','雷动三千，影未至而雷先闻。','三千雷动乃风雷阁镇阁身法，属天阶斗技残卷，修至大成可于雷光中分出三千残影，真身藏在雷势之中。此技须身负雷属性斗气，且要熬过引雷淬体之苦——初练者往往被雷劈得皮开肉绽，能忍过前三百道雷者，十中无一。',14,'身法,三千雷动,风雷阁,雷,斗破','风雷阁',92000,12900,1,'2026-10-30 15:57:39'),(206,'紫云翼','双翼展开，紫云漫天。','紫云翼是斗气化翼之上的飞行斗技，斗气凝成双翼，翼展处紫云翻涌，可借云气攀升、亦可化云隐匿。修习者需先能稳定化翼，再以斗气养翼，翼越养越实，日后纵入禁空之地，亦能凭翼滑翔数十里。',14,'身法,紫云翼,飞行,斗破','斗气大陆',78000,10300,1,'2026-10-30 15:57:39'),(207,'金刚琉璃身','身如琉璃，刀兵不入。','金刚琉璃身为炼体天阶斗技，以斗气反复淬炼皮、肉、筋、骨、髓五脏六层，成时肌肤泛琉璃之色，寻常刀剑落身如击钟磬。萧炎曾以此身硬接同阶强者连击而寸步不退。淬炼之苦非常人可受，每一层都要经历「破而后立」，故修此技者多为心志极坚之辈。',13,'体修,金刚琉璃身,炼体,斗破','斗气大陆',84500,11200,1,'2026-10-30 15:57:39'),(208,'大天造化掌','一掌落下，万物归造化。','大天造化掌为天阶掌法斗技，掌中藏造化之力，看似轻飘飘一掌，落下时山体崩裂、河谷改道。此技耗斗气极巨，寻常斗皇全力一击也不过凝出半个掌印。相传创此技者本意不在杀伐，而在以造化之力演化天地——掌法练到深处，杀人只是顺手。',18,'道法,大天造化掌,天阶,斗破','斗气大陆',88000,11800,1,'2026-10-30 15:57:39'),(209,'风之极·陨杀','风至极处，无物不陨。','风之极·陨杀乃风系天阶斗技的极致之法，斗气化风成刃，万千风刃藏于一击之中，出手时只见风过，不见形迹。风本无形，故最难防；而此技最凶险者，是施术者自身也要置身风眼之内，风刃无眼，先伤己、后伤人。',18,'道法,风系,天阶,斗破','斗气大陆',79000,10200,1,'2026-10-30 15:57:39'),(210,'斗气修炼总纲','斗之气九段起，一路斗帝为终。','斗气大陆修行以斗之气为始，一至九段筑基，其后斗者、斗师、大斗师、斗灵、斗王、斗皇、斗宗、斗尊、斗圣，直至斗帝。斗王可斗气化翼、斗皇能虚空而行、斗宗以上可开辟空间。此纲为入门第一课：境界不可僭越，斗之气未满而强求斗者，轻则经脉受损，重则终生止步。',16,'凝气,斗气,根基,境界,斗破','斗气大陆',97200,15400,1,'2026-10-30 15:57:39'),(211,'灵魂境界篇','凡境、灵境、天境、帝境，魂强则丹成。','炼药师之魂另有境界：凡境观物、灵境外放、天境化物、帝境通神。灵魂越强，丹火越稳、丹成率越高，斗技中的控火、控器亦全赖魂力。萧炎以灵魂之力压服异火、以魂御火成莲，皆是此道之功。魂修之法最忌贪进，魂力躁进者，往往先疯后亡。',17,'魂修,灵魂,炼药师,斗破','斗气大陆',91000,12400,1,'2026-10-30 15:57:39'),(212,'异火榜·廿三火','天地间二十三种异火，各有其主，各择其缘。','异火榜录天地异火二十三种，帝炎居首，虚无吞炎、净莲妖火次之，其后陨落心炎、三千焱炎火、青莲地心火、海心焰等各有性灵。异火不认主、只认缘：火性烈者反噬其主，火性温者可养丹炉。得火者若无力压制，不如早早放手——异火焚身之事，斗气大陆从不少见。',18,'道法,异火榜,异火,斗破','斗气大陆',98600,15903,1,'2026-10-30 15:57:39'),(220,'回气丹','斗气大陆最常见的疗伤丹，一丹可复斗气。','回气丹为一品丹药，是药老最初传授萧炎的炼药入门方，成丹只需三味寻常药材，却能迅速补足斗气、愈合皮肉之伤。萧炎在乌坦城初学炼药时，废了数十炉药材才成第一枚。此丹虽贱，却是所有炼药师的起点——火候、灵魂、心性，皆要在这枚丹里走一遍。',21,'丹药,疗伤,回气,入门,斗破','药尘',76200,11800,1,'2026-10-30 16:38:11'),(221,'三纹清灵丹','丹分三纹，纹多则效奇。','三纹清灵丹为四品丹药，能疗内伤、清淤塞、复斗气，成丹时以丹纹多寡分品：一纹为下，三纹为上。萧炎在黑角域以三纹之品压过同阶药师，一战成名。炼此丹的关窍在于凝纹——丹成前一息火候稍烈则纹散，稍弱则纹不显，全凭灵魂感知那一线之差。',21,'丹药,疗伤,丹纹,萧炎,斗破','药尘',88400,13201,1,'2026-10-30 16:38:11'),(222,'复灵紫丹','魂伤难医，唯此丹可补。','复灵紫丹专疗灵魂创伤，五品丹药，丹成时紫气萦绕不散。药老残魂得以稳固、萧炎灵魂境界屡次暴涨，皆赖此类丹药。灵魂之伤最是难查：斗气无损而魂已裂，若不早治，轻则魂力倒退，重则痴傻疯癫。故高阶炼药师受人敬重，正因他们能医别人医不了的地方。',21,'丹药,疗伤,灵魂,五品,斗破','药尘',86900,12600,1,'2026-10-30 16:38:11'),(223,'破宗丹','一丹破宗，斗皇亦可窥斗宗。','破宗丹为六品丹药，专助斗皇巅峰冲击斗宗之境。斗宗之槛在于开辟空间、领悟空间之力，此丹不能替人参悟，只能将斗气推至圆满，让那层窗纸薄到一戳即破。服之若心境不足，暴涨的斗气会先撑裂经脉——破境丹从来只渡有缘人，不渡贪心人。',22,'丹药,突破,斗宗,六品,斗破','药尘',91300,14102,1,'2026-10-30 16:38:11'),(224,'斗灵丹','大斗师窥斗灵，一丹定去留。','斗灵丹为三品丹药，助大斗师圆满者凝出斗灵之相。斗灵之境重在灵字：斗气化灵、灵随身走，能借天地灵气为用，此后方可言斗王。萧炎早年靠此丹连破两境，也在那时明白——丹药是舟，渡得过河，渡不过命。',22,'丹药,突破,斗灵,三品,斗破','古河',79500,10900,1,'2026-10-30 16:38:11'),(225,'洗髓寒灵液','寒液浸骨，洗髓伐毛。','洗髓寒灵液非丹而液，性极寒，浸体时可洗去经脉杂质、重塑根基，最适合幼时根基受损者。萧炎经此液洗髓，方从废柴重新起步。洗髓之痛如万针穿骨，全程须有强者护法；体质太弱者，往往在寒液中冻断经脉，反成废人。',22,'丹药,突破,洗髓,根基,斗破','药尘',84700,12300,1,'2026-10-30 16:38:11'),(226,'噬生丹','以命换力，三年之期。','噬生丹为禁品，服之可于一瞬暴涨数阶，代价是燃尽寿元——药老曾言，服此丹者活不过三年。萧炎在绝境中以此丹搏命，力压强敌后便陷入油尽灯枯。此丹不是机缘，是借命：借时容易，还时拿命还。',22,'丹药,突破,禁品,搏命,斗破','药尘',82100,11700,1,'2026-10-30 16:38:11'),(227,'厄难毒丹','厄难毒体所凝，一丹可枯千里。','厄难毒丹由厄难毒体自行凝炼，聚万毒于一丸，毒气外泄则草木尽枯、鸟兽绝迹。小医仙毒体觉醒时，所过之处千里无人，正是此丹之威的反面。此丹无解，唯有毒体自己能收；故世人皆惧毒体，而毒体者自己也惧。',23,'毒丹,禁品,厄难毒体,小医仙,斗破','小医仙',78600,10400,1,'2026-10-30 16:38:11'),(228,'化骨腐心散','骨化如沙，心神俱腐。','化骨腐心散为黑角域流传的暗毒，无色无味，入体后骨节先软，其后心神昏乱。中毒者三日内若无解药，便化为一滩腐泥。黑市价高，因其炼法简单、踪迹难寻；正道丹师皆耻于炼此物，却也无人敢不防它。',23,'毒丹,禁品,黑角域,暗毒,斗破','黑角域',71900,9600,1,'2026-10-30 16:38:11'),(230,'云岚山','云岚宗根基所在，山中有云，云中藏剑。','云岚山终年云雾不散，山势陡峭而灵气清淡，是云岚宗立派数千年的根基。纳兰嫣然在此修行，云山在此闭关，萧炎亦三上云岚山——第一次被逼退婚，最后一次把山门踏平。山中云雾能乱人神识，初次登临者常于云中迷失方向，绕一日仍在原地。',31,'秘境,云岚宗,加玛,斗破','云岚宗',85200,13100,1,'2026-10-30 16:38:11'),(231,'魔兽山脉','魔兽成群，机缘与凶险同路。','魔兽山脉横亘加玛帝国边境，山中魔兽按阶而居，一阶至高阶皆有，弱者入山十死无生。萧炎在此猎杀魔兽、采得诸多药材，也在此初遇云韵。山中有一个说法：越往深处，魔兽越强，而灵药也越珍贵——敢不敢往里走，是修行者的第一道考题。',31,'秘境,魔兽,险地,萧炎,斗破','加玛帝国',90400,14600,1,'2026-10-30 16:38:11'),(232,'黑角域','无主之地，万恶汇集，也藏万般机缘。','黑角域位于数国交界，无王法、无宗门，谁的拳头大谁说了算。丹药、功法、异火、奴隶皆在此流通，杀人越货亦是日常。萧炎在此以炼药起家，在此结仇，也在此结缘。此地最不缺机缘，最缺的是活着把机缘带走的本事。',31,'秘境,黑角域,混乱,机缘,斗破','斗气大陆',92800,15200,1,'2026-10-30 16:38:11'),(233,'迦南学院·内院','天焚炼气塔下，压着一缕陨落心炎。','迦南学院内院不对外招，入院者皆是各国翘楚。内院真正的底蕴是那座天焚炼气塔——塔中火气可助修炼，塔底却封着一缕陨落心炎。萧炎正是在塔底得此异火，修为暴涨，也从此背上了火的反噬。内院规矩只有一句：塔可以进，火不能贪。',31,'秘境,迦南学院,内院,斗破','迦南学院',87600,13800,1,'2026-10-30 16:38:11'),(234,'陀舍古帝洞府','斗帝遗府，一府藏尽天下机缘。','陀舍古帝洞府为斗帝所留，府中藏异火榜残卷、帝品丹方与陀舍古帝玉。古族、魂族、炎族、雷族为此府明争暗斗千年。洞府开启须以帝玉为引，无玉者强闯，多半死在府外的空间乱流里——机缘越大的地方，门口的尸骨也越多。',31,'秘境,斗帝,洞府,古玉,斗破','陀舍古帝',96600,16201,1,'2026-10-30 16:38:11'),(235,'天焚炼气塔','火气成塔，塔底有炎。','天焚炼气塔共分九层，越往下火气越烈，塔中修炼一日，抵外界十日。塔底镇压着一缕陨落心炎——那火不甘被囚，日夜灼烧塔壁，故塔下层常年无人敢入。此塔既是灵脉，也是牢笼：灵脉养人，牢笼养火。',32,'灵脉,天焚炼气塔,异火,斗破','迦南学院',93300,14900,1,'2026-10-30 16:38:11'),(236,'无尽火域','一域皆火，火中有人。','无尽火域为炎族祖地，亦是后世萧炎所立之域，域内火灵之气浓到凝液，火属性修者入之如鱼得水，异火在此更易驯服。然此域对外来者极不友好：非火属性者入域片刻，便会被火气蒸干经脉，连退路都烧断。',32,'灵脉,无尽火域,火灵,斗破','炎族',89100,13701,1,'2026-10-30 16:38:11'),(237,'风雷山脉','雷出山巅，风起谷底。','风雷山脉为风雷阁根基，山巅终年雷云不散、谷底罡风如刀。阁中弟子在此引雷淬体、借风练身，三千雷动便是依此地势而创。能在此山脉熬过前三百道雷者，方算入了风雷阁的门；熬不过的，连名字都不会被记下。',32,'灵脉,风雷阁,雷,风,斗破','风雷阁',82300,12100,1,'2026-10-30 16:38:11'),(240,'云山','云岚宗老祖，一剑藏于风云之间。','云山为云岚宗老祖，斗宗强者，风属性斗气练至化境，出手时风化为剑、剑隐于风。他护短、傲气，也确实把云岚宗带到了加玛帝国之巅；与萧炎三度交手，最后一战败于火莲之下。风本无形，故他的剑也无人能看清。',41,'道友,剑修,斗宗,云岚宗,斗破','仙门名录',88400,13404,1,'2026-10-30 16:38:11'),(241,'纳兰嫣然','云岚宗天才，一剑挑退婚约。','纳兰嫣然为云岚宗百年一遇的天才，年十六便入斗者，性子倔、骨头硬。她三年前上门退婚，一句莫欺少年穷逼出了萧炎的三年之约；三年后再战，败得干脆，也认得干脆。她的剑气走的是风之极一路：快、直、不留余地，像她做人。',41,'道友,剑修,天才,云岚宗,斗破','仙门名录',81200,11600,1,'2026-10-30 16:38:11'),(242,'药尘','九品炼药师，一炉可夺天地造化。','药老本名药尘，出身药族，为大陆第一炼药师，九品丹药亦能炼出。他被弟子背叛、肉身毁去，残魂寄于骨灵冷火之中，后遇萧炎，以师徒之名重走一遍炼药路。他教萧炎的不只是丹方，还有火候即心性这四个字。',42,'道友,丹修,九品,炼药师,斗破','仙门名录',96400,15805,1,'2026-10-30 16:38:11'),(243,'萧炎','从废柴到炎帝，一路吞火而行。','萧炎出自乌坦城萧家，少年时斗之气停滞三年，被讥为废柴；得药老残魂后重修，兼修炼药与斗气，以焚诀吞异火、以佛怒火莲破强敌，最终成就斗帝，号炎帝。此处的他不只是强者，更是把炼药与杀伐练到一处的人——左手丹炉，右手重尺。',42,'道友,丹修,斗帝,炎帝,斗破','仙门名录',98900,17403,1,'2026-10-30 16:38:11'),(244,'古河','丹王之名，六品之下无丹不可炼。','古河为加玛帝国丹王，六品炼药师，性情高傲、讲究排场，却也确有真才实学。他受云岚宗礼遇，与萧炎在炼药大会上较技，败于三纹清灵丹之下。此后收敛傲气，专心丹道——输给年轻人不可怕，输完还端着架子才可怕。',42,'道友,丹修,六品,丹王,斗破','仙门名录',79600,11100,1,'2026-10-30 16:38:11'),(245,'小医仙','厄难毒体，救人者自成剧毒。','小医仙本心仁善，习医救人，却不料身负厄难毒体——越是救人，毒力越盛，最终所过之处草木尽枯。她曾躲入深山不愿害人，也在萧炎最险之时以毒解局。医与毒本是一体：能救人的人，最知道该怎么杀人。',42,'道友,丹修,毒体,医,斗破','仙门名录',85800,12902,1,'2026-10-30 16:38:11'),(246,'彩鳞','蛇人族女王，妖躯即是道。','彩鳞即美杜莎，蛇人族女王，以妖躯硬抗斗宗而不落下风，肉身之强在同阶中罕有敌手。她冷厉、干脆，出手从不拖泥带水，与萧炎从敌对到并肩，靠的不是情分，是一次次把命交给对方的默契。',43,'道友,体修,美杜莎,蛇人族,斗破','仙门名录',87200,13303,1,'2026-10-30 16:38:11'),(247,'紫妍','太虚古龙幼女，龙躯天生。','紫妍为太虚古龙一族，本体强横，肉身之力远超同阶人族，且天生能控空间。她性子贪吃单纯，却在族群存亡之际担起古龙皇之位。龙族不靠修炼长肉身，靠血脉；血脉既是她的天赋，也是她躲不掉的担子。',43,'道友,体修,古龙,血脉,斗破','仙门名录',80600,11400,1,'2026-10-30 16:38:11'),(248,'雷赢','雷族族长，引雷淬体五十年。','雷赢为雷族族长，斗圣强者，以雷属性斗气引雷淬体，一炼便是五十年。雷族素来强势好斗，他行事亦如雷：不问缘由，先落下来再说。族长之位不只意味着权，也意味着整族的仇都要他一个人扛。',43,'道友,体修,雷族,斗圣,斗破','仙门名录',83900,12401,1,'2026-10-30 16:38:11'),(250,'炼药心得·火候篇','控火为炼药第一关，火不听话，丹必不成。','药老常言：炼药三分成药，七分控火。火候有文武之分，文火养药性、武火逼杂质，一炉之中要换火数十次——换慢则药性散，换快则炉炸。初学炼药者多败在舍不得：舍不得停火、舍不得弃材，最后把炉一起毁了。',51,'论道,心得,炼药,控火,斗破','药尘',89100,14202,1,'2026-10-30 16:38:11'),(251,'异火吞噬心得','吞火不是抢，是熬。','焚诀吞异火，看似霸道，实则最忌心急。吞火之前须先以灵魂之力缠住火灵，再引火入经脉，一寸寸磨合；火性烈者先以丹火驯之，火性异者先断其灵。萧炎每纳一火，都要在生死边缘走一遭——吞火的人若先怕了，火便先吃了他。',51,'论道,心得,异火,焚诀,斗破','萧炎',92600,15102,1,'2026-10-30 16:38:11'),(252,'斗气根基篇·心得','斗之气未满，不可言斗者。','斗气大陆以斗之气九段筑基，此阶看似低微，却是决定一生上限的地方。药老曾令萧炎反复打磨斗之气至圆满，才准入斗者，理由是：根基薄者纵一时破境，日后必在斗王、斗宗前止步。修行一途，快从来不等于远。',51,'论道,心得,根基,斗气,斗破','药尘',84300,12802,1,'2026-10-30 16:38:11'),(253,'炼药三要','药材、灵魂、丹火，缺一不成丹。','炼药之要有三：药材须真、灵魂须强、丹火须稳。药材造假者丹必废，灵魂孱弱者控不住火，丹火不稳者成丹无纹。世人多盯着丹方，其实丹方只是纸——同样的方子，有人炼出废丹，有人炼出三纹。',51,'论道,心得,炼药,丹火,斗破','药尘',81800,11902,1,'2026-10-30 16:38:11'),(254,'炼药十问','初学炼药最常见的十个疑惑，逐一作答。','问：药材能否替换？答：性相近者可替，效必减。问：炸炉如何补救？答：救不了，先保命。问：灵魂力不足可否强修？答：可以，但先疯的是自己。问：兽火可否炼丹？答：可，然兽火躁烈，丹成率低。问：丹纹如何增多？答：凝纹在火候最后一息，不在药材多寡。其余五问，答在火里，不在纸上。',52,'论道,问答,炼药,入门,斗破','药尘',77400,10601,1,'2026-10-30 16:38:11'),(255,'斗宗之槛问答','斗皇到斗宗，隔着一层空间。','问：破宗丹能否助人成斗宗？答：只能推斗气至圆满，参悟空间之力终究要靠自己。问：为何多数人卡在斗皇？答：斗皇靠积累，斗宗靠悟性，积累到头而悟性不足者，生生卡死。问：可否强冲？答：可以，成功率不足一成，失败者经脉尽废。',52,'论道,问答,破境,斗宗,斗破','仙门长老',80700,11501,1,'2026-10-30 16:38:11'),(256,'异火相冲怎么办','两火不相容，先分后合。','问：体内已有异火，再吞一道会否相冲？答：必冲，火各有灵，互不服。问：如何化解？答：以灵魂之力为界，先分域、再慢慢融合，急则自焚。问：佛怒火莲为何能合诸火？答：因为萧炎先学会了放——把诸火同时放出体外再压成一朵，火不在体内争，便炸不到自己。',52,'论道,问答,异火,佛怒火莲,斗破','萧炎',85900,13003,1,'2026-10-30 16:38:11'),(257,'斗帝为何绝迹','斗帝不在人间，人间也无路可走。','问：斗气大陆为何千年无斗帝？答：不是无人能至，是天地不给——帝境需帝之源气，而源气早被前人耗尽。问：有无他法？答：陀舍古帝洞府、异火榜尽头，皆是一线生机。问：这条路还走得通吗？答：萧炎走过一次，只是那一次，整个大陆都陪他赌了一把。',52,'论道,问答,斗帝,源气,斗破','仙门长老',88100,13603,1,'2026-10-30 16:38:11'),(300,'流月之术','一念流月，光阴倒卷，昨日之局今日可改。','流月之术乃王林以时光本源推演出的至高神通。术起之时，天地如被按入水中，光影滞流、尘埃悬停，施术者可于这一线间隙里看清一息之内的所有可能。王林曾以此术将戮默送往无数万年前，只为寻一个让李慕婉活过来的法子。此术最忌贪多——光阴不是任人揉捏的泥，逆改一分，天道便记一分，反噬迟早要还。修习者须先悟时光之「顺」，方知何为「逆」。',18,'道法,时光,流月,王林,仙逆','王林',99200,16400,1,'2026-11-09 10:59:39'),(301,'梦道之术','一梦一轮回，梦醒已是百年身。','梦道之术以神识造梦，梦中自成天地、自有时序，可演一生、可历一劫。戮默曾以此术一遍遍模拟王林的人生，才在无数次轮回里读懂了执念二字；王林亦以此术陪木冰眉走完一轮轮回，还了她一场不曾亏欠的相守。此术伤人最深之处不在梦中凶险，而在梦醒之后——梦里所得皆是虚的，唯有那份情是真的，真假之间，最易道心裂痕。',18,'道法,梦道,轮回,王林,仙逆','王林',97800,15500,1,'2026-11-09 10:59:39'),(302,'踏天一步','一步落下，天亦为阶。','踏天一步为第四步踏天境的神通显化。此步不看脚下有无路，只看心中有无「我」——九桥踏尽、轮回看透者，一步落下便踏在天道之上。王林以此术击败古道大天尊，也以此术劈开了逆尘界的门。踏天不是踩在别人头上，是踩在自己这一生的因果之上：踏得稳，天为阶；踏不稳，天为刃。',18,'道法,踏天,第四步,王林,仙逆','王林',99600,17101,1,'2026-11-09 10:59:39'),(303,'古神术·虚','古神一术，虚中生灭。','古神术·虚出自八星古神涂司的记忆，以虚为体、以无作刃，出手时不见形迹，只余一片被生生挖空的天地。王林以之与月噬族一战，一击之下月噬族强者连惨叫都发不出来——因为虚先吞了声音。此术修的是「空」，最难的不是放开，而是敢让自己也空上一瞬：心有一丝牵挂，术便不成。',18,'道法,古神,涂司,王林,仙逆','王林',96400,14800,1,'2026-11-09 10:59:39'),(304,'极境','恨至极处，自成极境。','极境非功法，是意境。藤化元灭王家满门那夜，王林心中生出一样东西——不是悲，不是惧，是把一切都烧尽的恨。此恨凝成极境，令他在同阶之中战力暴涨，越境而战亦不落下风。极境是双刃：给你力，也要你的心；恨得越深，陷得越沉。王林后来能走出极境，不是忘了那夜，是把恨收进了道心里。',18,'道法,极境,意境,复仇,仙逆','王林',98700,16000,1,'2026-11-09 10:59:39'),(305,'吞灵噬体绝天大法','吞人元神，噬人体魄，一线生机皆不留。','此术为清水所创，只授王林一人。术成之际，受术者元神、魂魄、元力、生机尽被抽走，连转世的机会都被一并抹去，故名绝天。王林平生极少动用——不是不敢，是不愿：用一次，便欠天道一笔。清水创此术本是为守天门，界内大战一人一剑独挡界外群雄，术落之处尸骸成山，自此再无人敢轻言踏门。',17,'魂修,吞灵,清水,禁术,仙逆','清水',94100,13700,1,'2026-11-09 10:59:39'),(306,'十亿尊魂幡','一幡十亿魂，魂兵过处，天亦低眉。','尊魂幡为炼魂宗镇宗之宝，遁天倾尽传承相赠，幡中炼有十亿魂兵。魂兵不知痛、不畏死，战力随主人神识高低而涨，神识越强，魂兵越凶。此幡凶名极盛，却也是护身最好的东西——魂兵可以死十亿次，主人只能死一次。遁天战死那日，王林第一次为旁人落了泪。',17,'魂修,尊魂幡,炼魂宗,遁天,仙逆','遁天',93500,13300,1,'2026-11-09 10:59:39'),(307,'杀戮剑道','剑出不为胜负，只为杀。','杀戮剑道以杀为本源，剑意一起，天地间只剩一个念头：此剑落处，必有人死。清水以之守天门，一剑封喉血羽子，界内界外皆知其名。此道不讲招式、不求好看，只讲一个字：准。修道者若心慈手软，剑便迟一息，迟一息就是自己先死。王林学此道不学其杀，只学那一分「决」。',11,'剑诀,杀戮,剑本源,清水,仙逆','清水',95800,14600,1,'2026-11-09 10:59:39'),(308,'道古之躯','二十七星道古，肉身为天，血为江河。','王林本尊为二十七星道古体，乃古神一脉中的顶尖根骨。道古之躯不修灵气、只炼身体：皮为地、肉为山、骨为柱、血为江河，一身即是天地。炼至深处，刀兵加身如击钟磬，星域之力落下只留白痕。此路极苦——古神一族的每一星，都是以肉身扛过一次天罚换来的，扛不过的，连骨头都留不下。',13,'体修,古神,道古体,王林,仙逆','王林',96200,14900,1,'2026-11-09 10:59:39'),(309,'瞬移','一步之间，已在百里之外。','瞬移是元婴之后方可行的手段，以神识锁定方位，一念动而身在彼处，中间的距离被生生抹去。仙逆之界的厮杀，胜负往往就差这一念：追得上你的人不多，逃得掉的人更少。然瞬移有忌：神识不济者强用，落地之时人已散了半身；锁定之地若有禁制，便等于自己撞进网里。',14,'身法,瞬移,遁术,元婴,仙逆','仙门长老',87200,12100,1,'2026-11-09 10:59:39'),(310,'万灵血契','雷蛙、蚊兽、九幽龙、星痕貂，一契一命。','王林一路所收神兽，皆以血契相连：雷蛙能引天雷、蚊兽可化千军、九幽龙衔幽冥之气、星痕貂遁于星影之间。血契不是主仆，是共命——兽死契损，主亡兽殉。故仙逆之界的强者多半不轻易结契：多一头兽，就多一条要护的命。若只把神兽当作刀，迟早会被这把刀反噬。',15,'御兽,血契,神兽,王林,仙逆','王林',85900,11800,1,'2026-11-09 10:59:39'),(311,'凝气十五层','十四层是假圆满，十五层才是真圆满。','凝气一层引气入体，三层生神识，可施展法术；往后每进一层，经脉便宽一分、灵气便厚一分。修至第十四层时灵气已满，司徒南称之为灵动期假圆满——此时破境，十人九废。唯有再熬一层，把满溢的灵气重新压回骨血里去，才算十五层圆满。王林在恒岳派做杂役那几年，就是靠天逆珠里一日抵十日的苦修，一层一层磨过去的。',16,'凝气,十五层,灵动,根基,仙逆','王林',94400,14601,1,'2026-11-09 11:01:22'),(320,'回春丹','恒岳派弟子人人一枚的保命丹。','回春丹是恒岳派外门配发的常备丹药，药材寻常，成丹不难，治不了大伤，却能吊住一口气。王林初入恒岳派做杂役时，一月的月例也只换得三枚；后来他在山崖洞中苦修，靠的就是这三枚丹撑过反复震伤。修真界第一课从来不是杀敌，是怎么活到能杀敌的那天。',21,'丹药,疗伤,恒岳派,入门,仙逆','恒岳派丹房',78600,11200,1,'2026-11-09 10:59:39'),(321,'续命丹','以寿换命，续得一日是一日。','续命丹不能治伤，只能拖命，一枚续三月，药力一过便更虚一分。李慕婉早年以寿元为王林刻保命玉简，根基大损，此后常年以此丹吊着——她比谁都清楚这丹是借来的日子，可她仍要借：她还想再看他一眼，看他破境、看他报仇、看他从少年变成传说。此丹最苦之处不在药味，在服药人心里的明白。',21,'丹药,疗伤,续命,李慕婉,仙逆','李慕婉',91200,14201,1,'2026-11-09 10:59:39'),(322,'养魂丹','肉可毁，魂可养，一线残魂亦能重来。','养魂丹专温养残魂，神魂受损者服之，可保灵智不散。司徒南当年肉身被毁，只余一缕残魂藏于天逆珠中，靠的正是此类丹药与珠中的时光之力，一点点把魂养回来。魂之伤最难查：修为无损而人已混沌，等旁人看出来时，往往已经救不回了。',21,'丹药,疗伤,养魂,残魂,仙逆','司徒南',87400,12601,1,'2026-11-09 10:59:39'),(323,'筑基丹','凡体蜕仙胎，此丹是第一道门。','筑基丹助凝气圆满者蜕变凡胎，是修真路上第一道门槛。恒岳派内门弟子破境前须先领丹，再入静室闭关七日，七日内不出，便算成了。王林当年灵根三属驳杂，凭此丹与天逆珠中一日抵十日的苦修，硬生生把这道门砸开——资质能定起步，定不了终点。',22,'丹药,突破,筑基,恒岳派,仙逆','恒岳派丹房',84600,12300,1,'2026-11-09 10:59:39'),(324,'结婴丹','元婴一关，困住多少天骄。','结婴丹为五品上丹，专助金丹圆满者碎丹成婴。结婴之难，难在一个碎字：金丹是修士半生修为所凝，谁敢亲手把它砸了？李慕婉天赋寻常、根基已损，多次结婴不成，最后靠王林寻来的六品丹药勉强成婴，寿元却已耗尽。元婴是逃出轮回的第一步，也是最多人倒下的那一步。',22,'丹药,突破,结婴,李慕婉,仙逆','李慕婉',92100,14502,1,'2026-11-09 10:59:39'),(325,'洗髓伐骨丹','洗去灵根杂质，重塑修行根骨。','洗髓丹入体如万针穿骨，痛过之后，经脉拓宽、灵根杂质尽去，修行速度可增三成。此丹对灵根越驳杂者越痛，也越有用——上天给的根骨改不了，只能自己一刀一刀削出来。服丹须有强者护法，体弱者往往痛到魂散，丹未化尽，人已不在了。',22,'丹药,突破,洗髓,灵根,仙逆','玄天丹师',82800,11900,1,'2026-11-09 10:59:39'),(326,'六品天灵丹','六品之丹，一线生机。','六品丹药在仙逆之界已是难得的珍物，一枚可换一城。李慕婉寿元将尽时，正是靠这一线丹力撑到结婴；若非王林执意去寻，她连这点机会都没有。丹道至此，已不只是炼药——五品能炼是本事，六品能成是天意，而肯为一个人去求天意的，才是道侣。',22,'丹药,突破,六品,天灵,仙逆','王林',93400,14701,1,'2026-11-09 10:59:39'),(327,'藤家百枯散','一撮入井，一村无声。','百枯散为藤家秘炼之毒，无色无味，入水即化，服者三日内经脉枯萎如秋草，死后尸身不腐不僵，看不出半分中毒之相。藤化元灭王家满门，用的便是此物——他不屑于动手，只让人自己死干净。此毒后来成了王林心里的一根刺：不是怕它，是恨这世上竟有如此阴毒的手段，还被人用得如此理所当然。',23,'毒丹,禁品,藤家,藤化元,仙逆','藤化元',81300,11400,1,'2026-11-09 10:59:39'),(328,'噬魂香','香烟一起，魂先散。','噬魂香燃时无烟无味，只让人觉着困，睡过去便再醒不来——魂被一丝丝抽走，皮囊还活着。此物多见于魔道阴私之地，许立国当年便是以此术暗算了不知多少修士。仙逆之界的狠，不在刀剑，在这种让你死得不明不白的东西上。',23,'毒丹,禁品,噬魂,魔道,仙逆','许立国',76200,10400,1,'2026-11-09 10:59:39'),(330,'天逆珠内天地','珠中一日，世上数日。','天逆珠是王林在悬崖山洞白鸟尸身中所得的石珠，内藏一方天地，时光流速远胜外界，灵气亦自成循环。王林早年被讥为废柴，靠的就是这方天地：旁人在外修一日，他在珠内修十日。珠非无忧之地——珠中修得再久，破境那一关仍要回到世上，对着天雷、对着仇人、对着自己的心。',32,'灵脉,天逆珠,时光,王林,仙逆','王林',99400,16900,1,'2026-11-09 10:59:39'),(331,'恒岳山','赵国第一山门，也是王林修仙的起点。','恒岳山高逾千丈，山门立于云上，外门弟子住山脚、内门住山腰、长老居山巅，一层石阶一层人。王林十五岁未被收为弟子，徒步登山，跌落崖下得遇天逆珠，后经四叔引荐才入外门做了杂役。此山于他，是屈辱之地，也是道心生根之地——他后来踏平过许多山门，唯独没踏过这一座。',31,'秘境,恒岳派,赵国,起点,仙逆','恒岳派',88600,13200,1,'2026-11-09 10:59:39'),(332,'修魔海','魔气如海，正邪不拘，只认强弱。','修魔海是散修与魔道混居之地，无宗门、无王法。海水呈暗红，魔气浓郁却混杂，正修入之如逆水行舟。王林被追杀时携李慕婉遁入此海，在此结丹，成就元婴之下第一强者；也在此与她暗生情愫，却因大仇未报而不敢应。修魔海不问出身，只问一句：你活得到明天吗？',31,'秘境,修魔海,结丹,李慕婉,仙逆','仙门执事',91800,14001,1,'2026-11-09 10:59:39'),(333,'妖灵之地','妖灵横行，人族偏居一隅。','妖灵之地灵智之属与妖灵混居，凶险远胜外界，人族在此不过偏安。十三便是王林在此收下的首徒，替他掌炼魂部落、修习炼魂禁制。此地最不缺的就是厮杀，也最不缺机缘——妖灵内丹、上古遗物、失传禁制，皆在尸骨堆里。想在这里活下去，靠的不是境界，是身边肯替你挡一刀的人。',31,'秘境,妖灵,十三,炼魂部落,仙逆','十三',84300,12000,1,'2026-11-09 10:59:39'),(334,'古神之地','古神陨落之处，血肉化作山河。','古神之地是古神一族葬身之所，巨骸横卧成山，血凝为矿，骨化为脉。王林在此得古神传承、成二十七星道古之体，也在此第一次明白以身为天四个字有多重。古神之道无捷径：每一星都要以肉身扛天罚，扛过一次，肉身便厚一分；扛不过，尸骨就留在这片土地上，与前辈们躺在一处。',31,'秘境,古神,传承,道古体,仙逆','王林',93700,14500,1,'2026-11-09 10:59:39'),(335,'罗天星域','星域辽阔，一域一规矩。','罗天星域横跨数星，宗门林立、修真国割据，势力盘根错节。王林化名潜入，被人称作魔道子——那几年他杀的人太多，多到名字成了忌讳。星域之大，大到一个人可以彻底消失；星域之小，小到仇人总会在某处遇见。',31,'秘境,星域,魔道子,王林,仙逆','仙门执事',86900,12700,1,'2026-11-09 10:59:39'),(336,'昆虚之境','圣女所居，天魂道统。','昆虚之境为昆虚一脉根本之地，历代圣女修天魂道，神魂之强冠绝一域。木冰眉为第七代圣女，分身柳眉行走世间，与王林的恩怨便从那里起。此地规矩极严：圣女不得动情，动了情便不再是圣女——可情之一字从来不听规矩，这才是最难的地方。',31,'秘境,昆虚,圣女,木冰眉,仙逆','木冰眉',82400,11700,1,'2026-11-09 10:59:39'),(337,'仙罡大陆','界外大陆，本源之气充盈如海。','仙罡大陆是界外之地，法则完整、本源充沛，修士在此修行一日，可抵界内数日。大陆之上宗族林立，仙族、古族、道古国各有其主，一步踏错便是灭族之祸。王林在此闭关百年，修为再上一层，也在此地明白：所谓界内界外，不过是天道划下的两层牢笼。',32,'灵脉,仙罡,本源,界外,仙逆','仙门执事',90200,13800,1,'2026-11-09 10:59:39'),(338,'朱雀星','王林的故土，朱雀一脉的星。','朱雀星为三级修真国所在，赵国不过是其中一隅。星上有朱雀传承，二代朱雀子司徒南曾是此星第一高手。王林生于斯、长于斯，父母族人在此惨死，也在此踏上逆仙之路。多年后他以六代朱雀圣皇之身归返，山还是那座山，人已不是那群人。',32,'灵脉,朱雀星,故土,王林,仙逆','王林',94700,15100,1,'2026-11-09 10:59:39'),(340,'王林','小名铁柱，二十七星道古体，一生只做一件事——逆。','王林生于朱雀星赵国山村，十五岁未被恒岳派收录，徒步登山、跌落悬崖，于白鸟尸身中得天逆珠，自此走上修行路。他灵根驳杂、天赋平庸，凭的是别人十倍的苦修与一分不肯低头的狠。灭藤家、吞魂魄、成古神、悟轮回，最终踏天。他的道只有一句：顺为凡，逆则仙。',46,'道友,古神,道古体,王林,主角,仙逆','仙门名录',99900,17803,1,'2026-11-09 10:59:39'),(341,'李慕婉','五品丹阵大师，王林一生唯一的执念。','李慕婉与王林在火焚国初识，被追杀时同入修魔海，以丹道助他结丹，成就元婴之下第一人。她天赋寻常，却把寿元熬成了刻给王林的保命玉简，导致此后结婴无望、寿元枯竭。王林为救她，从化神走到踏天，从界内杀到界外，最终以逆尘界本源将她唤回。全书七百万字，写的就是一个人怎么把另一个人从轮回里抢回来。',42,'道友,丹修,李慕婉,道侣,仙逆','仙门名录',99500,17204,1,'2026-11-09 10:59:39'),(342,'司徒南','二代朱雀子，残魂寄珠，王林的引路人。','司徒南曾是朱雀星第一高手，与叶无忧共筑朱雀辉煌。争夺天逆珠时被追杀，只余残魂藏于珠内；王林得珠后偶然将他唤醒，他传王林杀伐道心、授古神传承，数次舍命断后。后经王林相助重生，拜仙帝青霖为师。他教王林的第一课不是功法，是别把命交给别人。',47,'道友,道修,朱雀子,司徒南,仙逆','仙门名录',97300,15801,1,'2026-11-09 10:59:39'),(343,'清水','雷仙殿真传，一剑守天门。','清水为王林师兄，掌杀戮剑本源，剑出必见血。界内大战时他一人一剑独守天门，界外群雄无人能越；血羽子便是被他一剑封喉。他护短、记仇、重情，把吞灵噬体绝天大法只授王林一人。剑修之道在他身上最明白：不求天下无敌，只求身后之人无恙。',41,'道友,剑修,清水,杀戮本源,仙逆','仙门名录',95800,14703,1,'2026-11-09 10:59:39'),(344,'十三','王林首徒，妖灵之地守门人。','十三乃王林在妖灵之地炼魂部落所收首徒，忠诚坚毅，代师掌部落、修习炼魂禁制，境界至化神。他不算出彩，却是王林最放心的那类人：交代的事一定办到，办不到便死在那里。仙途漫长，聪明人太多，肯死的人太少。',43,'道友,体修,十三,炼魂部落,仙逆','仙门名录',81200,11301,1,'2026-11-09 10:59:39'),(345,'藤化元','赵国藤家老祖，元婴后期，一夜间灭了王家满门。','藤化元为赵国藤家老祖，元婴后期修为，行事阴狠，用毒而不沾手。他灭王家全族那夜，成了王林一生的转折点——极境由此而生，逆仙之路由此而始。后来王林元婴归来，将藤家满门连根拔起。他不是坏在强，是坏在理所当然：在他眼里，弱者本就该去死。',44,'道友,魔修,藤家,藤化元,仇敌,仙逆','仙门名录',92100,13901,1,'2026-11-09 10:59:39'),(346,'遁天','炼魂宗宗主，赠幡十亿，待王林如亲。','遁天与王林无师徒之名，却有师徒之实：倾囊相授炼魂之术，将镇宗至宝十亿尊魂幡一并相赠。仙途冷硬，他给了王林少见的一点暖。后战死，王林落泪——那是全书里他为数不多的几次。修真界的眼泪不轻易流，流了便是一辈子记着。',45,'道友,魂修,炼魂宗,遁天,仙逆','仙门名录',85600,12401,1,'2026-11-09 10:59:39'),(347,'天运子','命运道代言人，以王林为种，布局万年。','天运子曾为王林之师，实则是命运道的化身，把王林当作命运之种养了万年，等他自己长成一把能撬动天道的刀。他算尽人心，唯独算漏了一件事：被当作棋子的人，也会有自己想要护住的东西。最终王林斩断所有因果，天运子谋算落空，本体黑鹤崩散，一界本源归于王林之手。',47,'道友,道修,命运道,天运子,仙逆','仙门名录',91400,13601,1,'2026-11-09 10:59:39'),(348,'拓森','八星古神，嗜杀成性，与王林死战而后相认。','拓森本是八星王族古神涂司修墨流分神术失败所生的一丝魔念，凶戾嗜杀，与王林结下死仇，数度死战。后王林将忆之传承归还，他才认可这个对手，最终与涂司意识重叠。古神之道讲传承不讲情面：你打得过我，我才听你说话。',46,'道友,古神,八星,拓森,仙逆','仙门名录',88700,13101,1,'2026-11-09 10:59:39'),(349,'红蝶','雪域天骄，与王林亦敌亦友，前世惨死，转世青虹。','红蝶为清水仙君之女，转世青虹，性孤傲清冷，剑法与心性皆是顶尖。她与王林在罗天星域情愫暗生，却始终不曾越过那条线，是全书最像遗憾二字的一个人。转世之后她选择放下前尘——不是不爱，是不想再为一段旧缘赔上这一世。',41,'道友,剑修,红蝶,雪域,仙逆','仙门名录',89500,13401,1,'2026-11-09 10:59:39'),(350,'木冰眉','昆虚圣女，十大分身，天魂道第七代传人。','木冰眉修天魂道，神魂之强冠绝昆虚，十大分身行走各界，其中柳眉与王林有一段孽缘，诞下长子王平。她与王林纠缠半生，恨过、也帮过；最终王林以梦道陪她走完一轮轮回，算作还清。圣女的规矩是不动情，可她偏偏动了，这才有了后面所有的故事。',45,'道友,魂修,天魂道,木冰眉,仙逆','仙门名录',87200,12801,1,'2026-11-09 10:59:39'),(351,'许立国','王林的魔头，贪生怕死，却跟了他一辈子。','许立国本是魔道修士，被王林抹去神志炼为魔头，后又赐剑灵之体。他贪婪、好色、嘴上从不积德，几次想叛逃都被抓回来，堪称全书最不像魔头的魔头。可就是这样一个人，从赵国一路跟到仙罡，王林身边换了无数强者，他还赖着不走。仙逆里最靠得住的关系，往往最难听。',44,'道友,魔修,魔头,许立国,仙逆','仙门名录',83600,12002,1,'2026-11-09 10:59:39'),(360,'顺为凡，逆则仙','顺为凡，逆则仙，只在心中一念间。','这句话不是口号，是王林一辈子走出来的路。天道给的规矩很简单：灵根差者止步、寿元尽者当死、强者说了算。顺着它走，人人安稳；逆着走，处处是刀。他偏要逆——不是不知天高地厚，是知道天高地厚仍不肯低头。修道者先要问自己一件事：你想做顺从的那个，还是逆行的那个？想清楚了，路就有了。',51,'论道,心得,道心,逆,仙逆','王林',98900,16601,1,'2026-11-09 10:59:39'),(361,'极境心得·恨不是终点','以恨入道很快，以恨证道很难。','家族被灭那一夜，我得了极境。同阶无敌、越境可战，一时间以为恨是世上最好的东西。后来才知极境是陷阱：它把所有的痛换成力，却不曾把痛拿走，用得越久，人越像一把只剩杀意的刀。真正走出来那年，我把恨收回了道心——不是忘了那夜，是不再让它替我作决定。',51,'论道,心得,极境,仇恨,仙逆','王林',93400,14401,1,'2026-11-09 10:59:39'),(362,'化凡心得','欲化神，先化凡。','化神不难，难在化凡。要化神，得先下山做几年凡人：种田、挑水、看人间喜怒，把仙的架子卸了，才能生出意境。许多人卡在化神，不是修为不够，是舍不得那一身仙气——放不下的人，天不会替他放下。我在凡间待了几年，学会了不急，后来的每一境都从这两个字里来。',51,'论道,心得,化神,化凡,仙逆','王林',91600,13901,1,'2026-11-09 10:59:39'),(363,'问鼎之悟','意境入体，方知元力何物。','问鼎是意境与仙力在元神之内相融，凝成问鼎之晶。此前的修行都在往外求：求灵气、求丹、求师；到了这一步要往里收，把所有感悟压成一颗晶。压得进去，元力自来；压不进去，神通再多也不过是花架子。意境是虚的，问鼎之晶是实的——修道就是把虚的东西做实。',51,'论道,心得,问鼎,意境,仙逆','王林',90300,13500,1,'2026-11-09 10:59:39'),(364,'因果与命运之别','因果是自己走出来的，命运是别人替你写好的。','因果讲究种瓜得瓜，每一步都自己下的手，账也自己还；命运不同，命运是有人在纸上先写好了结局，再让你照着演。天运子修的是命运道，把王林当作笔下的字；王林走的是因果道，一笔一笔都要自己写。二者之别就在这儿：一个把责任推给安排，一个把责任扛在肩上。',51,'论道,心得,因果,命运,仙逆','王林',89800,13300,1,'2026-11-09 10:59:39'),(365,'轮回问答','轮回在何处？在心里那一处不肯放手的地方。','问：轮回是天定的，还是人可改的？答：天定的是形式，人可改的是内容。问：踏天之后便能不入轮回？答：踏天是看清轮回，不是逃开轮回。问：看清了又有什么用？答：看清了才知道，你拼了一辈子要抢回来的那个人，从来不在轮回里，而在你心里。',52,'论道,问答,轮回,踏天,仙逆','王林',92600,14301,1,'2026-11-09 10:59:39'),(366,'灵根低劣可否修仙','能。只是要多走十倍的路。','问：三属驳杂的废灵根，有无可能结丹？答：有，我便是。问：靠什么？答：靠别人修一日你修十日，靠别人歇的时候你还在修。问：这公平吗？答：不公平。可修行本来就不是比公平，是比谁能忍到最后。问：有没有更快的法子？答：有，走旁门，代价是把自己耗空。你想快，还是想走得远？',52,'论道,问答,灵根,天赋,仙逆','王林',90800,13801,1,'2026-11-09 10:59:39'),(367,'天逆珠之问','珠是好珠，问题是它认不认你。','问：天逆珠可否抢夺？答：珠在人身，认的是心不是手，抢去也无用。问：珠中最贵的是什么？答：不是灵气，是时间。问：有了时间便能成强者？答：多的是在珠中修了百年仍旧走不出去的人——珠给你多十倍的日子，走不出去的还是走不出去。问：那珠到底算什么？答：算一个机会，仅此而已。',52,'论道,问答,天逆珠,机缘,仙逆','王林',89700,13200,1,'2026-11-09 10:59:39'),(368,'结婴失败怎么办','先问自己还剩多少年，再问还值不值得。','问：结婴多次失败，还有机会吗？答：有，但一次比一次难，寿元也在一次比一次少。问：可否以丹药强撑？答：可，但撑住的只是时间，不是根基。问：那该怎么办？答：先算清自己剩几年，再决定是继续冲，还是把剩下的日子留给自己想留的人。这不是认输，是知道什么更要紧。',52,'论道,问答,结婴,寿元,仙逆','李慕婉',86400,12600,1,'2026-11-09 10:59:39'),(369,'古神之路问答','肉身成道，走的是最笨也最直的一条路。','问：古神之道为何不修灵气？答：古神以身证道，皮肉筋骨便是丹田。问：为何要扛天罚？答：天罚不是罚，是锤——每扛一次，肉身厚一分。问：可否借丹药走捷径？答：可缩短时间，不可代替挨打。问：此路最难处？答：痛。痛到想放手的那一刻，就是这一星的关口。',52,'论道,问答,古神,道古体,仙逆','王林',88100,12900,1,'2026-11-09 10:59:39');
+/*!40000 ALTER TABLE `t_content` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_notice`
+--
+
 DROP TABLE IF EXISTS `t_notice`;
-CREATE TABLE `t_notice`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_notice` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `content` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '公告内容',
-  `date_label` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '时间标签（今日/昨日…）',
-  `sort_no` int NOT NULL DEFAULT 0 COMMENT '排序号',
+  `date_label` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '时间标签（今日/昨日…）',
+  `sort_no` int NOT NULL DEFAULT '0' COMMENT '排序号',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_sort`(`sort_no` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '宗门公告表' ROW_FORMAT = DYNAMIC;
+  KEY `idx_sort` (`sort_no`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='宗门公告表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_notice
--- ----------------------------
-INSERT INTO `t_notice` VALUES (1, '仙门大比将于三日后于论道台开启，道友可前往报名。', '今日', 1, '2026-10-16 16:31:40');
-INSERT INTO `t_notice` VALUES (2, '洞天福地「落霞谷」灵气渐复，开放时间调整为先辰。', '昨日', 2, '2026-10-16 16:31:40');
-INSERT INTO `t_notice` VALUES (3, '丹阁新入九转金丹三百枚，先到先得。', '前日', 3, '2026-10-16 16:31:40');
-INSERT INTO `t_notice` VALUES (4, '青龙灵脉本月功勋兑换额度刷新，道友可依功勋换取修行时日。', '三日前', 4, '2026-10-16 16:31:40');
-INSERT INTO `t_notice` VALUES (5, '天逆珠内天地重新充盈，珠中一日，世上数日，道友闭关正当时。', '今日', 5, '2026-11-09 10:59:39');
-INSERT INTO `t_notice` VALUES (6, '道友录新添《仙逆》诸修列传，王林、李慕婉、司徒南等皆已入册。', '昨日', 6, '2026-11-09 10:59:39');
+--
+-- Dumping data for table `t_notice`
+--
 
--- ----------------------------
--- Table structure for t_realm
--- ----------------------------
+LOCK TABLES `t_notice` WRITE;
+/*!40000 ALTER TABLE `t_notice` DISABLE KEYS */;
+INSERT INTO `t_notice` VALUES (1,'仙门大比将于三日后于论道台开启，道友可前往报名。','今日',1,'2026-10-16 16:31:40'),(2,'洞天福地「落霞谷」灵气渐复，开放时间调整为先辰。','昨日',2,'2026-10-16 16:31:40'),(3,'丹阁新入九转金丹三百枚，先到先得。','前日',3,'2026-10-16 16:31:40'),(4,'青龙灵脉本月功勋兑换额度刷新，道友可依功勋换取修行时日。','三日前',4,'2026-10-16 16:31:40'),(5,'天逆珠内天地重新充盈，珠中一日，世上数日，道友闭关正当时。','今日',5,'2026-11-09 10:59:39'),(6,'道友录新添《仙逆》诸修列传，王林、李慕婉、司徒南等皆已入册。','昨日',6,'2026-11-09 10:59:39');
+/*!40000 ALTER TABLE `t_notice` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_purchase`
+--
+
+DROP TABLE IF EXISTS `t_purchase`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_purchase` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL COMMENT '道号（买家）',
+  `content_id` bigint NOT NULL COMMENT '内容ID',
+  `price` bigint NOT NULL DEFAULT '0' COMMENT '成交价（灵石）',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '购入时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_content` (`username`,`content_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='灵石购买记录';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `t_purchase`
+--
+
+LOCK TABLES `t_purchase` WRITE;
+/*!40000 ALTER TABLE `t_purchase` DISABLE KEYS */;
+/*!40000 ALTER TABLE `t_purchase` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_realm`
+--
+
 DROP TABLE IF EXISTS `t_realm`;
-CREATE TABLE `t_realm`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_realm` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '境界名（凝气/筑基…）',
   `suffix` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '境' COMMENT '后缀：期 / 境',
   `unit` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '重' COMMENT '层级单位：层 / 重 / 桥',
-  `segs` int NOT NULL DEFAULT 10 COMMENT '境内层次数',
+  `segs` int NOT NULL DEFAULT '10' COMMENT '境内层次数',
   `span` int NOT NULL COMMENT '该境所需修为',
   `step_key` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '所属阶段（t_realm_stage.key_code）',
-  `sort_no` int NOT NULL DEFAULT 0 COMMENT '阶序',
+  `sort_no` int NOT NULL DEFAULT '0' COMMENT '阶序',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_realm_name`(`name` ASC) USING BTREE,
-  INDEX `idx_realm_sort`(`sort_no` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '境界配置表' ROW_FORMAT = DYNAMIC;
+  UNIQUE KEY `uk_realm_name` (`name`) USING BTREE,
+  KEY `idx_realm_sort` (`sort_no`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='境界配置表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_realm
--- ----------------------------
-INSERT INTO `t_realm` VALUES (1, '凝气', '期', '层', 15, 150, 'first', 1);
-INSERT INTO `t_realm` VALUES (2, '筑基', '期', '重', 10, 160, 'first', 2);
-INSERT INTO `t_realm` VALUES (3, '结丹', '期', '重', 10, 260, 'first', 3);
-INSERT INTO `t_realm` VALUES (4, '元婴', '期', '重', 10, 420, 'first', 4);
-INSERT INTO `t_realm` VALUES (5, '化神', '期', '重', 10, 680, 'first', 5);
-INSERT INTO `t_realm` VALUES (6, '婴变', '期', '重', 10, 1100, 'first', 6);
-INSERT INTO `t_realm` VALUES (7, '问鼎', '期', '重', 10, 1800, 'first', 7);
-INSERT INTO `t_realm` VALUES (8, '阴虚', '期', '重', 10, 900, 'bridge1', 8);
-INSERT INTO `t_realm` VALUES (9, '阳实', '期', '重', 10, 900, 'bridge1', 9);
-INSERT INTO `t_realm` VALUES (10, '窥涅', '境', '重', 10, 2600, 'second', 10);
-INSERT INTO `t_realm` VALUES (11, '净涅', '境', '重', 10, 3800, 'second', 11);
-INSERT INTO `t_realm` VALUES (12, '碎涅', '境', '重', 10, 5200, 'second', 12);
-INSERT INTO `t_realm` VALUES (13, '空涅', '境', '重', 10, 7000, 'third', 13);
-INSERT INTO `t_realm` VALUES (14, '空灵', '境', '重', 10, 9500, 'third', 14);
-INSERT INTO `t_realm` VALUES (15, '空玄', '境', '重', 10, 13000, 'third', 15);
-INSERT INTO `t_realm` VALUES (16, '空劫', '境', '重', 10, 18000, 'third', 16);
-INSERT INTO `t_realm` VALUES (17, '踏天', '境', '桥', 9, 27000, 'fourth', 17);
+--
+-- Dumping data for table `t_realm`
+--
 
--- ----------------------------
--- Table structure for t_realm_stage
--- ----------------------------
+LOCK TABLES `t_realm` WRITE;
+/*!40000 ALTER TABLE `t_realm` DISABLE KEYS */;
+INSERT INTO `t_realm` VALUES (1,'凝气','期','层',15,150,'first',1),(2,'筑基','期','重',10,160,'first',2),(3,'结丹','期','重',10,260,'first',3),(4,'元婴','期','重',10,420,'first',4),(5,'化神','期','重',10,680,'first',5),(6,'婴变','期','重',10,1100,'first',6),(7,'问鼎','期','重',10,1800,'first',7),(8,'阴虚','期','重',10,900,'bridge1',8),(9,'阳实','期','重',10,900,'bridge1',9),(10,'窥涅','境','重',10,2600,'second',10),(11,'净涅','境','重',10,3800,'second',11),(12,'碎涅','境','重',10,5200,'second',12),(13,'空涅','境','重',10,7000,'third',13),(14,'空灵','境','重',10,9500,'third',14),(15,'空玄','境','重',10,13000,'third',15),(16,'空劫','境','重',10,18000,'third',16),(17,'踏天','境','桥',9,27000,'fourth',17);
+/*!40000 ALTER TABLE `t_realm` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_realm_stage`
+--
+
 DROP TABLE IF EXISTS `t_realm_stage`;
-CREATE TABLE `t_realm_stage`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_realm_stage` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `key_code` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '阶段标识 first/bridge1/second/third/fourth',
   `badge` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '角标（第一步/过渡…）',
   `label` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '阶段名（凡蜕问道…）',
-  `note` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '阶段说明',
-  `sort_no` int NOT NULL DEFAULT 0 COMMENT '排序号',
+  `note` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '阶段说明',
+  `sort_no` int NOT NULL DEFAULT '0' COMMENT '排序号',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_stage_key`(`key_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '境界大阶段表' ROW_FORMAT = DYNAMIC;
+  UNIQUE KEY `uk_stage_key` (`key_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='境界大阶段表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_realm_stage
--- ----------------------------
-INSERT INTO `t_realm_stage` VALUES (1, 'first', '第一步', '凡蜕问道', '引气入体至问鼎，凡躯蜕为仙体', 1);
-INSERT INTO `t_realm_stage` VALUES (2, 'bridge1', '过渡', '阴虚阳实', '元神吐纳元力、化元完成，方入第二步', 2);
-INSERT INTO `t_realm_stage` VALUES (3, 'second', '第二步', '规则掌控', '窥涅天仙 · 净涅仙王 · 碎涅仙君，碎涅圆满需渡天人五衰', 3);
-INSERT INTO `t_realm_stage` VALUES (4, 'third', '第三步', '本源超脱', '空涅仙帝至空劫大天尊，言出法随，需渡九次玄劫', 4);
-INSERT INTO `t_realm_stage` VALUES (5, 'fourth', '第四步', '踏天超脱', '踏天九桥，一步一桥，明悟轮回真我', 5);
+--
+-- Dumping data for table `t_realm_stage`
+--
 
--- ----------------------------
--- Table structure for t_sect
--- ----------------------------
+LOCK TABLES `t_realm_stage` WRITE;
+/*!40000 ALTER TABLE `t_realm_stage` DISABLE KEYS */;
+INSERT INTO `t_realm_stage` VALUES (1,'first','第一步','凡蜕问道','引气入体至问鼎，凡躯蜕为仙体',1),(2,'bridge1','过渡','阴虚阳实','元神吐纳元力、化元完成，方入第二步',2),(3,'second','第二步','规则掌控','窥涅天仙 · 净涅仙王 · 碎涅仙君，碎涅圆满需渡天人五衰',3),(4,'third','第三步','本源超脱','空涅仙帝至空劫大天尊，言出法随，需渡九次玄劫',4),(5,'fourth','第四步','踏天超脱','踏天九桥，一步一桥，明悟轮回真我',5);
+/*!40000 ALTER TABLE `t_realm_stage` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_sect`
+--
+
 DROP TABLE IF EXISTS `t_sect`;
-CREATE TABLE `t_sect`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_sect` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '道号（唯一）',
-  `cleared_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '已击败成员 id（JSON 数组）',
-  `client_time` bigint NOT NULL DEFAULT 0 COMMENT '客户端最后修改时间戳（毫秒）',
+  `cleared_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '已击败成员 id（JSON 数组）',
+  `client_time` bigint NOT NULL DEFAULT '0' COMMENT '客户端最后修改时间戳（毫秒）',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '首次挑战时间',
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_sect_username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '云岚宗挑战进度表' ROW_FORMAT = Dynamic;
+  UNIQUE KEY `uk_sect_username` (`username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='云岚宗挑战进度表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_sect
--- ----------------------------
+--
+-- Dumping data for table `t_sect`
+--
 
--- ----------------------------
--- Table structure for t_user
--- ----------------------------
+LOCK TABLES `t_sect` WRITE;
+/*!40000 ALTER TABLE `t_sect` DISABLE KEYS */;
+INSERT INTO `t_sect` VALUES (3,'王林','[\"yunshan-youth\",\"yunxiaolan\",\"yunzhonghe\",\"hanfeng\",\"yunxiao\",\"yunhe\",\"yunlei\",\"yunsheng\"]',1794358835108,'2026-11-11 08:58:56','2026-11-11 08:58:56');
+/*!40000 ALTER TABLE `t_sect` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `t_user`
+--
+
 DROP TABLE IF EXISTS `t_user`;
-CREATE TABLE `t_user`  (
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `t_user` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '道号 / 账号（唯一）',
   `password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '秘语 / 密码（BCrypt 密文）',
-  `permission` tinyint NOT NULL DEFAULT 1 COMMENT '权限：0 管理员 / 1 默认',
+  `permission` tinyint NOT NULL DEFAULT '1' COMMENT '权限：0 管理员 / 1 默认',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '结缘（注册）时间',
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `uk_username`(`username` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '仙门弟子（用户）表' ROW_FORMAT = DYNAMIC;
+  UNIQUE KEY `uk_username` (`username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC COMMENT='仙门弟子（用户）表';
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of t_user
--- ----------------------------
-INSERT INTO `t_user` VALUES (1, 'ghjjvj', '$2a$10$xWQ5TGuFrkWlYZUKm6sSSuJc77oLUx.CeOuTEVMAb5cwH5970jcv2', 0, '2026-10-14 09:23:39');
-INSERT INTO `t_user` VALUES (2, '王林', '$2a$10$82TleiFXWZfiRUpjYMFUGeUbrZsdhpVY3Hhb2ofYymw.kkdDesw56', 0, '2026-10-14 09:41:05');
-INSERT INTO `t_user` VALUES (3, 'wanglin', '$2a$10$uroBWsR6DZj82FhV3KFs6e0S6mu6dKL/612N64S1WTf42e8lqYSD2', 0, '2026-10-28 09:19:17');
-INSERT INTO `t_user` VALUES (4, 'admin', 'admin123', 1, '2026-10-30 16:14:33');
-INSERT INTO `t_user` VALUES (7, '周圣榕', '12345678qaz', 1, '2026-11-02 10:46:41');
+--
+-- Dumping data for table `t_user`
+--
 
-SET FOREIGN_KEY_CHECKS = 1;
+LOCK TABLES `t_user` WRITE;
+/*!40000 ALTER TABLE `t_user` DISABLE KEYS */;
+INSERT INTO `t_user` VALUES (1,'ghjjvj','$2a$10$xWQ5TGuFrkWlYZUKm6sSSuJc77oLUx.CeOuTEVMAb5cwH5970jcv2',0,'2026-10-14 09:23:39'),(2,'王林','$2a$10$82TleiFXWZfiRUpjYMFUGeUbrZsdhpVY3Hhb2ofYymw.kkdDesw56',0,'2026-10-14 09:41:05'),(3,'wanglin','$2a$10$uroBWsR6DZj82FhV3KFs6e0S6mu6dKL/612N64S1WTf42e8lqYSD2',0,'2026-10-28 09:19:17'),(4,'admin','admin123',1,'2026-10-30 16:14:33'),(7,'周圣榕','12345678qaz',1,'2026-11-02 10:46:41');
+/*!40000 ALTER TABLE `t_user` ENABLE KEYS */;
+UNLOCK TABLES;
 
--- ----------------------------
--- Table structure for t_purchase（灵石购买记录：功法 / 丹药需购入）
--- ----------------------------
-DROP TABLE IF EXISTS `t_purchase`;
-CREATE TABLE `t_purchase`  (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '道号（买家）',
-  `content_id` BIGINT NOT NULL COMMENT '内容ID',
-  `price` BIGINT NOT NULL DEFAULT 0 COMMENT '成交价（灵石）',
-  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '购入时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_user_content` (`username`, `content_id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '灵石购买记录';
+--
+-- Dumping events for database 'spring_boot_test'
+--
 
-SET FOREIGN_KEY_CHECKS = 1;
+--
+-- Dumping routines for database 'spring_boot_test'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-11-11  9:24:36
