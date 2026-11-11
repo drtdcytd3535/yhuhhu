@@ -341,19 +341,12 @@
             <span v-for="t in detail.tags" :key="t" class="dt-tag">{{ t }}</span>
           </div>
 
-          <!-- 未购入：功法 / 丹药需以灵石换取 -->
+          <!-- 未购入：功法 / 丹药需以灵石换取（购入按钮在下方的操作区，占原收藏之位） -->
           <div v-if="detail.locked" class="dt-locked">
             <p class="lock-ico">◈</p>
             <p class="lock-text">此{{ detail.categoryName }}乃仙门秘藏，须以灵石为聘方可开卷</p>
             <p class="lock-price">◈ {{ detail.price }} 灵石</p>
             <p class="lock-have">吾之灵石 · ◈ {{ cave.stones }}</p>
-            <button
-              class="lock-buy"
-              :disabled="buying || cave.stones < detail.price"
-              @click="buyDetail"
-            >
-              {{ buying ? '交易中…' : cave.stones < detail.price ? '灵石不足' : '以灵石购入' }}
-            </button>
             <p class="lock-tip">灵石可于洞府签到、修炼积攒；一经购入，永久可阅</p>
           </div>
           <div v-else class="dt-body">{{ detail.content }}</div>
@@ -410,7 +403,20 @@
                 {{ befriending ? '论道中…' : '结为道友' }}
               </button>
             </template>
-            <!-- 功法 / 丹药 / 其它：仍可收入藏书阁 -->
+            <!-- 功法 / 丹药：原「收藏」改为「购买」，未购入即以灵石购入，已购入显示已入囊中 -->
+            <template v-else-if="detail.price > 0">
+              <button v-if="detail.locked" class="dt-act" :disabled="buying || cave.stones < detail.price" @click="buyDetail">
+                {{
+                  buying
+                    ? '交易中…'
+                    : cave.stones < detail.price
+                      ? `灵石不足 · ◈ ${detail.price}`
+                      : `◈ ${detail.price} · 灵石购入`
+                }}
+              </button>
+              <button v-else class="dt-act on" disabled>◈ {{ detail.price }} · 已入囊中</button>
+            </template>
+            <!-- 其它免费内容：仍可收入藏书阁 -->
             <button
               v-else-if="!detail.locked && detail.topCategory !== '洞天'"
               class="dt-act"
@@ -2384,22 +2390,6 @@ onBeforeUnmount(() => {
 
 .lock-have { font-size: 12px; color: #8fa0c8; }
 
-.lock-buy {
-  margin-top: 8px;
-  padding: 10px 34px;
-  border-radius: 999px;
-  border: 1px solid rgba(232, 198, 107, 0.6);
-  background: linear-gradient(135deg, rgba(232, 198, 107, 0.24), rgba(232, 198, 107, 0.08));
-  color: var(--gold);
-  font-family: inherit;
-  font-size: 15px;
-  letter-spacing: 3px;
-  cursor: pointer;
-  transition: 0.22s;
-}
-.lock-buy:hover:not(:disabled) { background: rgba(232, 198, 107, 0.32); transform: scale(1.04); }
-.lock-buy:disabled { opacity: 0.42; cursor: not-allowed; }
-
 .lock-tip { margin-top: 4px; font-size: 11px; color: #6f7a9c; letter-spacing: 1px; }
 
 /* 详情弹窗：道友录结交 */
@@ -2538,8 +2528,9 @@ onBeforeUnmount(() => {
   border-color: transparent;
 }
 
-/* 已结交 / 已完成：保持金色高亮但不响应点击 */
+/* 已结交 / 已购入：保持金色高亮但不响应点击；灵石不足等未达成态则置灰 */
 .dt-act:disabled { cursor: default; opacity: 0.92; }
+.dt-act:disabled:not(.on) { opacity: 0.5; }
 .dt-act:disabled:hover { box-shadow: none; }
 
 .dt-act.ghost {
