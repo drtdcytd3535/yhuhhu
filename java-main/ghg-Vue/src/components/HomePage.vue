@@ -358,6 +358,22 @@
           </div>
           <div v-else class="dt-body">{{ detail.content }}</div>
 
+          <!-- 道友录：结交道友即得其流派功法 -->
+          <div v-if="detail.topCategory === '道友'" class="dt-friend">
+            <template v-if="detail.befriended">
+              <span class="friend-state">✦ 已结为道友 · 其功法已入藏书阁</span>
+            </template>
+            <template v-else>
+              <p class="friend-tip">与其结交，可得其流派功法一门 · 每位道友仅可结交一次</p>
+              <button class="friend-btn" :disabled="befriending" @click="befriendDetail">
+                {{ befriending ? '论道中…' : '结为道友' }}
+              </button>
+            </template>
+            <button v-if="friendGift" class="friend-gift" @click="openGift">
+              研读《{{ friendGift.title }}》 →
+            </button>
+          </div>
+
           <div class="dt-acts">
             <button v-if="!detail.locked" class="dt-act" :class="{ on: isFav(detail.id) }" @click="toggleFav(detail)">
               {{ isFav(detail.id) ? '★ 已藏于阁' : '☆ 收入藏书阁' }}
@@ -699,11 +715,51 @@ async function openDetail(id) {
   const data = await api(`/api/content/${id}?username=${encodeURIComponent(props.username || '')}`)
   if (!data) return
   detail.value = data
+  // 换了一位道友/一卷内容，清掉上一位所授功法提示
+  friendGift.value = null
   // 未购入的功法 / 丹药不记足迹，购入研读后才算开卷
   if (data.locked) return
   // 记入洞府足迹：首次研读另有修为与灵石进账
   const r = pushHistory({ id: data.id, title: data.title, categoryPath: data.categoryPath })
   if (r.first) toast(`首次研读 · 修为 +${r.exp}`)
+}
+
+/* ---------------- 道友录：结交即得其功法 ---------------- */
+const befriending = ref(false)
+const friendGift = ref(null)
+
+async function befriendDetail() {
+  const d = detail.value
+  if (!d || d.topCategory !== '道友' || d.befriended || befriending.value) return
+  befriending.value = true
+  try {
+    const res = await fetch(`/api/friend/${d.id}/befriend?username=${encodeURIComponent(props.username || '')}`, {
+      method: 'POST'
+    })
+    const body = await res.json().catch(() => null)
+    if (!body?.success) {
+      toast(body?.message || '结交未成，请稍后再试')
+      return
+    }
+    const r = body.data
+    d.befriended = true
+    friendGift.value = r?.gift || null
+    if (r?.gift) {
+      // 所得功法入藏书阁，点「研读」可直接开卷
+      const add = addGiftFav(r.gift)
+      toast(r.msg + (add.ok ? ' · 已收入藏书阁' : ''))
+    } else {
+      toast(r?.msg || '已结为道友')
+    }
+  } catch {
+    toast('仙门暂时无应，请稍后再试')
+  } finally {
+    befriending.value = false
+  }
+}
+
+function openGift() {
+  if (friendGift.value?.id) openDetail(friendGift.value.id)
 }
 
 /* ---------------- 灵石购入（功法 / 丹药） ---------------- */
@@ -2187,6 +2243,58 @@ onBeforeUnmount(() => {
 .lock-buy:disabled { opacity: 0.42; cursor: not-allowed; }
 
 .lock-tip { margin-top: 4px; font-size: 11px; color: #6f7a9c; letter-spacing: 1px; }
+
+/* 详情弹窗：道友录结交 */
+.dt-friend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px dashed rgba(111, 233, 255, 0.32);
+  background: rgba(111, 233, 255, 0.05);
+}
+
+.friend-tip {
+  flex: 1;
+  min-width: 180px;
+  font-size: 12px;
+  color: #9fb0d6;
+  letter-spacing: 1px;
+}
+
+.friend-state { flex: 1; font-size: 13px; color: var(--cyan); letter-spacing: 1px; }
+
+.friend-btn {
+  padding: 7px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(111, 233, 255, 0.6);
+  background: linear-gradient(135deg, rgba(111, 233, 255, 0.18), rgba(111, 233, 255, 0.06));
+  color: var(--cyan);
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.22s;
+}
+.friend-btn:hover:not(:disabled) { background: rgba(111, 233, 255, 0.28); transform: scale(1.04); }
+.friend-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.friend-gift {
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 198, 107, 0.5);
+  background: rgba(232, 198, 107, 0.1);
+  color: var(--gold);
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: 0.22s;
+}
+.friend-gift:hover { background: rgba(232, 198, 107, 0.22); }
 
 /* 详情弹窗操作：收入藏书阁 / 前往洞府 */
 .dt-acts {

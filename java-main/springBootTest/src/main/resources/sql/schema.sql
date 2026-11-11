@@ -95,6 +95,23 @@ CREATE TABLE IF NOT EXISTS t_purchase (
   COMMENT = '灵石购买记录表';
 
 -- =============================================================
+-- 结交道友表（每结交一位道友，即获其流派功法一门）
+-- 一个道号对一位道友唯一：username + daoist_id 唯一键
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_friend (
+  id         BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  username   VARCHAR(50) NOT NULL                COMMENT '结交道号',
+  daoist_id  BIGINT      NOT NULL                COMMENT '道友内容ID',
+  gift_id    BIGINT               DEFAULT NULL   COMMENT '所授功法内容ID',
+  created_at DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '结交时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_user_daoist (username, daoist_id),
+  KEY idx_gift (gift_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '结交道友表';
+
+-- =============================================================
 -- 种子数据（幂等：INSERT IGNORE + 显式主键，重复启动不会产生脏数据）
 -- =============================================================
 

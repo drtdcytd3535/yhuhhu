@@ -11,9 +11,11 @@ import com.fenglin.springboottest.dto.SearchResult;
 import com.fenglin.springboottest.entity.Cave;
 import com.fenglin.springboottest.entity.Category;
 import com.fenglin.springboottest.entity.Content;
+import com.fenglin.springboottest.entity.Friend;
 import com.fenglin.springboottest.entity.Purchase;
 import com.fenglin.springboottest.mapper.CaveMapper;
 import com.fenglin.springboottest.mapper.ContentMapper;
+import com.fenglin.springboottest.mapper.FriendMapper;
 import com.fenglin.springboottest.mapper.PurchaseMapper;
 import com.fenglin.springboottest.service.ICategoryService;
 import com.fenglin.springboottest.service.IContentService;
@@ -38,13 +40,16 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     private final ICategoryService categoryService;
     private final CaveMapper caveMapper;
     private final PurchaseMapper purchaseMapper;
+    private final FriendMapper friendMapper;
 
     public ContentServiceImpl(ICategoryService categoryService,
                               CaveMapper caveMapper,
-                              PurchaseMapper purchaseMapper) {
+                              PurchaseMapper purchaseMapper,
+                              FriendMapper friendMapper) {
         this.categoryService = categoryService;
         this.caveMapper = caveMapper;
         this.purchaseMapper = purchaseMapper;
+        this.friendMapper = friendMapper;
     }
 
     @Override
@@ -188,7 +193,8 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
         }
 
         // ---------- 灵石门槛：功法 / 丹药需购入后方可研读 ----------
-        long price = priceOf(c.getCategoryId());
+        long price = priceOfCategory(c.getCategoryId());
+        String topName = categoryService.topNameOf(c.getCategoryId());
         boolean locked = price > 0 && !hasAccess(c.getId(), username);
 
         // 未解锁不展示正文，也不计浏览量
@@ -214,7 +220,9 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
                 c.getViews(),
                 c.getCreatedAt(),
                 locked,
-                price
+                price,
+                topName,
+                "道友".equals(topName) && isFriend(username, c.getId())
         );
     }
 
@@ -231,7 +239,7 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
         if (c == null || c.getStatus() == null || c.getStatus() != 1) {
             return new BuyResult(false, "此物已不存于仙门", -1L);
         }
-        long price = priceOf(c.getCategoryId());
+        long price = priceOfCategory(c.getCategoryId());
         if (price <= 0) {
             return new BuyResult(false, "此物无需灵石，可直接研读", -1L);
         }
@@ -280,14 +288,14 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     }
 
     /**
-     * 当前道号能否阅读该内容：功法 / 丹药一律需以灵石购入，管理员亦不例外
+     * 当前道号能否阅读该内容：功法 / 丹药需以灵石购入；道友所授的功法同样视为已得
      */
     private boolean hasAccess(Long contentId, String username) {
         String name = username == null ? "" : username.trim();
         if (name.isEmpty()) {
             return false;
         }
-        return hasPurchased(name, contentId);
+        return hasPurchased(name, contentId) || isGifted(name, contentId);
     }
 
     /** 是否已购入某内容 */
@@ -295,6 +303,24 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
         return purchaseMapper.selectCount(new LambdaQueryWrapper<Purchase>()
                 .eq(Purchase::getUsername, username)
                 .eq(Purchase::getContentId, contentId)) > 0;
+    }
+
+    /** 是否经由「结交道友」获赠该内容 */
+    private boolean isGifted(String username, Long contentId) {
+        return friendMapper.selectCount(new LambdaQueryWrapper<Friend>()
+                .eq(Friend::getUsername, username)
+                .eq(Friend::getGiftId, contentId)) > 0;
+    }
+
+    /** 是否已与某道友结交 */
+    private boolean isFriend(String username, Long daoistId) {
+        String name = username == null ? "" : username.trim();
+        if (name.isEmpty() || daoistId == null) {
+            return false;
+        }
+        return friendMapper.selectCount(new LambdaQueryWrapper<Friend>()
+                .eq(Friend::getUsername, name)
+                .eq(Friend::getDaoistId, daoistId)) > 0;
     }
 
     private Cave findCave(String username) {
@@ -306,20 +332,10 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     /**
      * 内容灵石售价：依顶级分类定价 —— 功法 200 / 丹药 100，其余免费
      */
-    private long priceOf(Long categoryId) {
-        if (categoryId == null) {
-            return 0L;
-        }
-        Category cat = categoryService.getById(categoryId);
-        // 沿父链上溯到顶级分类
-        int guard = 0;
-        while (cat != null && cat.getParentId() != null && cat.getParentId() != 0 && guard++ < 10) {
-            cat = categoryService.getById(cat.getParentId());
-        }
-        if (cat == null || cat.getName() == null) {
-            return 0L;
-        }
-        return switch (cat.getName()) {
+    @Override
+    public long priceOfCategory(Long categoryId) {
+        String top = categoryService.topNameOf(categoryId);
+        return switch (top) {
             case "功法" -> PRICE_GONGFA;
             case "丹药" -> PRICE_DANYAO;
             default -> 0L;
@@ -369,7 +385,7 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
                 c.getHot(),
                 c.getViews(),
                 c.getCreatedAt(),
-                priceOf(c.getCategoryId())
+                priceOfCategory(c.getCategoryId())
         );
     }
 }

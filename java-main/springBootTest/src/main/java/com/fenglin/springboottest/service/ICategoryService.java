@@ -21,6 +21,9 @@ public interface ICategoryService extends IService<Category> {
     /** 分类全路径，如「功法 › 剑诀」；分类不存在时返回空串 */
     String pathOf(Long categoryId);
 
+    /** 所属顶级分类名（如 功法 / 丹药 / 道友）；分类不存在时返回空串 */
+    String topNameOf(Long categoryId);
+
     /**
      * 收集该分类自身及其全部后代分类的ID（用于「按父分类检索子分类内容」）
      */

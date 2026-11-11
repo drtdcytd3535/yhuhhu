@@ -691,6 +691,22 @@ export function removeFav(id) {
   }
 }
 
+/**
+ * 结交道友所得功法：收入藏书阁（不另计修为，功法本身已在服务端解锁）
+ * 藏书阁已满时不入阁，但功法仍可研读
+ */
+export function addGiftFav(item) {
+  if (!item || item.id == null) return { ok: false, msg: '功法无效' }
+  if (isFav(item.id)) return { ok: true, msg: '已在藏书阁中' }
+  if (cave.favs.length >= FAVS_MAX) return { ok: true, msg: '藏书阁已满，功法仍可研读' }
+  cave.favs = [
+    { id: item.id, title: item.title || '无题', categoryPath: item.categoryPath || '', createdAt: Date.now() },
+    ...cave.favs
+  ]
+  persist()
+  return { ok: true, msg: '功法已收入藏书阁' }
+}
+
 /** 记录研读足迹：首次 +15 修为，重读不加分 */
 export function pushHistory(item) {
   if (!item || item.id == null) return { first: false, exp: 0, msg: '' }

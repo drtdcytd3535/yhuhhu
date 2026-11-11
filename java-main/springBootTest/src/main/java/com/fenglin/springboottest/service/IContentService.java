@@ -53,6 +53,13 @@ public interface IContentService extends IService<Content> {
      */
     BuyResult buy(Long id, String username);
 
+    /**
+     * 内容灵石售价（按顶级分类定价：功法 200 / 丹药 100，其余 0）
+     *
+     * @param categoryId 所属分类ID
+     */
+    long priceOfCategory(Long categoryId);
+
     /** 总内容数 */
     long totalCount();
 

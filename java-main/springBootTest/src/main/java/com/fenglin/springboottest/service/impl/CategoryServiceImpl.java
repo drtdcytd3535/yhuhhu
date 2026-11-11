@@ -69,6 +69,23 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     }
 
     @Override
+    public String topNameOf(Long categoryId) {
+        if (categoryId == null) {
+            return "";
+        }
+        Map<Long, Category> map = mapById();
+        Category cur = map.get(categoryId);
+        Category top = null;
+        int guard = 0;
+        while (cur != null && guard++ < 10) {
+            top = cur;
+            Long pid = cur.getParentId();
+            cur = (pid == null || pid == 0) ? null : map.get(pid);
+        }
+        return top == null || top.getName() == null ? "" : top.getName();
+    }
+
+    @Override
     public List<Long> selfAndDescendantIds(Long categoryId) {
         List<Long> ids = new ArrayList<>();
         if (categoryId == null) {
