@@ -816,6 +816,14 @@ export function addStones(amount) {
   return n
 }
 
+/** 灵石按服务端结算结果同步（坊市购入功法 / 丹药后以云端余额为准） */
+export function setStones(value) {
+  const n = Math.max(0, Math.floor(Number(value) || 0))
+  cave.stones = n
+  persist()
+  return n
+}
+
 /* ==================== 商店 · 购买与佩戴 ==================== */
 
 /** 是否已拥有某装备 */

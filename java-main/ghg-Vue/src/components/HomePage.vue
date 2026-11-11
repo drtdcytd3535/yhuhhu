@@ -338,10 +338,26 @@
           <div class="dt-tags">
             <span v-for="t in detail.tags" :key="t" class="dt-tag">{{ t }}</span>
           </div>
-          <div class="dt-body">{{ detail.content }}</div>
+
+          <!-- 未购入：功法 / 丹药需以灵石换取 -->
+          <div v-if="detail.locked" class="dt-locked">
+            <p class="lock-ico">◈</p>
+            <p class="lock-text">此{{ detail.categoryName }}乃仙门秘藏，须以灵石为聘方可开卷</p>
+            <p class="lock-price">◈ {{ detail.price }} 灵石</p>
+            <p class="lock-have">吾之灵石 · ◈ {{ cave.stones }}</p>
+            <button
+              class="lock-buy"
+              :disabled="buying || cave.stones < detail.price"
+              @click="buyDetail"
+            >
+              {{ buying ? '交易中…' : cave.stones < detail.price ? '灵石不足' : '以灵石购入' }}
+            </button>
+            <p class="lock-tip">灵石可于洞府签到、修炼积攒；一经购入，永久可阅</p>
+          </div>
+          <div v-else class="dt-body">{{ detail.content }}</div>
 
           <div class="dt-acts">
-            <button class="dt-act" :class="{ on: isFav(detail.id) }" @click="toggleFav(detail)">
+            <button v-if="!detail.locked" class="dt-act" :class="{ on: isFav(detail.id) }" @click="toggleFav(detail)">
               {{ isFav(detail.id) ? '★ 已藏于阁' : '☆ 收入藏书阁' }}
             </button>
             <button class="dt-act ghost" @click="closeDetail(); enterCave()">我的洞府 →</button>
@@ -351,6 +367,9 @@
             <span>出处 · {{ detail.author }}</span>
             <span>热度 {{ fmtHot(detail.hot) }}</span>
             <span>查阅 {{ detail.views }}</span>
+            <span v-if="detail.price > 0" class="dt-price">
+              ◈ {{ detail.price }}{{ detail.locked ? '' : ' · 已入囊中' }}
+            </span>
           </div>
         </div>
       </div>
@@ -368,7 +387,7 @@ import CultivatePanel from './CultivatePanel.vue'
 import ShopPanel from './ShopPanel.vue'
 import BgParticles from './BgParticles.vue'
 import ArtBackground from './ArtBackground.vue'
-import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory } from '../composables/useCave.js'
+import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory, setStones } from '../composables/useCave.js'
 import { clearSect } from '../composables/useSect.js'
 
 const props = defineProps({
@@ -675,12 +694,43 @@ async function loadRecommend() {
 const detail = ref(null)
 
 async function openDetail(id) {
-  const data = await api('/api/content/' + id)
+  const data = await api(`/api/content/${id}?username=${encodeURIComponent(props.username || '')}`)
   if (!data) return
   detail.value = data
+  // 未购入的功法 / 丹药不记足迹，购入研读后才算开卷
+  if (data.locked) return
   // 记入洞府足迹：首次研读另有修为与灵石进账
   const r = pushHistory({ id: data.id, title: data.title, categoryPath: data.categoryPath })
   if (r.first) toast(`首次研读 · 修为 +${r.exp}`)
+}
+
+/* ---------------- 灵石购入（功法 / 丹药） ---------------- */
+const buying = ref(false)
+
+async function buyDetail() {
+  const d = detail.value
+  if (!d || !d.locked || buying.value) return
+  buying.value = true
+  try {
+    const res = await fetch(`/api/content/${d.id}/buy?username=${encodeURIComponent(props.username || '')}`, {
+      method: 'POST'
+    })
+    const body = await res.json().catch(() => null)
+    if (body?.success) {
+      // 以云端结算后的余额为准，同步洞府灵石
+      if (body.data?.stones != null) setStones(body.data.stones)
+      toast(body.message || '灵石已付，秘卷归你')
+      const id = d.id
+      detail.value = null
+      await openDetail(id)
+    } else {
+      toast(body?.message || '灵石不足，交易未成')
+    }
+  } catch {
+    toast('仙门暂时无应，请稍后再试')
+  } finally {
+    buying.value = false
+  }
 }
 
 function closeDetail() {
@@ -2066,6 +2116,62 @@ onBeforeUnmount(() => {
   white-space: pre-wrap;
 }
 
+/* 详情弹窗：功法 / 丹药未购入时的灵石门槛 */
+.dt-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 30px 18px 24px;
+  border-radius: 12px;
+  border: 1px dashed rgba(232, 198, 107, 0.4);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(232, 198, 107, 0.09), transparent 65%),
+    rgba(255, 255, 255, 0.02);
+  text-align: center;
+}
+
+.lock-ico {
+  font-size: 30px;
+  color: var(--gold);
+  text-shadow: 0 0 16px rgba(232, 198, 107, 0.55);
+  animation: lockFloat 2.6s ease-in-out infinite;
+}
+
+@keyframes lockFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.lock-text { font-size: 14px; color: rgba(233, 238, 251, 0.8); letter-spacing: 1px; }
+
+.lock-price {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--cyan);
+  text-shadow: 0 0 12px rgba(111, 233, 255, 0.45);
+}
+
+.lock-have { font-size: 12px; color: #8fa0c8; }
+
+.lock-buy {
+  margin-top: 8px;
+  padding: 10px 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 198, 107, 0.6);
+  background: linear-gradient(135deg, rgba(232, 198, 107, 0.24), rgba(232, 198, 107, 0.08));
+  color: var(--gold);
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: 0.22s;
+}
+.lock-buy:hover:not(:disabled) { background: rgba(232, 198, 107, 0.32); transform: scale(1.04); }
+.lock-buy:disabled { opacity: 0.42; cursor: not-allowed; }
+
+.lock-tip { margin-top: 4px; font-size: 11px; color: #6f7a9c; letter-spacing: 1px; }
+
 /* 详情弹窗操作：收入藏书阁 / 前往洞府 */
 .dt-acts {
   display: flex;
@@ -2120,6 +2226,9 @@ onBeforeUnmount(() => {
   letter-spacing: 1px;
   color: rgba(233, 238, 251, 0.5);
 }
+
+/* 详情页脚：灵石售价 / 已购标记 */
+.dt-price { color: var(--cyan); }
 
 .fade-enter-active,
 .fade-leave-active {

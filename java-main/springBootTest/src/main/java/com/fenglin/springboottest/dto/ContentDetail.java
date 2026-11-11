@@ -18,6 +18,8 @@ import java.util.List;
  * @param hot          热度
  * @param views        浏览量
  * @param createdAt    创建时间
+ * @param locked       是否未购入（功法 / 丹药需灵石购买，true 时 content 为 null）
+ * @param price        灵石售价（0 表示免费内容）
  */
 public record ContentDetail(
         Long id,
@@ -31,6 +33,8 @@ public record ContentDetail(
         String author,
         Integer hot,
         Integer views,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean locked,
+        long price
 ) {
 }

@@ -418,3 +418,19 @@ INSERT INTO `t_user` VALUES (4, 'admin', 'admin123', 1, '2026-10-30 16:14:33');
 INSERT INTO `t_user` VALUES (7, '周圣榕', '12345678qaz', 1, '2026-11-02 10:46:41');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Table structure for t_purchase（灵石购买记录：功法 / 丹药需购入）
+-- ----------------------------
+DROP TABLE IF EXISTS `t_purchase`;
+CREATE TABLE `t_purchase`  (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '道号（买家）',
+  `content_id` BIGINT NOT NULL COMMENT '内容ID',
+  `price` BIGINT NOT NULL DEFAULT 0 COMMENT '成交价（灵石）',
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '购入时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_content` (`username`, `content_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '灵石购买记录';
+
+SET FOREIGN_KEY_CHECKS = 1;

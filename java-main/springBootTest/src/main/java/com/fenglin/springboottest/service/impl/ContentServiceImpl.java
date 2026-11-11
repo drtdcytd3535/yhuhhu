@@ -4,16 +4,24 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fenglin.springboottest.dto.BuyResult;
 import com.fenglin.springboottest.dto.ContentCard;
 import com.fenglin.springboottest.dto.ContentDetail;
 import com.fenglin.springboottest.dto.SearchResult;
+import com.fenglin.springboottest.entity.Cave;
 import com.fenglin.springboottest.entity.Category;
 import com.fenglin.springboottest.entity.Content;
+import com.fenglin.springboottest.entity.Purchase;
+import com.fenglin.springboottest.entity.User;
+import com.fenglin.springboottest.mapper.CaveMapper;
 import com.fenglin.springboottest.mapper.ContentMapper;
+import com.fenglin.springboottest.mapper.PurchaseMapper;
+import com.fenglin.springboottest.mapper.UserMapper;
 import com.fenglin.springboottest.service.ICategoryService;
 import com.fenglin.springboottest.service.IContentService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,10 +32,26 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     /** 每页条数上限，防止前端传入过大 size 拖垮查询 */
     private static final int MAX_SIZE = 60;
 
-    private final ICategoryService categoryService;
+    /** 功法类内容售价（灵石） */
+    private static final long PRICE_GONGFA = 200L;
+    /** 丹药类内容售价（灵石） */
+    private static final long PRICE_DANYAO = 100L;
+    /** 管理员权限值（见 t_user.permission） */
+    private static final int PERM_ADMIN = 0;
 
-    public ContentServiceImpl(ICategoryService categoryService) {
+    private final ICategoryService categoryService;
+    private final CaveMapper caveMapper;
+    private final PurchaseMapper purchaseMapper;
+    private final UserMapper userMapper;
+
+    public ContentServiceImpl(ICategoryService categoryService,
+                              CaveMapper caveMapper,
+                              PurchaseMapper purchaseMapper,
+                              UserMapper userMapper) {
         this.categoryService = categoryService;
+        this.caveMapper = caveMapper;
+        this.purchaseMapper = purchaseMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -151,7 +175,7 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     }
 
     @Override
-    public ContentDetail detail(Long id) {
+    public ContentDetail detail(Long id, String username) {
         if (id == null) {
             return null;
         }
@@ -159,11 +183,6 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
         if (c == null || c.getStatus() == null || c.getStatus() != 1) {
             return null;
         }
-        // 浏览量 +1（SQL 自增，避免并发覆盖）
-        this.update(new LambdaUpdateWrapper<Content>()
-                .eq(Content::getId, id)
-                .setSql("views = views + 1"));
-        c.setViews((c.getViews() == null ? 0 : c.getViews()) + 1);
 
         Category cat = c.getCategoryId() == null ? null : categoryService.getById(c.getCategoryId());
         List<String> tags = new ArrayList<>();
@@ -174,11 +193,25 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
                 }
             }
         }
+
+        // ---------- 灵石门槛：功法 / 丹药需购入后方可研读 ----------
+        long price = priceOf(c.getCategoryId());
+        boolean locked = price > 0 && !hasAccess(c.getId(), username);
+
+        // 未解锁不展示正文，也不计浏览量
+        if (!locked) {
+            // 浏览量 +1（SQL 自增，避免并发覆盖）
+            this.update(new LambdaUpdateWrapper<Content>()
+                    .eq(Content::getId, id)
+                    .setSql("views = views + 1"));
+            c.setViews((c.getViews() == null ? 0 : c.getViews()) + 1);
+        }
+
         return new ContentDetail(
                 c.getId(),
                 c.getTitle(),
                 c.getSummary(),
-                c.getContent(),
+                locked ? null : c.getContent(),
                 tags,
                 c.getCategoryId(),
                 cat == null ? "" : cat.getName(),
@@ -186,8 +219,124 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
                 c.getAuthor(),
                 c.getHot(),
                 c.getViews(),
-                c.getCreatedAt()
+                c.getCreatedAt(),
+                locked,
+                price
         );
+    }
+
+    @Override
+    public BuyResult buy(Long id, String username) {
+        String name = username == null ? "" : username.trim();
+        if (name.isEmpty()) {
+            return new BuyResult(false, "请先以道号登入，再行交易", -1L);
+        }
+        if (id == null) {
+            return new BuyResult(false, "此物不在册中", -1L);
+        }
+        Content c = this.getById(id);
+        if (c == null || c.getStatus() == null || c.getStatus() != 1) {
+            return new BuyResult(false, "此物已不存于仙门", -1L);
+        }
+        long price = priceOf(c.getCategoryId());
+        if (price <= 0) {
+            return new BuyResult(false, "此物无需灵石，可直接研读", -1L);
+        }
+        if (hasPurchased(name, id)) {
+            Cave cur = findCave(name);
+            return new BuyResult(true, "「" + c.getTitle() + "」早已在囊中",
+                    cur == null || cur.getStones() == null ? 0L : cur.getStones());
+        }
+
+        Cave caveRow = findCave(name);
+        if (caveRow == null) {
+            return new BuyResult(false, "尚未开辟洞府，无法以灵石交易", -1L);
+        }
+        long balance = caveRow.getStones() == null ? 0L : caveRow.getStones();
+        if (balance < price) {
+            return new BuyResult(false, "灵石不足 · 尚差 " + (price - balance) + " 灵石", balance);
+        }
+
+        // 先扣灵石（条件更新防并发超扣），再落购买记录；落库失败则退回灵石
+        int deducted = caveMapper.update(null, new LambdaUpdateWrapper<Cave>()
+                .eq(Cave::getUsername, name)
+                .ge(Cave::getStones, price)
+                .setSql("stones = stones - " + price));
+        if (deducted <= 0) {
+            return new BuyResult(false, "灵石不足，交易未成", balance);
+        }
+
+        try {
+            Purchase record = new Purchase();
+            record.setUsername(name);
+            record.setContentId(id);
+            record.setPrice(price);
+            record.setCreatedAt(LocalDateTime.now());
+            purchaseMapper.insert(record);
+        } catch (Exception e) {
+            // 唯一键冲突 = 并发下已购过；其余异常退回灵石
+            if (!hasPurchased(name, id)) {
+                caveMapper.update(null, new LambdaUpdateWrapper<Cave>()
+                        .eq(Cave::getUsername, name)
+                        .setSql("stones = stones + " + price));
+                return new BuyResult(false, "交易有误，灵石已退回", balance);
+            }
+        }
+
+        return new BuyResult(true, "以 " + price + " 灵石购得「" + c.getTitle() + "」", balance - price);
+    }
+
+    /**
+     * 当前道号能否免费阅读该内容：管理员（permission = 0）全免，其余需已购入
+     */
+    private boolean hasAccess(Long contentId, String username) {
+        String name = username == null ? "" : username.trim();
+        if (name.isEmpty()) {
+            return false;
+        }
+        List<User> users = userMapper.selectList(
+                new LambdaQueryWrapper<User>().eq(User::getUsername, name).last("LIMIT 1"));
+        if (!users.isEmpty() && users.get(0).getPermission() != null
+                && users.get(0).getPermission() == PERM_ADMIN) {
+            return true;
+        }
+        return hasPurchased(name, contentId);
+    }
+
+    /** 是否已购入某内容 */
+    private boolean hasPurchased(String username, Long contentId) {
+        return purchaseMapper.selectCount(new LambdaQueryWrapper<Purchase>()
+                .eq(Purchase::getUsername, username)
+                .eq(Purchase::getContentId, contentId)) > 0;
+    }
+
+    private Cave findCave(String username) {
+        List<Cave> list = caveMapper.selectList(
+                new LambdaQueryWrapper<Cave>().eq(Cave::getUsername, username).last("LIMIT 1"));
+        return list.isEmpty() ? null : list.get(0);
+    }
+
+    /**
+     * 内容灵石售价：依顶级分类定价 —— 功法 200 / 丹药 100，其余免费
+     */
+    private long priceOf(Long categoryId) {
+        if (categoryId == null) {
+            return 0L;
+        }
+        Category cat = categoryService.getById(categoryId);
+        // 沿父链上溯到顶级分类
+        int guard = 0;
+        while (cat != null && cat.getParentId() != null && cat.getParentId() != 0 && guard++ < 10) {
+            cat = categoryService.getById(cat.getParentId());
+        }
+        if (cat == null || cat.getName() == null) {
+            return 0L;
+        }
+        return switch (cat.getName()) {
+            case "功法" -> PRICE_GONGFA;
+            case "丹药" -> PRICE_DANYAO;
+            default -> 0L;
+        };
     }
 
     @Override
