@@ -358,16 +358,13 @@
           </div>
           <div v-else class="dt-body">{{ detail.content }}</div>
 
-          <!-- 道友录：结交道友即得其流派功法 -->
+          <!-- 道友录：结交即得其流派功法（结交按钮置于下方操作区，占原收藏之位） -->
           <div v-if="detail.topCategory === '道友'" class="dt-friend">
             <template v-if="detail.befriended">
               <span class="friend-state">✦ 已结为道友 · 其功法已入藏书阁</span>
             </template>
             <template v-else>
               <p class="friend-tip">与其结交，可得其流派功法一门 · 每位道友仅可结交一次</p>
-              <button class="friend-btn" :disabled="befriending" @click="befriendDetail">
-                {{ befriending ? '论道中…' : '结为道友' }}
-              </button>
             </template>
             <button v-if="friendGift" class="friend-gift" @click="openGift">
               研读《{{ friendGift.title }}》 →
@@ -397,8 +394,25 @@
           </div>
 
           <div class="dt-acts">
+            <!-- 论道台：原「收藏」改称「感悟」，所悟之文仍存入洞府藏书阁 -->
             <button
-              v-if="!detail.locked && detail.topCategory !== '洞天'"
+              v-if="!detail.locked && detail.topCategory === '论道'"
+              class="dt-act"
+              :class="{ on: isFav(detail.id) }"
+              @click="toggleFav(detail)"
+            >
+              {{ isFav(detail.id) ? '✦ 已有所悟' : '✎ 感悟此文' }}
+            </button>
+            <!-- 道友录：结交占用原收藏之位，不再单独收藏 -->
+            <template v-else-if="detail.topCategory === '道友'">
+              <button v-if="detail.befriended" class="dt-act on" disabled>✦ 已结为道友</button>
+              <button v-else class="dt-act" :disabled="befriending" @click="befriendDetail">
+                {{ befriending ? '论道中…' : '结为道友' }}
+              </button>
+            </template>
+            <!-- 功法 / 丹药 / 其它：仍可收入藏书阁 -->
+            <button
+              v-else-if="!detail.locked && detail.topCategory !== '洞天'"
               class="dt-act"
               :class="{ on: isFav(detail.id) }"
               @click="toggleFav(detail)"
@@ -933,16 +947,22 @@ const avatarText = computed(() => (props.username || '道').charAt(0))
 /** 境界取自洞府修为，随研读、签到、收录藏书同步增长 */
 const realmText = computed(() => `${realm.value.name}境 · 第 ${realm.value.level} 重`)
 
-/* ---------------- 洞府：藏书收录 ---------------- */
+/* ---------------- 洞府：藏书收录 / 论道感悟 ---------------- */
 function toggleFav(item) {
   if (!item || item.id == null) return
+  // 论道台称「感悟」，底层仍是藏书阁那一份存档（t_cave.favs_json）
+  const insight = item.topCategory === '论道'
   if (isFav(item.id)) {
     removeFav(item.id)
-    toast('已移出藏书阁')
+    toast(insight ? '已散此悟' : '已移出藏书阁')
     return
   }
   const r = addFav(item)
-  toast(r.ok ? `已收入藏书阁 · 修为 +${r.exp}` : r.msg)
+  if (!r.ok) {
+    toast(r.msg)
+    return
+  }
+  toast(insight ? `感悟已录 · 修为 +${r.exp}` : `已收入藏书阁 · 修为 +${r.exp}`)
 }
 
 /** 热度千分位化简写：98000 → 9.8万 */
@@ -2405,21 +2425,6 @@ onBeforeUnmount(() => {
 
 .friend-state { flex: 1; font-size: 13px; color: var(--cyan); letter-spacing: 1px; }
 
-.friend-btn {
-  padding: 7px 22px;
-  border-radius: 999px;
-  border: 1px solid rgba(111, 233, 255, 0.6);
-  background: linear-gradient(135deg, rgba(111, 233, 255, 0.18), rgba(111, 233, 255, 0.06));
-  color: var(--cyan);
-  font-family: inherit;
-  font-size: 14px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: 0.22s;
-}
-.friend-btn:hover:not(:disabled) { background: rgba(111, 233, 255, 0.28); transform: scale(1.04); }
-.friend-btn:disabled { opacity: 0.45; cursor: not-allowed; }
-
 .friend-gift {
   padding: 6px 16px;
   border-radius: 999px;
@@ -2532,6 +2537,10 @@ onBeforeUnmount(() => {
   background: linear-gradient(100deg, var(--gold), #ffe9a8 60%, var(--cyan));
   border-color: transparent;
 }
+
+/* 已结交 / 已完成：保持金色高亮但不响应点击 */
+.dt-act:disabled { cursor: default; opacity: 0.92; }
+.dt-act:disabled:hover { box-shadow: none; }
 
 .dt-act.ghost {
   border-color: rgba(111, 233, 255, 0.4);
