@@ -7,7 +7,15 @@ import com.fenglin.springboottest.common.Result;
 import com.fenglin.springboottest.dto.CaveState;
 import com.fenglin.springboottest.dto.SaveResult;
 import com.fenglin.springboottest.entity.Cave;
+import com.fenglin.springboottest.entity.CaveTrain;
+import com.fenglin.springboottest.entity.Friend;
+import com.fenglin.springboottest.entity.Purchase;
+import com.fenglin.springboottest.entity.SectProgress;
 import com.fenglin.springboottest.mapper.CaveMapper;
+import com.fenglin.springboottest.mapper.CaveTrainMapper;
+import com.fenglin.springboottest.mapper.FriendMapper;
+import com.fenglin.springboottest.mapper.PurchaseMapper;
+import com.fenglin.springboottest.mapper.SectProgressMapper;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,10 +46,23 @@ public class CaveController {
     private final CaveMapper caveMapper;
     private final ObjectMapper json;
 
-    public CaveController(CaveMapper caveMapper, ObjectMapper json) {
+    public CaveController(CaveMapper caveMapper, ObjectMapper json,
+                          PurchaseMapper purchaseMapper,
+                          FriendMapper friendMapper,
+                          SectProgressMapper sectProgressMapper,
+                          CaveTrainMapper caveTrainMapper) {
         this.caveMapper = caveMapper;
         this.json = json;
+        this.purchaseMapper = purchaseMapper;
+        this.friendMapper = friendMapper;
+        this.sectProgressMapper = sectProgressMapper;
+        this.caveTrainMapper = caveTrainMapper;
     }
+
+    private final PurchaseMapper purchaseMapper;
+    private final FriendMapper friendMapper;
+    private final SectProgressMapper sectProgressMapper;
+    private final CaveTrainMapper caveTrainMapper;
 
     /**
      * 读取洞府存档
@@ -83,6 +104,12 @@ public class CaveController {
             return Result.ok("洞府已落库", new SaveResult(false, toState(row)));
         }
 
+        // 空档保护：前端登出清空内存后若误提交空档，不允许把云端好档覆盖成零。
+        // 正常的「重置洞府」走 DELETE 删行，不经过这里，不受影响。
+        if (isEmptyState(req) && !isEmptyCave(exist)) {
+            return Result.ok("云端存档较新", new SaveResult(true, toState(exist)));
+        }
+
         long cloudTime = exist.getClientTime() == null ? 0L : exist.getClientTime();
         if (clientTime < cloudTime) {
             // 云端更新：不覆盖，回传云端数据，前端改用云端
@@ -95,7 +122,9 @@ public class CaveController {
     }
 
     /**
-     * 重置洞府：删除此道号的存档
+     * 重置洞府：删除此道号的一切痕迹，恢复到「刚注册」状态
+     * 清除范围：洞府存档 / 已购功法丹药 / 结交道友 / 宗门挑战进度 / 洞天入定记录
+     * （账号本身保留，重新登录即从零开始）
      */
     @DeleteMapping
     public Result reset(@RequestParam(value = "username", defaultValue = "") String username) {
@@ -104,7 +133,11 @@ public class CaveController {
             return Result.fail("道号不可为空");
         }
         caveMapper.delete(new LambdaQueryWrapper<Cave>().eq(Cave::getUsername, name));
-        return Result.ok("洞府已重置");
+        purchaseMapper.delete(new LambdaQueryWrapper<Purchase>().eq(Purchase::getUsername, name));
+        friendMapper.delete(new LambdaQueryWrapper<Friend>().eq(Friend::getUsername, name));
+        sectProgressMapper.delete(new LambdaQueryWrapper<SectProgress>().eq(SectProgress::getUsername, name));
+        caveTrainMapper.delete(new LambdaQueryWrapper<CaveTrain>().eq(CaveTrain::getUsername, name));
+        return Result.ok("洞府已重置，一切归零");
     }
 
     /* ==================== 内部方法 ==================== */
@@ -112,6 +145,33 @@ public class CaveController {
     private String normalize(String name) {
         String n = name == null ? "" : name.trim();
         return n.length() > MAX_NAME ? n.substring(0, MAX_NAME) : n;
+    }
+
+    /** 前端提交的存档是否为全空（无任何有效进度） */
+    private boolean isEmptyState(CaveState req) {
+        return (req.exp() == null || req.exp() <= 0)
+                && (req.stones() == null || req.stones() <= 0)
+                && (req.favs() == null || req.favs().isEmpty())
+                && (req.history() == null || req.history().isEmpty())
+                && (req.equips() == null || req.equips().isEmpty())
+                && (req.signDate() == null || req.signDate().isBlank())
+                && (req.trainExp() == null || req.trainExp() <= 0);
+    }
+
+    /** 云端存档是否为全空 */
+    private boolean isEmptyCave(Cave row) {
+        return (row.getExp() == null || row.getExp() <= 0)
+                && (row.getStones() == null || row.getStones() <= 0)
+                && isBlankListJson(row.getFavsJson())
+                && isBlankListJson(row.getHistoryJson())
+                && isBlankListJson(row.getEquipsJson())
+                && (row.getSignDate() == null || row.getSignDate().isBlank())
+                && (row.getTrainExp() == null || row.getTrainExp() <= 0);
+    }
+
+    /** JSON 列表字段是否为空：null / 空串 / 空数组 */
+    private boolean isBlankListJson(String text) {
+        return text == null || text.isBlank() || "[]".equals(text.trim());
     }
 
     private Cave findByUsername(String name) {

@@ -86,7 +86,7 @@
                 </div>
                 <a class="dd-item" @click="enterCave()">我的洞府</a>
                 <a class="dd-item" @click="soon('道号设置')">道号设置</a>
-                <a class="dd-item" @click="enterShop()">灵石账册</a>
+                <a class="dd-item" @click="enterMarket()">天宝坊市</a>
                 <div class="dd-split"></div>
                 <a class="dd-item danger" @click="onLogout">褪去此身 · 退出</a>
               </div>
@@ -306,10 +306,12 @@
       @toast="toast"
     />
 
-    <ShopPanel
-      v-else-if="view === 'shop'"
+    <MarketPanel
+      v-else-if="view === 'market'"
       :username="username"
+      :categories="categories"
       @back="backHome"
+      @open="openDetail"
       @toast="toast"
     />
 
@@ -449,7 +451,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import CavePanel from './CavePanel.vue'
 import CultivatePanel from './CultivatePanel.vue'
-import ShopPanel from './ShopPanel.vue'
+import MarketPanel from './MarketPanel.vue'
 import BgParticles from './BgParticles.vue'
 import ArtBackground from './ArtBackground.vue'
 import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory, setStones, setExp } from '../composables/useCave.js'
@@ -483,10 +485,10 @@ function enterTrain() {
   window.scrollTo({ top: 0 })
 }
 
-/** 商店：灵石换购极品装备 */
-function enterShop() {
-  view.value = 'shop'
-  activeMenu.value = 'shop'
+/** 天宝坊市：原功法阁 + 丹阁 + 商店三处并为一市，三阁功能各自保留 */
+function enterMarket() {
+  view.value = 'market'
+  activeMenu.value = 'market'
   userOpen.value = false
   window.scrollTo({ top: 0 })
 }
@@ -503,14 +505,12 @@ const ANIME_URL = 'https://v.qq.com/x/cover/mzc00200aaogpgh.html'
 
 const menus = [
   { key: 'home', label: '首页' },
-  { key: 'method', label: '功法阁', type: '功法' },
-  { key: 'pill', label: '丹阁', type: '丹药' },
+  { key: 'market', label: '天宝坊市' },
   { key: 'cave', label: '洞天福地', type: '洞天' },
   { key: 'friend', label: '道友录', type: '道友' },
   { key: 'dao', label: '论道台', type: '论道' },
   { key: 'train', label: '修炼' },
-  { key: 'mine', label: '我的洞府' },
-  { key: 'shop', label: '商店' }
+  { key: 'mine', label: '我的洞府' }
 ]
 const activeMenu = ref('home')
 const userOpen = ref(false)
@@ -533,10 +533,10 @@ function goMenu(m) {
     toast('已入「修炼」 · 三课可修')
     return
   }
-  // 商店：切到万宝阁
-  if (m.key === 'shop') {
-    enterShop()
-    toast('已入「万宝阁」 · 灵石可易极品装备')
+  // 天宝坊市：功法阁 / 丹阁 / 商店并为一市，切到坊市视图
+  if (m.key === 'market') {
+    enterMarket()
+    toast('已入「天宝坊市」 · 功法丹药法宝，灵石皆可易')
     return
   }
   if (m.key === 'home') {
@@ -544,7 +544,7 @@ function goMenu(m) {
     toast('已归仙门首页')
     return
   }
-  // 功法阁 / 丹阁 / 洞天福地 / 论道台 → 回到首页视图并按对应顶级分类浏览
+  // 洞天福地 / 道友录 / 论道台 → 回到首页视图并按对应顶级分类浏览
   if (m.type) {
     const top = topCategories.value.find((c) => c.name === m.type)
     if (top) {
@@ -1023,9 +1023,9 @@ onMounted(async () => {
   if (import.meta.env.DEV) {
     const preview = new URLSearchParams(location.search).get('preview')
     if (preview === 'cave') view.value = 'cave'
-    if (preview === 'shop') {
-      view.value = 'shop'
-      activeMenu.value = 'shop'
+    if (preview === 'market') {
+      view.value = 'market'
+      activeMenu.value = 'market'
     }
     if (preview === 'train') {
       view.value = 'train'

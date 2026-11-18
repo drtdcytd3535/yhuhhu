@@ -83,7 +83,7 @@ export const STONE_RATE = 7
 /** 写入数据库的防抖间隔（毫秒） */
 const PUSH_DELAY = 400
 
-/* ==================== 商店 · 极品装备 ==================== */
+/* ==================== 天宝坊市（原商店）· 极品装备 ==================== */
 
 /**
  * 装备目录（仙逆 / 斗破苍穹 两大原著中的极品之物）
@@ -466,22 +466,30 @@ function schedulePush() {
   pushTimer = setTimeout(() => pushToServer(), PUSH_DELAY)
 }
 
-/** 立即把当前存档写入数据库；失败则静默重试于下次改动 */
-async function pushToServer(force = false) {
+/** 立即把当前存档写入数据库；失败则静默重试于下次改动
+ *  @param {boolean} force 是否强制刷新最后修改时间
+ *  @param {object|null} override 明确要提交的快照（登出清理前使用，见 clearCave）；
+ *         传入时绕过内存态，直接提交这份快照
+ */
+async function pushToServer(force = false, override = null) {
   if (typeof fetch !== 'function') return
   if (pushing) {
     pushAgain = true
     return
   }
-  if (force) cave.savedAt = Date.now()
-  const at = cave.savedAt
-  const name = cave.username
+  // 登出清空内存后遗留的定时推送不再落库：
+  // 否则空档（修为 0 / 藏书阁空）会以更新的时间戳把云端好档覆盖成零
+  if (!override && cave.savedAt === 0 && !hasLocalData()) return
+  if (force && !override) cave.savedAt = Date.now()
+  const state = override || snapshot()
+  const at = Number(state.savedAt || 0)
+  const name = state.username
   pushing = true
   try {
     const res = await fetch(`${API_CAVE}/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(snapshot()),
+      body: JSON.stringify(state),
       // keepalive：关闭/刷新页面的瞬间也能把请求发完，避免最后一次操作丢失
       keepalive: true
     })
@@ -505,6 +513,23 @@ async function pushToServer(force = false) {
       pushAgain = false
       schedulePush()
     }
+  }
+}
+
+/** 登出 / 换号前的最终落库：绕开防抖与在途合并，把清空前的最后快照直接提交 */
+async function pushFinalState(state) {
+  if (typeof fetch !== 'function' || !state) return
+  try {
+    const res = await fetch(`${API_CAVE}/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state),
+      keepalive: true
+    })
+    const json = await res.json().catch(() => null)
+    if (json?.success) cave.synced = true
+  } catch {
+    /* 断网时本地缓存仍在，下次登录会按时间戳合并 */
   }
 }
 
@@ -616,8 +641,9 @@ export async function initCave(username) {
  */
 export function clearCave() {
   clearTimeout(pushTimer)
-  // 还有未落库的改动：立刻提交（pushToServer 在首个 await 前已取好快照）
-  if (cave.savedAt > 0 && hasLocalData()) pushToServer()
+  // 还有未落库的改动：先取「清空前」的最后快照直接提交（pushFinalState 不看内存态），
+  // 防止清空后的空档在后续重试中把云端好档覆盖成零
+  if (cave.savedAt > 0 && hasLocalData()) pushFinalState(snapshot())
   pushAgain = false
   cave.exp = 0
   cave.stones = 0
@@ -633,7 +659,8 @@ export function clearCave() {
   cave.cloud = false
 }
 
-/** 重置洞府：清空内存、本地缓存，并删除数据库存档（不可恢复） */
+/** 重置洞府：清空内存、本地缓存，并删除数据库中此道号的一切记录
+ *  （洞府存档 / 已购功法丹药 / 结交道友 / 宗门进度 / 洞天入定），恢复到刚注册状态，不可恢复 */
 export async function resetCave() {
   clearTimeout(pushTimer)
   pushAgain = false
@@ -848,7 +875,7 @@ export function setExp(value) {
   return n
 }
 
-/* ==================== 商店 · 购买与佩戴 ==================== */
+/* ==================== 天宝坊市（原商店）· 购买与佩戴 ==================== */
 
 /** 是否已拥有某装备 */
 export function hasEquip(id) {

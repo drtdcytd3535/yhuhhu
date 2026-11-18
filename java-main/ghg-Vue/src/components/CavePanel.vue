@@ -167,7 +167,7 @@
     <!-- ================= 底部：重置 ================= -->
     <div class="cave-foot">
       <button class="cave-reset" :class="{ armed: confirmReset }" @click="onReset">
-        {{ confirmReset ? '再点一次 · 确认散去（含云端存档）' : '重置洞府 · 散去修为' }}
+        {{ confirmReset ? '再点一次 · 确认一切归零（含已购功法 / 道友 / 宗门进度）' : '重置洞府 · 一切归零' }}
       </button>
       <p class="cave-save-tip">
         修为已随道号存于仙门玉册（数据库），换浏览器、清缓存后依旧还在。

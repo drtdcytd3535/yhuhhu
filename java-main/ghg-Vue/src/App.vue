@@ -133,7 +133,7 @@ const permission = ref(1)
 if (import.meta.env.DEV) {
   const query = new URLSearchParams(location.search)
   const preview = query.get('preview')
-  if (preview === 'home' || preview === 'cave' || preview === 'train' || preview === 'shop') {
+  if (preview === 'home' || preview === 'cave' || preview === 'train' || preview === 'market') {
     username.value = '预览道友'
     permission.value = query.get('perm') === '0' ? 0 : 1
     logged.value = true

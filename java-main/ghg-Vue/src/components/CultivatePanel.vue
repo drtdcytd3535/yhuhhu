@@ -34,7 +34,7 @@
           <template v-if="equippedItem">
             佩 <b>{{ equippedItem.name }}</b> · 修为加成 <b>+{{ Math.round(equippedItem.bonus * 100) }}%</b>
           </template>
-          <template v-else>未佩法宝 · 可往「商店」以灵石购极品装备</template>
+          <template v-else>未佩法宝 · 可往「天宝坊市」以灵石购极品装备</template>
         </p>
       </div>
 
@@ -62,7 +62,7 @@
 
       <p class="cv-note">
         六门法门，修为每日上限 {{ TRAIN_LIMIT }} 点，跨日自新。修为入洞府账中，境界随之精进；
-        每次修炼另得灵石，数量为本次修为的 {{ STONE_RATE }} 倍，<b>灵石不设上限</b>——修为封顶后照常入账，可往「商店」换购极品装备。
+        每次修炼另得灵石，数量为本次修为的 {{ STONE_RATE }} 倍，<b>灵石不设上限</b>——修为封顶后照常入账，可往「天宝坊市」换购极品装备。
       </p>
     </div>
 

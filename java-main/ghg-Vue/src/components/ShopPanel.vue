@@ -1,7 +1,7 @@
 <template>
-  <section class="shop">
-    <!-- ================= 头部：返回 + 标题 + 灵石 ================= -->
-    <div class="shop-head">
+  <section class="shop" :class="{ embedded }">
+    <!-- ================= 头部：返回 + 标题 + 灵石（内嵌天宝坊市时隐藏，头部由坊市统一提供） ================= -->
+    <div v-if="!embedded" class="shop-head">
       <button class="shop-back" @click="emit('back')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M15 5 8 12l7 7" />
@@ -109,7 +109,9 @@ import {
 } from '../composables/useCave.js'
 
 const props = defineProps({
-  username: { type: String, default: '道友' }
+  username: { type: String, default: '道友' },
+  /** 内嵌模式：作为「天宝坊市 · 万宝阁」页签嵌入时隐藏自带头部 */
+  embedded: { type: Boolean, default: false }
 })
 const emit = defineEmits(['back', 'toast'])
 
@@ -140,6 +142,13 @@ function onUnequip() {
   width: min(1080px, 94vw);
   margin: 0 auto;
   padding: 28px 0 60px;
+}
+
+/* 内嵌天宝坊市时：宽度与留白交给坊市容器统一控制 */
+.shop.embedded {
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* ---------- 头部 ---------- */
