@@ -38,12 +38,26 @@
 
     <!-- ============ 首页 ============ -->
     <HomePage
-      v-else
+      v-else-if="!benzunPage"
       :username="username"
       :permission="permission"
       @logout="onLogout"
       @admin="adminState = 'login'"
+      @benzun="benzunPage = true"
     />
+
+    <!-- ============ 本尊 · 古神苦修（独立整页，点「返回仙门」回首页） ============ -->
+    <BenzunPanel
+      v-else
+      :username="username"
+      @back="benzunPage = false"
+      @toast="onBenzunToast"
+    />
+
+    <!-- 本尊整页轻提示 -->
+    <transition name="bztoast">
+      <div v-if="benzunToast" class="bz-toast">{{ benzunToast }}</div>
+    </transition>
   </template>
 </template>
 
@@ -56,8 +70,21 @@ import RegisterCard from './components/RegisterCard.vue'
 import HomePage from './components/HomePage.vue'
 import AdminLogin from './components/AdminLogin.vue'
 import AdminPanel from './components/AdminPanel.vue'
+import BenzunPanel from './components/BenzunPanel.vue'
 
 const mode = ref('login')
+
+/* 本尊 · 古神苦修：独立整页开关（true 时整页替换首页，与后台管理系统同款切换方式） */
+const benzunPage = ref(false)
+const benzunToast = ref('')
+let benzunToastTimer = null
+
+/** 本尊面板的轻提示：两息即散 */
+function onBenzunToast(msg) {
+  benzunToast.value = msg
+  clearTimeout(benzunToastTimer)
+  benzunToastTimer = setTimeout(() => (benzunToast.value = ''), 2000)
+}
 
 /* 后台管理系统视图：null 前台站点 / 'login' 后台登录 / 'panel' 后台主页
  * 与前台登录态互不干涉，退出后台只是回到后台登录页 */
@@ -159,6 +186,8 @@ function onLogout() {
   // 权限随登录态一起清掉，避免下一个登录者继承上一位的入口
   permission.value = 1
   username.value = '道友'
+  // 本尊整页一并退出，避免换号后直接落入上一个道号的苦修之地
+  benzunPage.value = false
 }
 </script>
 
@@ -254,5 +283,34 @@ function onLogout() {
   font-size: 17px;
   letter-spacing: 6px;
   color: rgba(233, 238, 251, 0.72);
+}
+
+/* 本尊整页轻提示 */
+.bz-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 42px;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 10px 22px;
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(24, 26, 54, 0.95), rgba(8, 9, 22, 0.96));
+  border: 1px solid rgba(232, 198, 107, 0.45);
+  box-shadow: 0 0 22px rgba(232, 198, 107, 0.18);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--gold);
+  pointer-events: none;
+}
+
+.bztoast-enter-active,
+.bztoast-leave-active {
+  transition: 0.3s;
+}
+
+.bztoast-enter-from,
+.bztoast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
 }
 </style>

@@ -17,6 +17,9 @@
           </span>
         </p>
       </div>
+      <button class="cave-benzun" title="本尊隐于虚空，苦修古神肉身" @click="emit('benzun')">
+        本尊 →
+      </button>
     </div>
 
     <!-- ================= 修为面板 ================= -->
@@ -195,7 +198,7 @@ const props = defineProps({
   animeUrl: { type: String, default: '' }
 })
 
-const emit = defineEmits(['back', 'open', 'toast'])
+const emit = defineEmits(['back', 'open', 'toast', 'benzun'])
 
 /* =============================================================
  * 藏书阁 / 修道足迹：展开 · 收起 · 合并
@@ -413,6 +416,28 @@ function fmtTime(ts) {
   font-size: 13px;
   letter-spacing: 3px;
   color: rgba(233, 238, 251, 0.6);
+}
+
+/* 本尊入口：洞府之后，直入古神苦修 */
+.cave-benzun {
+  margin-left: auto;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(232, 198, 107, 0.4);
+  background: rgba(232, 198, 107, 0.1);
+  color: var(--gold);
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: 0.22s;
+}
+
+.cave-benzun:hover {
+  color: #1a1023;
+  background: linear-gradient(100deg, var(--gold), #ffe9a8 60%, var(--cyan));
+  border-color: transparent;
+  box-shadow: 0 0 18px rgba(232, 198, 107, 0.3);
 }
 
 /* 存档状态：已存云端 / 离线暂存 */

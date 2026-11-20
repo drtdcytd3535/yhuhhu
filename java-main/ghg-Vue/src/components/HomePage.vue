@@ -85,6 +85,7 @@
                   </div>
                 </div>
                 <a class="dd-item" @click="enterCave()">我的洞府</a>
+                <a class="dd-item" @click="enterBenzun()">本尊</a>
                 <a class="dd-item" @click="soon('道号设置')">道号设置</a>
                 <a class="dd-item" @click="enterMarket()">天宝坊市</a>
                 <div class="dd-split"></div>
@@ -322,6 +323,7 @@
       @back="backHome"
       @open="openDetail"
       @toast="toast"
+      @benzun="enterBenzun"
     />
 
     <!-- ================= 页脚 ================= -->
@@ -462,7 +464,7 @@ const props = defineProps({
   // 权限：1 默认（普通道友）/ 0 管理员；只有管理员能看到后台管理入口
   permission: { type: [Number, String], default: 1 }
 })
-const emit = defineEmits(['logout', 'admin'])
+const emit = defineEmits(['logout', 'admin', 'benzun'])
 
 /** 是否管理员（permission = 0） */
 const isAdmin = computed(() => Number(props.permission) === 0)
@@ -475,6 +477,12 @@ function enterCave() {
   activeMenu.value = 'mine'
   userOpen.value = false
   window.scrollTo({ top: 0 })
+}
+
+/** 本尊・古神苦修：整页切换，与后台管理系统同款跳转方式 */
+function enterBenzun() {
+  userOpen.value = false
+  emit('benzun')
 }
 
 /** 修炼台：三课小游戏，所得修为直接入洞府账 */
@@ -510,7 +518,8 @@ const menus = [
   { key: 'friend', label: '道友录', type: '道友' },
   { key: 'dao', label: '论道台', type: '论道' },
   { key: 'train', label: '修炼' },
-  { key: 'mine', label: '我的洞府' }
+  { key: 'mine', label: '我的洞府' },
+  { key: 'benzun', label: '本尊' }
 ]
 const activeMenu = ref('home')
 const userOpen = ref(false)
@@ -531,6 +540,12 @@ function goMenu(m) {
   if (m.key === 'train') {
     enterTrain()
     toast('已入「修炼」 · 三课可修')
+    return
+  }
+  // 本尊：切到本尊古神苦修
+  if (m.key === 'benzun') {
+    enterBenzun()
+    toast('已入「本尊」 · 古神苦修之地')
     return
   }
   // 天宝坊市：功法阁 / 丹阁 / 商店并为一市，切到坊市视图
