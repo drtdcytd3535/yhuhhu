@@ -11,7 +11,7 @@
  Target Server Version : 80039 (8.0.39)
  File Encoding         : 65001
 
- Date: 20/11/2026 16:52:57
+ Date: 23/11/2026 12:00:09
 */
 
 SET NAMES utf8mb4;
@@ -37,6 +37,30 @@ CREATE TABLE `t_admin`  (
 -- Records of t_admin
 -- ----------------------------
 INSERT INTO `t_admin` VALUES (1, 'admin', '$2a$10$hKuW6XQUa6X44fXIXn8.SOZ2HzTZf2nl6uNpqf6awTrQcGkSK8ShO', '仙门执事', 'ADMIN', 1, '2026-10-23 16:36:33');
+
+-- ----------------------------
+-- Table structure for t_benzun
+-- ----------------------------
+DROP TABLE IF EXISTS `t_benzun`;
+CREATE TABLE `t_benzun`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '道号（唯一）',
+  `exp` bigint NOT NULL DEFAULT 0 COMMENT '本尊修为',
+  `level` int NOT NULL DEFAULT 0 COMMENT '古神境界重数（0 起）',
+  `planets_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '各星灵蕴余量（JSON 对象）',
+  `stats_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '奇缘积淀：道心/古神底蕴/执念/妖元（JSON 对象）',
+  `events_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT '已探明的奇遇之星（JSON 对象）',
+  `client_time` bigint NOT NULL DEFAULT 0 COMMENT '客户端最后修改时间戳（毫秒）',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开辟时间',
+  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_benzun_username`(`username` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '本尊存档表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of t_benzun
+-- ----------------------------
+INSERT INTO `t_benzun` VALUES (2, '预览道友', 250, 0, '{\"zhuque\":{\"total\":10000,\"left\":9750},\"tianyun\":{\"total\":10000,\"left\":10000},\"luotian\":{\"total\":10000,\"left\":10000},\"qinggang\":{\"total\":10000,\"left\":10000},\"xiaoyue\":{\"total\":10000,\"left\":10000},\"youming\":{\"total\":10000,\"left\":10000},\"lihuo\":{\"total\":10000,\"left\":10000},\"yunshen\":{\"total\":10000,\"left\":10000},\"gushen\":{\"total\":10000,\"left\":10000},\"qinglan\":{\"total\":10000,\"left\":10000},\"duanxu\":{\"total\":10000,\"left\":10000},\"guyuanxing\":{\"total\":10000,\"left\":10000},\"manhuang\":{\"total\":10000,\"left\":10000},\"jimie\":{\"total\":10000,\"left\":10000}}', '{\"daoxin\":0,\"guyuan\":0,\"zhonian\":0,\"yaoyuan\":0}', '{}', 1795406050295, '2026-11-23 11:53:12', '2026-11-23 11:53:12');
 
 -- ----------------------------
 -- Table structure for t_category
@@ -119,7 +143,7 @@ INSERT INTO `t_cave` VALUES (9, '道友', 0, 0, '[]', '[]', '[]', '', '', '', 0,
 INSERT INTO `t_cave` VALUES (11, '预览道友', 0, 0, '[]', '[]', '[]', '', '', '', 0, 1794196583317, '2026-11-09 11:53:04', '2026-11-09 11:53:04');
 INSERT INTO `t_cave` VALUES (15, '111', 0, 0, '[]', '[]', '[]', '', '', '', 0, 1794965780194, '2026-11-18 08:40:11', '2026-11-18 08:40:11');
 INSERT INTO `t_cave` VALUES (16, 'aa', 0, 0, '[]', '[]', '[]', '', '', '', 0, 1794962666296, '2026-11-18 08:42:46', '2026-11-18 08:42:46');
-INSERT INTO `t_cave` VALUES (22, 'wanglin', 403, 1986, '[]', '[{\"id\":326,\"title\":\"六品天灵丹\",\"categoryPath\":\"丹药 › 突破丹\",\"readAt\":1794966761947},{\"id\":200,\"title\":\"焚诀\",\"categoryPath\":\"功法 › 火法\",\"readAt\":1794966745656},{\"id\":104,\"title\":\"生死之道\",\"categoryPath\":\"功法 › 道法\",\"readAt\":1794966731206}]', '[]', '', '2026-11-20', '2026-11-20', 108, 1795163724794, '2026-11-18 09:52:05', '2026-11-18 09:52:41');
+INSERT INTO `t_cave` VALUES (22, 'wanglin', 665, 3800, '[]', '[{\"id\":326,\"title\":\"六品天灵丹\",\"categoryPath\":\"丹药 › 突破丹\",\"readAt\":1794966761947},{\"id\":200,\"title\":\"焚诀\",\"categoryPath\":\"功法 › 火法\",\"readAt\":1794966745656},{\"id\":104,\"title\":\"生死之道\",\"categoryPath\":\"功法 › 道法\",\"readAt\":1794966731206}]', '[]', '', '2026-11-23', '2026-11-23', 252, 1795404080463, '2026-11-18 09:52:05', '2026-11-18 09:52:41');
 
 -- ----------------------------
 -- Table structure for t_cave_train

@@ -6,11 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fenglin.springboottest.common.Result;
 import com.fenglin.springboottest.dto.CaveState;
 import com.fenglin.springboottest.dto.SaveResult;
+import com.fenglin.springboottest.entity.Benzun;
 import com.fenglin.springboottest.entity.Cave;
 import com.fenglin.springboottest.entity.CaveTrain;
 import com.fenglin.springboottest.entity.Friend;
 import com.fenglin.springboottest.entity.Purchase;
 import com.fenglin.springboottest.entity.SectProgress;
+import com.fenglin.springboottest.mapper.BenzunMapper;
 import com.fenglin.springboottest.mapper.CaveMapper;
 import com.fenglin.springboottest.mapper.CaveTrainMapper;
 import com.fenglin.springboottest.mapper.FriendMapper;
@@ -44,14 +46,16 @@ public class CaveController {
     private static final int MAX_NAME = 50;
 
     private final CaveMapper caveMapper;
+    private final BenzunMapper benzunMapper;
     private final ObjectMapper json;
 
-    public CaveController(CaveMapper caveMapper, ObjectMapper json,
+    public CaveController(CaveMapper caveMapper, BenzunMapper benzunMapper, ObjectMapper json,
                           PurchaseMapper purchaseMapper,
                           FriendMapper friendMapper,
                           SectProgressMapper sectProgressMapper,
                           CaveTrainMapper caveTrainMapper) {
         this.caveMapper = caveMapper;
+        this.benzunMapper = benzunMapper;
         this.json = json;
         this.purchaseMapper = purchaseMapper;
         this.friendMapper = friendMapper;
@@ -133,6 +137,8 @@ public class CaveController {
             return Result.fail("道号不可为空");
         }
         caveMapper.delete(new LambdaQueryWrapper<Cave>().eq(Cave::getUsername, name));
+        // 本尊存档（星球修炼 / 奇遇 / 奇缘积淀）一并清零
+        benzunMapper.delete(new LambdaQueryWrapper<Benzun>().eq(Benzun::getUsername, name));
         purchaseMapper.delete(new LambdaQueryWrapper<Purchase>().eq(Purchase::getUsername, name));
         friendMapper.delete(new LambdaQueryWrapper<Friend>().eq(Friend::getUsername, name));
         sectProgressMapper.delete(new LambdaQueryWrapper<SectProgress>().eq(SectProgress::getUsername, name));

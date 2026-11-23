@@ -450,6 +450,29 @@ CREATE TABLE IF NOT EXISTS t_sect (
   COMMENT = '云岚宗挑战进度表';
 
 -- =============================================================
+-- 本尊存档表（星球修炼 / 奇遇探查 / 奇缘积淀）
+-- 一个道号一条记录；前端 localStorage 只作离线缓存，本表为权威数据源
+-- planets_json / stats_json / events_json 为 JSON 文本列，
+-- 结构由前端玩法演进决定，后端只存取不解释
+-- =============================================================
+CREATE TABLE IF NOT EXISTS t_benzun (
+  id           BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  username     VARCHAR(50)  NOT NULL                COMMENT '道号（唯一）',
+  exp          BIGINT       NOT NULL DEFAULT 0      COMMENT '本尊修为',
+  level        INT          NOT NULL DEFAULT 0      COMMENT '古神境界重数（0 起）',
+  planets_json TEXT                  DEFAULT NULL   COMMENT '各星灵蕴余量（JSON 对象）',
+  stats_json   TEXT                  DEFAULT NULL   COMMENT '奇缘积淀：道心/古神底蕴/执念/妖元（JSON 对象）',
+  events_json  TEXT                  DEFAULT NULL   COMMENT '已探明的奇遇之星（JSON 对象）',
+  client_time  BIGINT       NOT NULL DEFAULT 0      COMMENT '客户端最后修改时间戳（毫秒）',
+  created_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '开辟时间',
+  updated_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_benzun_username (username)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COMMENT = '本尊存档表';
+
+-- =============================================================
 -- 境界大阶段表（四大步 + 阴虚阳实过渡）
 -- 用于境界表分组展示，可后台调整文案
 -- =============================================================

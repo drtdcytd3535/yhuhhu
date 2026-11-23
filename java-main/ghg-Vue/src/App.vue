@@ -164,6 +164,11 @@ if (import.meta.env.DEV) {
     username.value = '预览道友'
     permission.value = query.get('perm') === '0' ? 0 : 1
     logged.value = true
+  } else if (preview === 'benzun') {
+    // 开发预览：直达「本尊 · 古神苦修」整页
+    username.value = '预览道友'
+    logged.value = true
+    benzunPage.value = true
   } else if (preview === 'admin') {
     adminState.value = 'login'
   } else if (preview === 'register') {
