@@ -1,5 +1,25 @@
 <template>
   <section class="bz">
+    <!-- ================= 本尊专属背景：真容特写（等比铺满 + 暗纱护字） ================= -->
+    <div class="bz-bg" aria-hidden="true">
+      <img class="bz-bg-img" :src="benzunBg" alt="" />
+      <i class="bz-bg-veil"></i>
+    </div>
+
+    <!-- ================= 入场特效：本尊睁眼片段（动画 GIF 全屏播放） ================= -->
+    <transition name="wk-fade">
+      <div v-if="waking" class="bz-wake" aria-hidden="true">
+        <img
+          ref="wakeGifEl"
+          class="wk-gif"
+          :src="benzunWakeGif"
+          alt=""
+          @load="onWakeGifLoad"
+        />
+        <i class="wk-edge"></i>
+      </div>
+    </transition>
+
     <!-- ================= 头部：返回 + 标题 ================= -->
     <div class="bz-head">
       <button class="bz-back" @click="emit('back')">
@@ -330,6 +350,9 @@
             >
               前往探查 · {{ pc.planet.tag }}
             </button>
+            <button v-if="hasExplore(pc.planet)" class="ev-btn" @click="pickExploreSpots">
+              探星寻缘 · 三择其一
+            </button>
             <button class="ev-btn ev-btn-leave" @click="closeChoice">离去</button>
           </div>
         </div>
@@ -364,6 +387,41 @@
         </div>
       </div>
     </transition>
+
+    <!-- ================= 探星寻缘弹窗（点位三择 · 随机机缘/残念/险情） ================= -->
+    <transition name="fade">
+      <div v-if="xp.planet" class="bz-mask" @click.self="closeExplore">
+        <div class="bz-modal ev-modal">
+          <p class="ev-tag">【{{ EXPLORES[xp.planet.id].tag }} · 探星寻缘】</p>
+          <p class="modal-title">{{ xp.planet.name }}</p>
+          <p class="ev-desc">{{ EXPLORES[xp.planet.id].scene }}</p>
+
+          <!-- 未探：三处点位任选 -->
+          <div v-if="!xp.result" class="ev-opts">
+            <p class="pc-left">择一处点位探访 · 机缘、残念与险情，皆在一念之间</p>
+            <button
+              v-for="(s, i) in EXPLORES[xp.planet.id].spots"
+              :key="i"
+              class="ev-btn"
+              @click="pickSpot(i)"
+            >
+              前往{{ s }}
+            </button>
+            <button class="ev-btn ev-btn-leave" @click="closeExplore">离去</button>
+          </div>
+
+          <!-- 已探：随机事件结果 -->
+          <template v-else>
+            <p class="ev-result">
+              <b class="xp-type" :class="'xp-' + xp.result.idx">{{ xp.result.type }} · {{ xp.result.spot }}</b>
+              <br />
+              {{ xp.result.text }}
+            </p>
+            <button class="modal-btn" @click="closeExplore">领 悟</button>
+          </template>
+        </div>
+      </div>
+    </transition>
   </section>
 </template>
 
@@ -379,6 +437,8 @@ import imgLihuo from '../assets/planets/lihuo.png'
 import imgYunshen from '../assets/planets/yunshen.png'
 import imgGushen from '../assets/planets/gushen.png'
 import nebulaBg from '../assets/planets/nebula-bg.png'
+import benzunBg from '../assets/planets/benzun-bg.jpg'
+import benzunWakeGif from '../assets/planets/benzun-wake.gif'
 
 const props = defineProps({
   username: { type: String, default: '道友' }
@@ -535,6 +595,145 @@ const EVENT_PLANETS = [
 /** 全部星球：灵蕴星 + 奇遇星（奇遇星同样可入星修炼，灵蕴亦为一万） */
 const ALL_PLANETS = [...PLANETS, ...EVENT_PLANETS]
 
+/* =============================================================
+ * 探星寻缘：每颗星的场景、探险点位与随机事件文案
+ * 点位随机触发「机缘 / 残念 / 险情」三选一，效果即刻生效并入档
+ * events 权重：机缘 42% · 残念 33% · 险情 25%
+ * fx 字段与奇遇同款：exp 修为 / daoxin 道心 / guyuan 古神底蕴 / zhonian 执念 / yaoyuan 妖元
+ * ============================================================= */
+const EXPLORES = {
+  qinglan: {
+    tag: '凡星',
+    scene: '平缓凡界山林，草木含灵。',
+    spots: ['灵泉', '林间古木', '土坡洞府'],
+    events: [
+      { type: '机缘', text: '汲取灵泉灵气，修为 + 7', fx: { exp: 7 } },
+      { type: '残念', text: '过往修士残念驻足，道心微动，执念 + 2', fx: { zhonian: 2 } },
+      { type: '险情', text: '普通瘴气侵扰，小幅耗损修为，修为 - 2', fx: { exp: -2 } }
+    ]
+  },
+  zhuque: {
+    tag: '上界灵星',
+    scene: '火山与古殿交织，地火长燃。',
+    spots: ['朱雀祭坛', '熔岩裂隙', '古老殿门'],
+    events: [
+      { type: '机缘', text: '观朱雀道痕，修为 + 10', fx: { exp: 10 } },
+      { type: '残念', text: '朱雀一脉修士残念不散，执念 + 3', fx: { zhonian: 3 } },
+      { type: '险情', text: '地火翻涌，仓促避让，修为 - 4', fx: { exp: -4 } }
+    ]
+  },
+  tianyun: {
+    tag: '下界灵星',
+    scene: '云雾缭绕，气运流转不定。',
+    spots: ['运道石碑', '云间石台', '灵花谷'],
+    events: [
+      { type: '机缘', text: '得一缕天运加持，道心 + 4', fx: { daoxin: 4 } },
+      { type: '残念', text: '求道者不甘的残念，执念 + 3', fx: { zhonian: 3 } },
+      { type: '险情', text: '气运紊乱，心神恍惚，道心 - 1', fx: { daoxin: -1 } }
+    ]
+  },
+  youming: {
+    tag: '下界灵星',
+    scene: '幽暗幽林，黑雾弥漫不散。',
+    spots: ['幽冥古坟', '忘川水潭', '黑暗洞府'],
+    events: [
+      { type: '机缘', text: '感悟幽冥之道，修为 + 9', fx: { exp: 9 } },
+      { type: '残念', text: '亡魂残念诉说遗憾，执念 + 5', fx: { zhonian: 5 } },
+      { type: '险情', text: '阴寒侵蚀神魂，修为 - 5', fx: { exp: -5 } }
+    ]
+  },
+  manhuang: {
+    tag: '妖星',
+    scene: '原始蛮荒密林，妖兽嘶吼不绝。',
+    spots: ['妖巢', '灵果树', '兽骨祭坛'],
+    events: [
+      { type: '机缘', text: '斩杀妖兽，收取妖元，修为 + 14', fx: { exp: 14, yaoyuan: 5 } },
+      { type: '残念', text: '妖兽灵识残念哀求，道心 + 4', fx: { daoxin: 4 } },
+      { type: '险情', text: '妖兽合围，不敌遁走，修为 - 5', fx: { exp: -5 } }
+    ]
+  },
+  lihuo: {
+    tag: '上界灵星',
+    scene: '无边火海，赤色戈壁千里。',
+    spots: ['离火道台', '火晶矿', '焚风峡谷'],
+    events: [
+      { type: '机缘', text: '离火炼体，肉身增益，修为 + 10', fx: { exp: 10 } },
+      { type: '残念', text: '玩火修士残念困于火中，执念 + 3', fx: { zhonian: 3 } },
+      { type: '险情', text: '大火突袭，灼伤道体，修为 - 4', fx: { exp: -4 } }
+    ]
+  },
+  luotian: {
+    tag: '中界灵星',
+    scene: '星辰垂落的高原，星辉满地。',
+    spots: ['落星台', '星晶洞穴', '观星古亭'],
+    events: [
+      { type: '机缘', text: '吸纳星力，修为 + 11', fx: { exp: 11 } },
+      { type: '残念', text: '观星大能残念问道，执念 + 4', fx: { zhonian: 4 } },
+      { type: '险情', text: '星屑风暴袭来，匆忙躲避，修为 - 3', fx: { exp: -3 } }
+    ]
+  },
+  duanxu: {
+    tag: '遗迹星',
+    scene: '破碎崩塌的上古废墟，道则残缺。',
+    spots: ['残碑', '破碎法阵', '陨落道台'],
+    events: [
+      { type: '机缘', text: '破译残碑道文，道心 + 6', fx: { daoxin: 6 } },
+      { type: '残念', text: '陨落修士残念拦路论道，执念 + 4', fx: { zhonian: 4 } },
+      { type: '险情', text: '隐匿禁制触发，仓促退开，修为 - 3', fx: { exp: -3 } }
+    ]
+  },
+  qinggang: {
+    tag: '奇道之星',
+    scene: '罡风呼啸的高空崖地。',
+    spots: ['罡风石台', '风穴', '道纹石壁'],
+    events: [
+      { type: '机缘', text: '参悟罡风道韵，修为 + 9', fx: { exp: 9 } },
+      { type: '残念', text: '苦修风道之人残念，执念 + 3', fx: { zhonian: 3 } },
+      { type: '险情', text: '狂暴罡风割体，修为 - 3', fx: { exp: -3 } }
+    ]
+  },
+  yunshen: {
+    tag: '下界灵星',
+    scene: '巨大神尸残骸化就的大地。',
+    spots: ['神骨沟壑', '神血潭', '碎神台'],
+    events: [
+      { type: '机缘', text: '拾取一丝神之气息，古神底蕴 + 6', fx: { guyuan: 6 } },
+      { type: '残念', text: '陨落神祇残念低语，执念 + 6', fx: { zhonian: 6 } },
+      { type: '险情', text: '残存神威压身，道心 - 3', fx: { daoxin: -3 } }
+    ]
+  },
+  guyuanxing: {
+    tag: '古神之地',
+    scene: '残破古神躯体所化大地，神息苍茫。',
+    spots: ['神脉', '神眼洞窟', '古神手掌遗迹'],
+    events: [
+      { type: '机缘', text: '感悟古神道则，古神底蕴 + 11', fx: { guyuan: 11 } },
+      { type: '残念', text: '古神残念呢喃，心神震荡，执念 + 5', fx: { zhonian: 5 } },
+      { type: '险情', text: '狂暴神息冲击识海，修为 - 6', fx: { exp: -6 } }
+    ]
+  },
+  xiaoyue: {
+    tag: '中界灵星',
+    scene: '月夜荒原，狼啸山谷。',
+    spots: ['月泉', '望月石台', '狼神旧巢'],
+    events: [
+      { type: '机缘', text: '月华洗练神魂，道心 + 5', fx: { daoxin: 5 } },
+      { type: '残念', text: '望月苦修者残念，执念 + 3', fx: { zhonian: 3 } },
+      { type: '险情', text: '月影幻术扰心，道心 - 2', fx: { daoxin: -2 } }
+    ]
+  },
+  gushen: {
+    tag: '古神之地',
+    scene: '完整古神道场，宏大苍茫。',
+    spots: ['古神王座', '本源神泉', '道源石柱'],
+    events: [
+      { type: '机缘', text: '触碰本源神源，古神底蕴 + 15', fx: { guyuan: 15 } },
+      { type: '残念', text: '远古古神残存意志，执念 + 7', fx: { zhonian: 7 } },
+      { type: '险情', text: '古神道威过重，难以承载，修为 - 7', fx: { exp: -7 } }
+    ]
+  }
+}
+
 /** 开辟诸星：每星灵蕴皆为固定一万 */
 function genPlanets() {
   const o = {}
@@ -552,6 +751,24 @@ function isDrained(p) {
 
 const quoteIdx = ref(0)
 let quoteTimer = null
+
+/* ---------------- 入场特效：睁眼片段 GIF ---------------- */
+/** GIF 原始时长：14 帧 × 100ms = 1400ms，按图片原本时长只播一轮 */
+const WAKE_GIF_MS = 1400
+/** true 时显示睁眼特效层，进入本尊页播放一次 */
+const waking = ref(true)
+const wakeGifEl = ref(null)
+let wakeTimer = null
+let wakeFallback = null
+
+/** GIF 加载完成后才开始计时，避免 3.2MB 大图慢加载时片段被截断 */
+function onWakeGifLoad() {
+  if (wakeTimer) return
+  clearTimeout(wakeFallback)
+  wakeTimer = setTimeout(() => {
+    waking.value = false
+  }, WAKE_GIF_MS)
+}
 
 /* ---------------- 存档（数据库权威 + 本地缓存） ---------------- */
 /* 数据分层与洞府同款：
@@ -801,9 +1018,19 @@ onMounted(() => {
     } while (next === quoteIdx.value)
     quoteIdx.value = next
   }, 4000)
+  // 入场特效：按 GIF 原始时长（1.4s / 一轮）播放后散去，从图片加载完成起算
+  // 命中缓存时 load 可能已触发，这里补一次 complete 检查；加载异常则 8s 兜底强制散去
+  if (wakeGifEl.value?.complete && wakeGifEl.value?.naturalWidth) {
+    onWakeGifLoad()
+  }
+  wakeFallback = setTimeout(() => {
+    if (!wakeTimer) waking.value = false
+  }, 8000)
 })
 
 onBeforeUnmount(() => {
+  clearTimeout(wakeTimer)
+  clearTimeout(wakeFallback)
   clearInterval(quoteTimer)
   stopCultivate(false)
   // 离开页面前把未落库的改动推上去
@@ -1048,6 +1275,67 @@ function closeEvent() {
   ev.chosen = null
 }
 
+/* ---------------- 探星寻缘 · 点位三择，随机机缘/残念/险情 ---------------- */
+/** 某星是否配有探险点位（配有则在抉择弹窗显示入口） */
+function hasExplore(p) {
+  return !!EXPLORES[p.id]
+}
+
+/** 探星冷却：星缘未复不可连探（毫秒） */
+const EXPLORE_CD = 10000
+let lastExploreAt = 0
+
+/** 探险弹窗状态：planet 当前探的星 / result 已触发的随机事件 */
+const xp = reactive({ planet: null, result: null })
+
+/** 抉择弹窗选「探星寻缘」：冷却中提示，未冷却则打开点位弹窗 */
+function pickExploreSpots() {
+  const p = pc.planet
+  if (!p || !hasExplore(p)) return
+  if (Date.now() - lastExploreAt < EXPLORE_CD) {
+    emit('toast', '星缘未复 · 稍候片刻再探')
+    return
+  }
+  closeChoice()
+  xp.planet = p
+  xp.result = null
+}
+
+/**
+ * 择一定点位：加权随机触发机缘(42%)/残念(33%)/险情(25%)，
+ * 效果与奇遇同款即刻生效并入档（含数据库同步）
+ */
+function pickSpot(spotIdx) {
+  const p = xp.planet
+  if (!p || xp.result) return
+  const data = EXPLORES[p.id]
+  const r = Math.random()
+  const evIdx = r < 0.42 ? 0 : r < 0.75 ? 1 : 2
+  const hit = data.events[evIdx]
+
+  const fx = hit.fx || {}
+  const parts = []
+  for (const k of Object.keys(fx)) {
+    const v = safeNum(fx[k])
+    if (!v) continue
+    if (k === 'exp') {
+      b.state.exp = Math.max(0, b.state.exp + v)
+    } else {
+      b.state.stats[k] = (b.state.stats[k] || 0) + v
+    }
+    parts.push(`${FX_NAME[k]} ${v > 0 ? '+' + v : v}`)
+  }
+  lastExploreAt = Date.now()
+  xp.result = { idx: evIdx, type: hit.type, spot: data.spots[spotIdx], text: hit.text }
+  saveState()
+  if (parts.length) emit('toast', parts.join(' · '))
+}
+
+function closeExplore() {
+  xp.planet = null
+  xp.result = null
+}
+
 /** 尝试突破：修为足够方可一搏；成则踏入新境，败则道心动摇折损修为 */function onBreak() {
   if (atTop.value) {
     emit('toast', '肉身已臻古神之巅 · 何须再破')
@@ -1087,6 +1375,92 @@ function closeEvent() {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+/* ---------- 本尊专属背景：真容特写 ---------- */
+/* fixed 铺满视口，object-fit: cover 严格按原图比例缩放裁切，绝不拉伸变形；
+   -1 层压在面板内容之下、全局星尘之上；暗纱渐变保证文字可读 */
+.bz-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 宽幅横图（2000×825）：只铺视口上部，宽度撑满、左右不裁，完整保留火焰环绕构图；
+   下缘由暗纱渐变融入夜色，面板区域保持纯净可读 */
+.bz-bg-img {
+  width: 100%;
+  height: 60%;
+  object-fit: cover;
+  object-position: center 18%;
+  opacity: 0.7;
+}
+
+.bz-bg-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(88% 58% at 50% 10%, rgba(5, 6, 12, 0) 0%, rgba(5, 6, 12, 0.38) 78%),
+    linear-gradient(180deg, rgba(5, 6, 12, 0.22) 0%, rgba(5, 6, 12, 0.38) 34%, rgba(5, 6, 12, 0.9) 58%, #05060c 66%, #05060c 100%);
+}
+
+/* ---------- 入场特效：闭眼 → 睁眼 ---------- */
+/* 真容从一条眼缝（clip-path inset）缓缓睁开铺满全屏，金色神光沿眼缝乍现；
+   特效层 pointer-events:none 不挡操作，2.4s 后整体淡去露出真身页面 */
+.bz-wake {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+}
+
+/* 入场特效：睁眼片段 GIF 全屏播放（等比 cover，绝不拉伸） */
+.wk-gif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  animation: wk-in 0.3s ease both;
+}
+
+@keyframes wk-in {
+  from {
+    opacity: 0;
+    filter: brightness(0.2);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+/* 边缘暗角：让片段与页面夜色衔接更自然 */
+.wk-edge {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 50%, rgba(5, 6, 12, 0) 62%, rgba(5, 6, 12, 0.55) 100%);
+}
+
+/* 特效层整体淡去 */
+.wk-fade-leave-active {
+  transition: opacity 0.55s ease;
+}
+
+.wk-fade-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-gif {
+    animation-duration: 0.01s;
+  }
 }
 
 /* ---------- 头部 ---------- */
@@ -1823,6 +2197,35 @@ function closeEvent() {
   letter-spacing: 1.5px;
   line-height: 1.9;
   color: var(--gold);
+}
+
+/* ---------- 探星寻缘：事件类型标（机缘绿 / 残念紫 / 险情红） ---------- */
+.xp-type {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  border: 1px solid;
+}
+
+.xp-type.xp-0 {
+  color: #7dff9e;
+  border-color: rgba(125, 255, 158, 0.45);
+  background: rgba(125, 255, 158, 0.08);
+}
+
+.xp-type.xp-1 {
+  color: #b8a6ff;
+  border-color: rgba(184, 166, 255, 0.45);
+  background: rgba(184, 166, 255, 0.08);
+}
+
+.xp-type.xp-2 {
+  color: #ff6a8a;
+  border-color: rgba(255, 106, 138, 0.45);
+  background: rgba(255, 106, 138, 0.08);
 }
 
 .ev-bar {
