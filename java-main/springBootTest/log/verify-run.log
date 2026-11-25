@@ -1,0 +1,421 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.4.5)
+
+2026-11-25 14:33:37  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 4088 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+2026-11-25 14:33:37  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+2026-11-25 14:33:37  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-11-25 14:33:37  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-11-25 14:33:38  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+2026-11-25 14:33:38  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+2026-11-25 14:33:38  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+2026-11-25 14:33:38  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+2026-11-25 14:33:38  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1498 ms
+Logging initialized using 'class org.apache.ibatis.logging.stdout.StdOutImpl' adapter.
+Get /192.168.137.1 network interface 
+Get network interface info: name:ethernet_32776 (VMware Virtual Ethernet Adapter for VMnet8)
+Initialization Sequence datacenterId:0 workerId:12
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.9 
+2026-11-25 14:33:38  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+2026-11-25 14:33:39  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@57affb98
+2026-11-25 14:33:39  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+2026-11-25 14:33:39  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+2026-11-25 14:33:40  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+2026-11-25 14:33:40  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+2026-11-25 14:33:40  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 3.485 seconds (process running for 3.877)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@51548098] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1117685888 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT COUNT( * ) AS total FROM t_user WHERE (permission = ?)
+==> Parameters: 0(Integer)
+<==    Columns: total
+<==        Row: 1
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@51548098]
+2026-11-25 14:33:40  INFO c.f.springboottest.config.PurchaseTableBootstrap.run 41:[åŠå¸‚] t_purchase è¡¨å·²å°±ç»ª
+2026-11-25 14:33:40  INFO c.f.springboottest.config.FriendTableBootstrap.run 42:[é“å‹å½•] t_friend è¡¨å·²å°±ç»ª
+2026-11-25 14:33:40  INFO c.f.springboottest.config.CaveTrainTableBootstrap.run 43:[æ´žå¤©ç¦åœ°] t_cave_train è¡¨å·²å°±ç»ª
+2026-11-25 14:33:40  INFO c.f.springboottest.config.BenzunTableBootstrap.run 46:[æœ¬å°Š] t_benzun è¡¨å·²å°±ç»ª
+2026-11-25 14:33:40  INFO c.f.springboottest.config.ContentStatsBootstrap.run 40:[å±žæ€§] t_content æˆ˜æ–—å±žæ€§åˆ—å·²å°±ç»ª
+2026-11-25 14:33:55  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-11-25 14:33:55  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 532:Initializing Servlet 'dispatcherServlet'
+2026-11-25 14:33:55  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 554:Completed initialization in 1 ms
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@19f134f8] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@348947246 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,title,summary,content,category_id,tags,author,hot,views,status,atk,def,hp,spd,crit,created_at FROM t_content WHERE id=?
+==> Parameters: 1(Long)
+<==    Columns: id, title, summary, content, category_id, tags, author, hot, views, status, atk, def, hp, spd, crit, created_at
+<==        Row: 1, Ì«Ðé½£µä, ½£Æø×ÝºáÈýÍòÀï£¬Ò»½£¹âº®Ê®¾ÅÖÝ¡£, <<BLOB>>, 11, ½£¾÷,Ì«Ðé,ÉÏ³Ë, Ì«Ðé½£×ð, 98000, 12600, 1, 15, 6, 36, 9, 4, 2026-11-25 14:32:54
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@19f134f8]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@7dcf4468] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@240282387 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category WHERE id=?
+==> Parameters: 11(Long)
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 11, ½£¾÷, 1, 2, ¡¤, ÒÔ½£Ö¤µÀ£¬·æÃ¢ÎÞÆ¥, 1, 2026-11-25 14:32:54
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@7dcf4468]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f5a3038] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1742900084 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category ORDER BY level ASC,sort_no ASC,id ASC
+==> Parameters: 
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 1, ¹¦·¨, 0, 1, ?, ½£¾÷¡¢»ð·¨¡¢ÌåÐÞ¡¢Éí·¨¡¢ÓùÊÞÖî°ã·¨ÃÅ, 1, 2026-11-25 14:32:54
+<==        Row: 2, µ¤Ò©, 0, 1, ?, ÁÆÉË¡¢Í»ÆÆ¡¢´ã¶¾¸÷Ààµ¤·½, 2, 2026-11-25 14:32:54
+<==        Row: 3, ¶´Ìì, 0, 1, ?, ÃØ¾³ÓëÁéÂöËùÔÚÖ®µØ, 3, 2026-11-25 14:32:54
+<==        Row: 4, µÀÓÑ, 0, 1, ?, ÏÉÃÅÍ¬ÐÞÃûÂ¼, 4, 2026-11-25 14:32:54
+<==        Row: 5, ÂÛµÀ, 0, 1, ?, ÐÞÐÐÐÄµÃÓëÎÊ´ð, 5, 2026-11-25 14:32:54
+<==        Row: 11, ½£¾÷, 1, 2, ¡¤, ÒÔ½£Ö¤µÀ£¬·æÃ¢ÎÞÆ¥, 1, 2026-11-25 14:32:54
+<==        Row: 21, ÁÆÉËµ¤, 2, 2, ¡¤, ÉúËÀÈËÈâ°×¹Ç, 1, 2026-11-25 14:32:54
+<==        Row: 31, ÃØ¾³, 3, 2, ¡¤, ÏÕ¾³²Ø»úÔµ, 1, 2026-11-25 14:32:54
+<==        Row: 41, ½£ÐÞ, 4, 2, ¡¤, Ö´½£Õß, 1, 2026-11-25 14:32:54
+<==        Row: 51, ÐÄµÃ, 5, 2, ¡¤, ÐÞÐÐÌåÎò, 1, 2026-11-25 14:32:54
+<==        Row: 12, »ð·¨, 1, 2, ¡¤, ÁÒÑæ·ÙÌì£¬·Ù¾¡ÖîÐ°, 2, 2026-11-25 14:32:54
+<==        Row: 22, Í»ÆÆµ¤, 2, 2, ¡¤, ÖúÆÆ¾³ÄýÓ¤, 2, 2026-11-25 14:32:54
+<==        Row: 32, ÁéÂö, 3, 2, ¡¤, ÁéÆø»ã¾ÛÖ®µØ, 2, 2026-11-25 14:32:54
+<==        Row: 42, µ¤ÐÞ, 4, 2, ¡¤, Á¶µ¤Õß, 2, 2026-11-25 14:32:54
+<==        Row: 52, ÎÊ´ð, 5, 2, ¡¤, ÒÉÄÑ»¥´ð, 2, 2026-11-25 14:32:54
+<==        Row: 13, ÌåÐÞ, 1, 2, ¡¤, ÒÔÉíÎªÂ¯£¬´ãÁ¶µÀÌå, 3, 2026-11-25 14:32:54
+<==        Row: 23, ¶¾µ¤, 2, 2, ¡¤, Òõ¶¾Ö®Îï£¬É÷ÓÃ, 3, 2026-11-25 14:32:54
+<==        Row: 43, ÌåÐÞ, 4, 2, ¡¤, Á¶ÌåÕß, 3, 2026-11-25 14:32:54
+<==        Row: 14, Éí·¨, 1, 2, ¡¤, À´È¥ÎÞºÛ£¬Ì¤Ðé¶øÐÐ, 4, 2026-11-25 14:32:54
+<==        Row: 44, Ä§ÐÞ, 4, 2, ¡¤, Ä§µÀÐÞÊ¿£¬É±·¥ÎÞ¼É, 4, 2026-11-25 14:32:54
+<==        Row: 15, ÓùÊÞ, 1, 2, ¡¤, ÍòÁé³¼·þ£¬ÌýÎÒºÅÁî, 5, 2026-11-25 14:32:54
+<==        Row: 45, »êÐÞ, 4, 2, ¡¤, Á¶»êÔ¦ÆÇ£¬ÔªÉñÎªµÀ, 5, 2026-11-25 14:32:54
+<==        Row: 16, ÄýÆø, 1, 2, ¡¤, ÐÞÕæ¸ù»ù£¬ÄýÆøÊ®Îå²ã, 6, 2026-11-25 14:32:54
+<==        Row: 46, ¹ÅÉñ, 4, 2, ¡¤, ¹ÅÉñÒ»Âö£¬ÒÔÉíÎªÌì, 6, 2026-11-25 14:32:54
+<==        Row: 17, »êÐÞ, 1, 2, ¡¤, »êÆÇÖ®µÀ£¬ÏòËÀ¶øÉú, 7, 2026-11-25 14:32:54
+<==        Row: 47, µÀÐÞ, 4, 2, ¡¤, ÎòµÀÕß£¬Òâ¾³Îª×Ú, 7, 2026-11-25 14:32:54
+<==        Row: 18, µÀ·¨, 1, 2, ¡¤, ´óµÀ¸ÐÎò£¬ÖîÌì·¨Ôò, 8, 2026-11-25 14:32:54
+<==      Total: 27
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f5a3038]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@15b90b35] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1063174016 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category ORDER BY level ASC,sort_no ASC,id ASC
+==> Parameters: 
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 1, ¹¦·¨, 0, 1, ?, ½£¾÷¡¢»ð·¨¡¢ÌåÐÞ¡¢Éí·¨¡¢ÓùÊÞÖî°ã·¨ÃÅ, 1, 2026-11-25 14:32:54
+<==        Row: 2, µ¤Ò©, 0, 1, ?, ÁÆÉË¡¢Í»ÆÆ¡¢´ã¶¾¸÷Ààµ¤·½, 2, 2026-11-25 14:32:54
+<==        Row: 3, ¶´Ìì, 0, 1, ?, ÃØ¾³ÓëÁéÂöËùÔÚÖ®µØ, 3, 2026-11-25 14:32:54
+<==        Row: 4, µÀÓÑ, 0, 1, ?, ÏÉÃÅÍ¬ÐÞÃûÂ¼, 4, 2026-11-25 14:32:54
+<==        Row: 5, ÂÛµÀ, 0, 1, ?, ÐÞÐÐÐÄµÃÓëÎÊ´ð, 5, 2026-11-25 14:32:54
+<==        Row: 11, ½£¾÷, 1, 2, ¡¤, ÒÔ½£Ö¤µÀ£¬·æÃ¢ÎÞÆ¥, 1, 2026-11-25 14:32:54
+<==        Row: 21, ÁÆÉËµ¤, 2, 2, ¡¤, ÉúËÀÈËÈâ°×¹Ç, 1, 2026-11-25 14:32:54
+<==        Row: 31, ÃØ¾³, 3, 2, ¡¤, ÏÕ¾³²Ø»úÔµ, 1, 2026-11-25 14:32:54
+<==        Row: 41, ½£ÐÞ, 4, 2, ¡¤, Ö´½£Õß, 1, 2026-11-25 14:32:54
+<==        Row: 51, ÐÄµÃ, 5, 2, ¡¤, ÐÞÐÐÌåÎò, 1, 2026-11-25 14:32:54
+<==        Row: 12, »ð·¨, 1, 2, ¡¤, ÁÒÑæ·ÙÌì£¬·Ù¾¡ÖîÐ°, 2, 2026-11-25 14:32:54
+<==        Row: 22, Í»ÆÆµ¤, 2, 2, ¡¤, ÖúÆÆ¾³ÄýÓ¤, 2, 2026-11-25 14:32:54
+<==        Row: 32, ÁéÂö, 3, 2, ¡¤, ÁéÆø»ã¾ÛÖ®µØ, 2, 2026-11-25 14:32:54
+<==        Row: 42, µ¤ÐÞ, 4, 2, ¡¤, Á¶µ¤Õß, 2, 2026-11-25 14:32:54
+<==        Row: 52, ÎÊ´ð, 5, 2, ¡¤, ÒÉÄÑ»¥´ð, 2, 2026-11-25 14:32:54
+<==        Row: 13, ÌåÐÞ, 1, 2, ¡¤, ÒÔÉíÎªÂ¯£¬´ãÁ¶µÀÌå, 3, 2026-11-25 14:32:54
+<==        Row: 23, ¶¾µ¤, 2, 2, ¡¤, Òõ¶¾Ö®Îï£¬É÷ÓÃ, 3, 2026-11-25 14:32:54
+<==        Row: 43, ÌåÐÞ, 4, 2, ¡¤, Á¶ÌåÕß, 3, 2026-11-25 14:32:54
+<==        Row: 14, Éí·¨, 1, 2, ¡¤, À´È¥ÎÞºÛ£¬Ì¤Ðé¶øÐÐ, 4, 2026-11-25 14:32:54
+<==        Row: 44, Ä§ÐÞ, 4, 2, ¡¤, Ä§µÀÐÞÊ¿£¬É±·¥ÎÞ¼É, 4, 2026-11-25 14:32:54
+<==        Row: 15, ÓùÊÞ, 1, 2, ¡¤, ÍòÁé³¼·þ£¬ÌýÎÒºÅÁî, 5, 2026-11-25 14:32:54
+<==        Row: 45, »êÐÞ, 4, 2, ¡¤, Á¶»êÔ¦ÆÇ£¬ÔªÉñÎªµÀ, 5, 2026-11-25 14:32:54
+<==        Row: 16, ÄýÆø, 1, 2, ¡¤, ÐÞÕæ¸ù»ù£¬ÄýÆøÊ®Îå²ã, 6, 2026-11-25 14:32:54
+<==        Row: 46, ¹ÅÉñ, 4, 2, ¡¤, ¹ÅÉñÒ»Âö£¬ÒÔÉíÎªÌì, 6, 2026-11-25 14:32:54
+<==        Row: 17, »êÐÞ, 1, 2, ¡¤, »êÆÇÖ®µÀ£¬ÏòËÀ¶øÉú, 7, 2026-11-25 14:32:54
+<==        Row: 47, µÀÐÞ, 4, 2, ¡¤, ÎòµÀÕß£¬Òâ¾³Îª×Ú, 7, 2026-11-25 14:32:54
+<==        Row: 18, µÀ·¨, 1, 2, ¡¤, ´óµÀ¸ÐÎò£¬ÖîÌì·¨Ôò, 8, 2026-11-25 14:32:54
+<==      Total: 27
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@15b90b35]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52687702] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1370263615 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT COUNT( * ) AS total FROM t_purchase WHERE (username = ? AND content_id = ?)
+==> Parameters: wanglin(String), 1(Long)
+<==    Columns: total
+<==        Row: 0
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52687702]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@60be5e5b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1571868983 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT COUNT( * ) AS total FROM t_friend WHERE (username = ? AND gift_id = ?)
+==> Parameters: wanglin(String), 1(Long)
+<==    Columns: total
+<==        Row: 0
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@60be5e5b]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@10b80e48] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@40289922 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category ORDER BY level ASC,sort_no ASC,id ASC
+==> Parameters: 
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 1, ¹¦·¨, 0, 1, ?, ½£¾÷¡¢»ð·¨¡¢ÌåÐÞ¡¢Éí·¨¡¢ÓùÊÞÖî°ã·¨ÃÅ, 1, 2026-11-25 14:32:54
+<==        Row: 2, µ¤Ò©, 0, 1, ?, ÁÆÉË¡¢Í»ÆÆ¡¢´ã¶¾¸÷Ààµ¤·½, 2, 2026-11-25 14:32:54
+<==        Row: 3, ¶´Ìì, 0, 1, ?, ÃØ¾³ÓëÁéÂöËùÔÚÖ®µØ, 3, 2026-11-25 14:32:54
+<==        Row: 4, µÀÓÑ, 0, 1, ?, ÏÉÃÅÍ¬ÐÞÃûÂ¼, 4, 2026-11-25 14:32:54
+<==        Row: 5, ÂÛµÀ, 0, 1, ?, ÐÞÐÐÐÄµÃÓëÎÊ´ð, 5, 2026-11-25 14:32:54
+<==        Row: 11, ½£¾÷, 1, 2, ¡¤, ÒÔ½£Ö¤µÀ£¬·æÃ¢ÎÞÆ¥, 1, 2026-11-25 14:32:54
+<==        Row: 21, ÁÆÉËµ¤, 2, 2, ¡¤, ÉúËÀÈËÈâ°×¹Ç, 1, 2026-11-25 14:32:54
+<==        Row: 31, ÃØ¾³, 3, 2, ¡¤, ÏÕ¾³²Ø»úÔµ, 1, 2026-11-25 14:32:54
+<==        Row: 41, ½£ÐÞ, 4, 2, ¡¤, Ö´½£Õß, 1, 2026-11-25 14:32:54
+<==        Row: 51, ÐÄµÃ, 5, 2, ¡¤, ÐÞÐÐÌåÎò, 1, 2026-11-25 14:32:54
+<==        Row: 12, »ð·¨, 1, 2, ¡¤, ÁÒÑæ·ÙÌì£¬·Ù¾¡ÖîÐ°, 2, 2026-11-25 14:32:54
+<==        Row: 22, Í»ÆÆµ¤, 2, 2, ¡¤, ÖúÆÆ¾³ÄýÓ¤, 2, 2026-11-25 14:32:54
+<==        Row: 32, ÁéÂö, 3, 2, ¡¤, ÁéÆø»ã¾ÛÖ®µØ, 2, 2026-11-25 14:32:54
+<==        Row: 42, µ¤ÐÞ, 4, 2, ¡¤, Á¶µ¤Õß, 2, 2026-11-25 14:32:54
+<==        Row: 52, ÎÊ´ð, 5, 2, ¡¤, ÒÉÄÑ»¥´ð, 2, 2026-11-25 14:32:54
+<==        Row: 13, ÌåÐÞ, 1, 2, ¡¤, ÒÔÉíÎªÂ¯£¬´ãÁ¶µÀÌå, 3, 2026-11-25 14:32:54
+<==        Row: 23, ¶¾µ¤, 2, 2, ¡¤, Òõ¶¾Ö®Îï£¬É÷ÓÃ, 3, 2026-11-25 14:32:54
+<==        Row: 43, ÌåÐÞ, 4, 2, ¡¤, Á¶ÌåÕß, 3, 2026-11-25 14:32:54
+<==        Row: 14, Éí·¨, 1, 2, ¡¤, À´È¥ÎÞºÛ£¬Ì¤Ðé¶øÐÐ, 4, 2026-11-25 14:32:54
+<==        Row: 44, Ä§ÐÞ, 4, 2, ¡¤, Ä§µÀÐÞÊ¿£¬É±·¥ÎÞ¼É, 4, 2026-11-25 14:32:54
+<==        Row: 15, ÓùÊÞ, 1, 2, ¡¤, ÍòÁé³¼·þ£¬ÌýÎÒºÅÁî, 5, 2026-11-25 14:32:54
+<==        Row: 45, »êÐÞ, 4, 2, ¡¤, Á¶»êÔ¦ÆÇ£¬ÔªÉñÎªµÀ, 5, 2026-11-25 14:32:54
+<==        Row: 16, ÄýÆø, 1, 2, ¡¤, ÐÞÕæ¸ù»ù£¬ÄýÆøÊ®Îå²ã, 6, 2026-11-25 14:32:54
+<==        Row: 46, ¹ÅÉñ, 4, 2, ¡¤, ¹ÅÉñÒ»Âö£¬ÒÔÉíÎªÌì, 6, 2026-11-25 14:32:54
+<==        Row: 17, »êÐÞ, 1, 2, ¡¤, »êÆÇÖ®µÀ£¬ÏòËÀ¶øÉú, 7, 2026-11-25 14:32:54
+<==        Row: 47, µÀÐÞ, 4, 2, ¡¤, ÎòµÀÕß£¬Òâ¾³Îª×Ú, 7, 2026-11-25 14:32:54
+<==        Row: 18, µÀ·¨, 1, 2, ¡¤, ´óµÀ¸ÐÎò£¬ÖîÌì·¨Ôò, 8, 2026-11-25 14:32:54
+<==      Total: 27
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@10b80e48]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@24479eec] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@608497235 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT content_id FROM t_purchase WHERE (username = ?)
+==> Parameters: wanglin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@24479eec]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@475d290b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@444089306 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT gift_id FROM t_friend WHERE (username = ?)
+==> Parameters: wanglin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@475d290b]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6266ea6b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1822496855 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT content_id FROM t_purchase WHERE (username = ?)
+==> Parameters: wanglin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6266ea6b]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2d9c126c] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@2029813766 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT gift_id FROM t_friend WHERE (username = ?)
+==> Parameters: wanglin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2d9c126c]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@7480fa90] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@2051480176 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT content_id FROM t_purchase WHERE (username = ?)
+==> Parameters: wanglin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@7480fa90]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@3b7a104b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1222457806 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT gift_id FROM t_friend WHERE (username = ?)
+==> Parameters: wanglin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@3b7a104b]
+2026-11-25 14:34:18  INFO org.apache.coyote.http11.Http11Processor.log 170:Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+java.lang.IllegalArgumentException: Invalid character found in the request target [/api/content/owned?username=0xe50x850x830xe60x960x870xe70xbf0xb0 ]. The valid characters are defined in RFC 7230 and RFC 3986
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:478)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1740)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4d21f902] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1139154646 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT content_id FROM t_purchase WHERE (username = ?)
+==> Parameters: test(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4d21f902]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2db14ed] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1089475677 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT gift_id FROM t_friend WHERE (username = ?)
+==> Parameters: test(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2db14ed]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4596022] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1908057765 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT content_id FROM t_purchase WHERE (username = ?)
+==> Parameters: admin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4596022]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2dc70d33] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1657807065 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT gift_id FROM t_friend WHERE (username = ?)
+==> Parameters: admin(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2dc70d33]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@12bce64f] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@477825640 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT content_id FROM t_purchase WHERE (username = ?)
+==> Parameters: attrtest(String)
+<==    Columns: content_id
+<==        Row: 104
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@12bce64f]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5d460053] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@683481898 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT gift_id FROM t_friend WHERE (username = ?)
+==> Parameters: attrtest(String)
+<==      Total: 0
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5d460053]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@504039df] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1030356764 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,title,summary,content,category_id,tags,author,hot,views,status,atk,def,hp,spd,crit,created_at FROM t_content WHERE id=?
+==> Parameters: 104(Long)
+<==    Columns: id, title, summary, content, category_id, tags, author, hot, views, status, atk, def, hp, spd, crit, created_at
+<==        Row: 104, ÉúËÀÖ®µÀ, ÉúÖ®¼«Òâ¿É»îËÀÈË£¬ËÀÖ®¼«Òâ¿ÉÔáÌìµØ¡£, <<BLOB>>, 18, µÀ·¨,ÉúËÀ,ÍõÁÖ,´óµÀ,ÏÉÄæ, ÍõÁÖ, 99900, 16800, 1, 12, 8, 72, 9, 8, 2026-11-25 14:32:54
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@504039df]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1a1bfdf2] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1262793135 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category ORDER BY level ASC,sort_no ASC,id ASC
+==> Parameters: 
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 1, ¹¦·¨, 0, 1, ?, ½£¾÷¡¢»ð·¨¡¢ÌåÐÞ¡¢Éí·¨¡¢ÓùÊÞÖî°ã·¨ÃÅ, 1, 2026-11-25 14:32:54
+<==        Row: 2, µ¤Ò©, 0, 1, ?, ÁÆÉË¡¢Í»ÆÆ¡¢´ã¶¾¸÷Ààµ¤·½, 2, 2026-11-25 14:32:54
+<==        Row: 3, ¶´Ìì, 0, 1, ?, ÃØ¾³ÓëÁéÂöËùÔÚÖ®µØ, 3, 2026-11-25 14:32:54
+<==        Row: 4, µÀÓÑ, 0, 1, ?, ÏÉÃÅÍ¬ÐÞÃûÂ¼, 4, 2026-11-25 14:32:54
+<==        Row: 5, ÂÛµÀ, 0, 1, ?, ÐÞÐÐÐÄµÃÓëÎÊ´ð, 5, 2026-11-25 14:32:54
+<==        Row: 11, ½£¾÷, 1, 2, ¡¤, ÒÔ½£Ö¤µÀ£¬·æÃ¢ÎÞÆ¥, 1, 2026-11-25 14:32:54
+<==        Row: 21, ÁÆÉËµ¤, 2, 2, ¡¤, ÉúËÀÈËÈâ°×¹Ç, 1, 2026-11-25 14:32:54
+<==        Row: 31, ÃØ¾³, 3, 2, ¡¤, ÏÕ¾³²Ø»úÔµ, 1, 2026-11-25 14:32:54
+<==        Row: 41, ½£ÐÞ, 4, 2, ¡¤, Ö´½£Õß, 1, 2026-11-25 14:32:54
+<==        Row: 51, ÐÄµÃ, 5, 2, ¡¤, ÐÞÐÐÌåÎò, 1, 2026-11-25 14:32:54
+<==        Row: 12, »ð·¨, 1, 2, ¡¤, ÁÒÑæ·ÙÌì£¬·Ù¾¡ÖîÐ°, 2, 2026-11-25 14:32:54
+<==        Row: 22, Í»ÆÆµ¤, 2, 2, ¡¤, ÖúÆÆ¾³ÄýÓ¤, 2, 2026-11-25 14:32:54
+<==        Row: 32, ÁéÂö, 3, 2, ¡¤, ÁéÆø»ã¾ÛÖ®µØ, 2, 2026-11-25 14:32:54
+<==        Row: 42, µ¤ÐÞ, 4, 2, ¡¤, Á¶µ¤Õß, 2, 2026-11-25 14:32:54
+<==        Row: 52, ÎÊ´ð, 5, 2, ¡¤, ÒÉÄÑ»¥´ð, 2, 2026-11-25 14:32:54
+<==        Row: 13, ÌåÐÞ, 1, 2, ¡¤, ÒÔÉíÎªÂ¯£¬´ãÁ¶µÀÌå, 3, 2026-11-25 14:32:54
+<==        Row: 23, ¶¾µ¤, 2, 2, ¡¤, Òõ¶¾Ö®Îï£¬É÷ÓÃ, 3, 2026-11-25 14:32:54
+<==        Row: 43, ÌåÐÞ, 4, 2, ¡¤, Á¶ÌåÕß, 3, 2026-11-25 14:32:54
+<==        Row: 14, Éí·¨, 1, 2, ¡¤, À´È¥ÎÞºÛ£¬Ì¤Ðé¶øÐÐ, 4, 2026-11-25 14:32:54
+<==        Row: 44, Ä§ÐÞ, 4, 2, ¡¤, Ä§µÀÐÞÊ¿£¬É±·¥ÎÞ¼É, 4, 2026-11-25 14:32:54
+<==        Row: 15, ÓùÊÞ, 1, 2, ¡¤, ÍòÁé³¼·þ£¬ÌýÎÒºÅÁî, 5, 2026-11-25 14:32:54
+<==        Row: 45, »êÐÞ, 4, 2, ¡¤, Á¶»êÔ¦ÆÇ£¬ÔªÉñÎªµÀ, 5, 2026-11-25 14:32:54
+<==        Row: 16, ÄýÆø, 1, 2, ¡¤, ÐÞÕæ¸ù»ù£¬ÄýÆøÊ®Îå²ã, 6, 2026-11-25 14:32:54
+<==        Row: 46, ¹ÅÉñ, 4, 2, ¡¤, ¹ÅÉñÒ»Âö£¬ÒÔÉíÎªÌì, 6, 2026-11-25 14:32:54
+<==        Row: 17, »êÐÞ, 1, 2, ¡¤, »êÆÇÖ®µÀ£¬ÏòËÀ¶øÉú, 7, 2026-11-25 14:32:54
+<==        Row: 47, µÀÐÞ, 4, 2, ¡¤, ÎòµÀÕß£¬Òâ¾³Îª×Ú, 7, 2026-11-25 14:32:54
+<==        Row: 18, µÀ·¨, 1, 2, ¡¤, ´óµÀ¸ÐÎò£¬ÖîÌì·¨Ôò, 8, 2026-11-25 14:32:54
+<==      Total: 27
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1a1bfdf2]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1d11428] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@29361104 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category WHERE id=?
+==> Parameters: 18(Long)
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 18, µÀ·¨, 1, 2, ¡¤, ´óµÀ¸ÐÎò£¬ÖîÌì·¨Ôò, 8, 2026-11-25 14:32:54
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1d11428]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@41a75f0b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1081612908 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category ORDER BY level ASC,sort_no ASC,id ASC
+==> Parameters: 
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 1, ¹¦·¨, 0, 1, ?, ½£¾÷¡¢»ð·¨¡¢ÌåÐÞ¡¢Éí·¨¡¢ÓùÊÞÖî°ã·¨ÃÅ, 1, 2026-11-25 14:32:54
+<==        Row: 2, µ¤Ò©, 0, 1, ?, ÁÆÉË¡¢Í»ÆÆ¡¢´ã¶¾¸÷Ààµ¤·½, 2, 2026-11-25 14:32:54
+<==        Row: 3, ¶´Ìì, 0, 1, ?, ÃØ¾³ÓëÁéÂöËùÔÚÖ®µØ, 3, 2026-11-25 14:32:54
+<==        Row: 4, µÀÓÑ, 0, 1, ?, ÏÉÃÅÍ¬ÐÞÃûÂ¼, 4, 2026-11-25 14:32:54
+<==        Row: 5, ÂÛµÀ, 0, 1, ?, ÐÞÐÐÐÄµÃÓëÎÊ´ð, 5, 2026-11-25 14:32:54
+<==        Row: 11, ½£¾÷, 1, 2, ¡¤, ÒÔ½£Ö¤µÀ£¬·æÃ¢ÎÞÆ¥, 1, 2026-11-25 14:32:54
+<==        Row: 21, ÁÆÉËµ¤, 2, 2, ¡¤, ÉúËÀÈËÈâ°×¹Ç, 1, 2026-11-25 14:32:54
+<==        Row: 31, ÃØ¾³, 3, 2, ¡¤, ÏÕ¾³²Ø»úÔµ, 1, 2026-11-25 14:32:54
+<==        Row: 41, ½£ÐÞ, 4, 2, ¡¤, Ö´½£Õß, 1, 2026-11-25 14:32:54
+<==        Row: 51, ÐÄµÃ, 5, 2, ¡¤, ÐÞÐÐÌåÎò, 1, 2026-11-25 14:32:54
+<==        Row: 12, »ð·¨, 1, 2, ¡¤, ÁÒÑæ·ÙÌì£¬·Ù¾¡ÖîÐ°, 2, 2026-11-25 14:32:54
+<==        Row: 22, Í»ÆÆµ¤, 2, 2, ¡¤, ÖúÆÆ¾³ÄýÓ¤, 2, 2026-11-25 14:32:54
+<==        Row: 32, ÁéÂö, 3, 2, ¡¤, ÁéÆø»ã¾ÛÖ®µØ, 2, 2026-11-25 14:32:54
+<==        Row: 42, µ¤ÐÞ, 4, 2, ¡¤, Á¶µ¤Õß, 2, 2026-11-25 14:32:54
+<==        Row: 52, ÎÊ´ð, 5, 2, ¡¤, ÒÉÄÑ»¥´ð, 2, 2026-11-25 14:32:54
+<==        Row: 13, ÌåÐÞ, 1, 2, ¡¤, ÒÔÉíÎªÂ¯£¬´ãÁ¶µÀÌå, 3, 2026-11-25 14:32:54
+<==        Row: 23, ¶¾µ¤, 2, 2, ¡¤, Òõ¶¾Ö®Îï£¬É÷ÓÃ, 3, 2026-11-25 14:32:54
+<==        Row: 43, ÌåÐÞ, 4, 2, ¡¤, Á¶ÌåÕß, 3, 2026-11-25 14:32:54
+<==        Row: 14, Éí·¨, 1, 2, ¡¤, À´È¥ÎÞºÛ£¬Ì¤Ðé¶øÐÐ, 4, 2026-11-25 14:32:54
+<==        Row: 44, Ä§ÐÞ, 4, 2, ¡¤, Ä§µÀÐÞÊ¿£¬É±·¥ÎÞ¼É, 4, 2026-11-25 14:32:54
+<==        Row: 15, ÓùÊÞ, 1, 2, ¡¤, ÍòÁé³¼·þ£¬ÌýÎÒºÅÁî, 5, 2026-11-25 14:32:54
+<==        Row: 45, »êÐÞ, 4, 2, ¡¤, Á¶»êÔ¦ÆÇ£¬ÔªÉñÎªµÀ, 5, 2026-11-25 14:32:54
+<==        Row: 16, ÄýÆø, 1, 2, ¡¤, ÐÞÕæ¸ù»ù£¬ÄýÆøÊ®Îå²ã, 6, 2026-11-25 14:32:54
+<==        Row: 46, ¹ÅÉñ, 4, 2, ¡¤, ¹ÅÉñÒ»Âö£¬ÒÔÉíÎªÌì, 6, 2026-11-25 14:32:54
+<==        Row: 17, »êÐÞ, 1, 2, ¡¤, »êÆÇÖ®µÀ£¬ÏòËÀ¶øÉú, 7, 2026-11-25 14:32:54
+<==        Row: 47, µÀÐÞ, 4, 2, ¡¤, ÎòµÀÕß£¬Òâ¾³Îª×Ú, 7, 2026-11-25 14:32:54
+<==        Row: 18, µÀ·¨, 1, 2, ¡¤, ´óµÀ¸ÐÎò£¬ÖîÌì·¨Ôò, 8, 2026-11-25 14:32:54
+<==      Total: 27
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@41a75f0b]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4fbdff52] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@370968360 wrapping com.mysql.cj.jdbc.ConnectionImpl@57affb98] will not be managed by Spring
+==>  Preparing: SELECT id,name,parent_id,level,icon,description,sort_no,created_at FROM t_category ORDER BY level ASC,sort_no ASC,id ASC
+==> Parameters: 
+<==    Columns: id, name, parent_id, level, icon, description, sort_no, created_at
+<==        Row: 1, ¹¦·¨, 0, 1, ?, ½£¾÷¡¢»ð·¨¡¢ÌåÐÞ¡¢Éí·¨¡¢ÓùÊÞÖî°ã·¨ÃÅ, 1, 2026-11-25 14:32:54
+<==        Row: 2, µ¤Ò©, 0, 1, ?, ÁÆÉË¡¢Í»ÆÆ¡¢´ã¶¾¸÷Ààµ¤·½, 2, 2026-11-25 14:32:54
+<==        Row: 3, ¶´Ìì, 0, 1, ?, ÃØ¾³ÓëÁéÂöËùÔÚÖ®µØ, 3, 2026-11-25 14:32:54
+<==        Row: 4, µÀÓÑ, 0, 1, ?, ÏÉÃÅÍ¬ÐÞÃûÂ¼, 4, 2026-11-25 14:32:54
+<==        Row: 5, ÂÛµÀ, 0, 1, ?, ÐÞÐÐÐÄµÃÓëÎÊ´ð, 5, 2026-11-25 14:32:54
+<==        Row: 11, ½£¾÷, 1, 2, ¡¤, ÒÔ½£Ö¤µÀ£¬·æÃ¢ÎÞÆ¥, 1, 2026-11-25 14:32:54
+<==        Row: 21, ÁÆÉËµ¤, 2, 2, ¡¤, ÉúËÀÈËÈâ°×¹Ç, 1, 2026-11-25 14:32:54
+<==        Row: 31, ÃØ¾³, 3, 2, ¡¤, ÏÕ¾³²Ø»úÔµ, 1, 2026-11-25 14:32:54
+<==        Row: 41, ½£ÐÞ, 4, 2, ¡¤, Ö´½£Õß, 1, 2026-11-25 14:32:54
+<==        Row: 51, ÐÄµÃ, 5, 2, ¡¤, ÐÞÐÐÌåÎò, 1, 2026-11-25 14:32:54
+<==        Row: 12, »ð·¨, 1, 2, ¡¤, ÁÒÑæ·ÙÌì£¬·Ù¾¡ÖîÐ°, 2, 2026-11-25 14:32:54
+<==        Row: 22, Í»ÆÆµ¤, 2, 2, ¡¤, ÖúÆÆ¾³ÄýÓ¤, 2, 2026-11-25 14:32:54
+<==        Row: 32, ÁéÂö, 3, 2, ¡¤, ÁéÆø»ã¾ÛÖ®µØ, 2, 2026-11-25 14:32:54
+<==        Row: 42, µ¤ÐÞ, 4, 2, ¡¤, Á¶µ¤Õß, 2, 2026-11-25 14:32:54
+<==        Row: 52, ÎÊ´ð, 5, 2, ¡¤, ÒÉÄÑ»¥´ð, 2, 2026-11-25 14:32:54
+<==        Row: 13, ÌåÐÞ, 1, 2, ¡¤, ÒÔÉíÎªÂ¯£¬´ãÁ¶µÀÌå, 3, 2026-11-25 14:32:54
+<==        Row: 23, ¶¾µ¤, 2, 2, ¡¤, Òõ¶¾Ö®Îï£¬É÷ÓÃ, 3, 2026-11-25 14:32:54
+<==        Row: 43, ÌåÐÞ, 4, 2, ¡¤, Á¶ÌåÕß, 3, 2026-11-25 14:32:54
+<==        Row: 14, Éí·¨, 1, 2, ¡¤, À´È¥ÎÞºÛ£¬Ì¤Ðé¶øÐÐ, 4, 2026-11-25 14:32:54
+<==        Row: 44, Ä§ÐÞ, 4, 2, ¡¤, Ä§µÀÐÞÊ¿£¬É±·¥ÎÞ¼É, 4, 2026-11-25 14:32:54
+<==        Row: 15, ÓùÊÞ, 1, 2, ¡¤, ÍòÁé³¼·þ£¬ÌýÎÒºÅÁî, 5, 2026-11-25 14:32:54
+<==        Row: 45, »êÐÞ, 4, 2, ¡¤, Á¶»êÔ¦ÆÇ£¬ÔªÉñÎªµÀ, 5, 2026-11-25 14:32:54
+<==        Row: 16, ÄýÆø, 1, 2, ¡¤, ÐÞÕæ¸ù»ù£¬ÄýÆøÊ®Îå²ã, 6, 2026-11-25 14:32:54
+<==        Row: 46, ¹ÅÉñ, 4, 2, ¡¤, ¹ÅÉñÒ»Âö£¬ÒÔÉíÎªÌì, 6, 2026-11-25 14:32:54
+<==        Row: 17, »êÐÞ, 1, 2, ¡¤, »êÆÇÖ®µÀ£¬ÏòËÀ¶øÉú, 7, 2026-11-25 14:32:54
+<==        Row: 47, µÀÐÞ, 4, 2, ¡¤, ÎòµÀÕß£¬Òâ¾³Îª×Ú, 7, 2026-11-25 14:32:54
+<==        Row: 18, µÀ·¨, 1, 2, ¡¤, ´óµÀ¸ÐÎò£¬ÖîÌì·¨Ôò, 8, 2026-11-25 14:32:54
+<==      Total: 27
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4fbdff52]
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.4.5:run (default-cli) on project springBootTest: Process terminated with exit code: -1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

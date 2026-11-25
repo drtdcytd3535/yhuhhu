@@ -22,6 +22,11 @@ import java.util.List;
  * @param price        灵石售价（0 表示免费内容）
  * @param topCategory  顶级分类名（如 功法 / 丹药 / 道友），供前端判断可执行的动作
  * @param befriended   是否已与之道友结交（仅「道友」类内容有效）
+ * @param atk          战斗属性：攻击
+ * @param def          战斗属性：防御
+ * @param hp           战斗属性：气血
+ * @param spd          战斗属性：身法
+ * @param crit         战斗属性：暴击率(%)
  */
 public record ContentDetail(
         Long id,
@@ -39,6 +44,11 @@ public record ContentDetail(
         boolean locked,
         long price,
         String topCategory,
-        boolean befriended
+        boolean befriended,
+        Integer atk,
+        Integer def,
+        Integer hp,
+        Integer spd,
+        Integer crit
 ) {
 }

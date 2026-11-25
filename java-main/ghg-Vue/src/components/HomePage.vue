@@ -345,6 +345,15 @@
             <span v-for="t in detail.tags" :key="t" class="dt-tag">{{ t }}</span>
           </div>
 
+          <!-- 功法 / 丹药战斗属性：购入后计入洞府总属性 -->
+          <div v-if="detailStats.length" class="dt-stats">
+            <span>战斗加成</span>
+            <span v-for="s in detailStats" :key="s.key" class="dt-stat">
+              {{ s.ico }} {{ s.name }} +{{ s.value }}
+            </span>
+            <em>购入后计入洞府总属性</em>
+          </div>
+
           <!-- 未购入：功法 / 丹药需以灵石换取（购入按钮在下方的操作区，占原收藏之位） -->
           <div v-if="detail.locked" class="dt-locked">
             <p class="lock-ico">◈</p>
@@ -456,7 +465,7 @@ import CultivatePanel from './CultivatePanel.vue'
 import MarketPanel from './MarketPanel.vue'
 import BgParticles from './BgParticles.vue'
 import ArtBackground from './ArtBackground.vue'
-import { cave, realm, initCave, clearCave, isFav, addFav, removeFav, pushHistory, setStones, setExp } from '../composables/useCave.js'
+import { cave, realm, initCave, clearCave, isFav, addFav, addGiftFav, removeFav, pushHistory, setStones, setExp, STAT_DEFS, contentStats, loadOwnedContent } from '../composables/useCave.js'
 import { clearSect } from '../composables/useSect.js'
 
 const props = defineProps({
@@ -773,6 +782,12 @@ async function loadRecommend() {
 /* ---------------- 详情 ---------------- */
 const detail = ref(null)
 
+/** 详情中的战斗属性（功法 / 丹药购入后计入洞府总属性） */
+const detailStats = computed(() => {
+  const st = contentStats(detail.value)
+  return STAT_DEFS.filter((d) => st[d.key] > 0).map((d) => ({ ...d, value: st[d.key] }))
+})
+
 async function openDetail(id) {
   const data = await api(`/api/content/${id}?username=${encodeURIComponent(props.username || '')}`)
   if (!data) return
@@ -914,6 +929,8 @@ async function befriendDetail() {
     if (r?.gift) {
       // 所得功法入藏书阁，点「研读」可直接开卷
       const add = addGiftFav(r.gift)
+      // 道友所授功法同样计入洞府总属性
+      loadOwnedContent(props.username)
       toast(r.msg + (add.ok ? ' · 已收入藏书阁' : ''))
     } else {
       toast(r?.msg || '已结为道友')
@@ -944,6 +961,8 @@ async function buyDetail() {
     if (body?.success) {
       // 以云端结算后的余额为准，同步洞府灵石
       if (body.data?.stones != null) setStones(body.data.stones)
+      // 秘卷已入囊中：刷新已得功法丹药，洞府总属性即时生效
+      loadOwnedContent(props.username)
       toast(body.message || '灵石已付，秘卷归你')
       const id = d.id
       detail.value = null
@@ -2344,6 +2363,34 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 8px;
   margin: 16px 0 18px;
+}
+
+/* 功法 / 丹药战斗属性 */
+.dt-stats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: -6px 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(232, 198, 107, 0.07);
+  border: 1px solid rgba(232, 198, 107, 0.24);
+  font-size: 12px;
+  color: rgba(233, 238, 251, 0.6);
+}
+.dt-stat {
+  padding: 2px 9px;
+  border-radius: 6px;
+  color: var(--gold);
+  background: rgba(232, 198, 107, 0.12);
+  border: 1px solid rgba(232, 198, 107, 0.3);
+}
+.dt-stats em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  color: rgba(233, 238, 251, 0.4);
 }
 
 .dt-tag {

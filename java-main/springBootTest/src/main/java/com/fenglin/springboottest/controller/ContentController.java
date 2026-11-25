@@ -2,8 +2,10 @@ package com.fenglin.springboottest.controller;
 
 import com.fenglin.springboottest.common.Result;
 import com.fenglin.springboottest.dto.BuyResult;
+import com.fenglin.springboottest.dto.ContentCard;
 import com.fenglin.springboottest.dto.ContentDetail;
 import com.fenglin.springboottest.service.IContentService;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,5 +53,16 @@ public class ContentController {
             return Result.fail(r.msg());
         }
         return Result.ok(r.msg(), r);
+    }
+
+    /**
+     * 某道号已得的功法 / 丹药（购入 + 道友赠予），含战斗属性
+     * 洞府「总属性」据此统计已学功法、已服丹药的加成。
+     * <p>GET /api/content/owned?username=道号</p>
+     */
+    @GetMapping("/owned")
+    public Result owned(@RequestParam(value = "username", defaultValue = "") String username) {
+        List<ContentCard> items = contentService.ownedContent(username);
+        return Result.ok("已得功法丹药 " + items.size() + " 卷", items);
     }
 }

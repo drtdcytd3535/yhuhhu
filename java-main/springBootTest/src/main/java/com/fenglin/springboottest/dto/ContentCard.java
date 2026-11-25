@@ -17,6 +17,11 @@ import java.time.LocalDateTime;
  * @param views        浏览量
  * @param createdAt    创建时间
  * @param price        灵石售价（0 表示免费；功法 200 / 丹药 100）
+ * @param atk          战斗属性：攻击
+ * @param def          战斗属性：防御
+ * @param hp           战斗属性：气血
+ * @param spd          战斗属性：身法
+ * @param crit         战斗属性：暴击率(%)
  */
 public record ContentCard(
         Long id,
@@ -30,6 +35,11 @@ public record ContentCard(
         Integer hot,
         Integer views,
         LocalDateTime createdAt,
-        long price
+        long price,
+        Integer atk,
+        Integer def,
+        Integer hp,
+        Integer spd,
+        Integer crit
 ) {
 }

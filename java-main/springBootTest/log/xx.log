@@ -4702,3 +4702,193 @@ logging.pattern.console=2026-11-25 09:37:51  INFO c.f.springboottest.config.Benz
 logging.pattern.console=2026-11-25 09:39:01  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring DispatcherServlet 'dispatcherServlet'
 logging.pattern.console=2026-11-25 09:39:01  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 532:Initializing Servlet 'dispatcherServlet'
 logging.pattern.console=2026-11-25 09:39:01  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 554:Completed initialization in 0 ms
+logging.pattern.console=2026-11-25 14:32:53  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 2272 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-11-25 14:32:53  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-11-25 14:32:53  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-11-25 14:32:53  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-11-25 14:32:54  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-11-25 14:32:54  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-11-25 14:32:54  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-11-25 14:32:54  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-11-25 14:32:54  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1053 ms
+logging.pattern.console=2026-11-25 14:32:54  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-11-25 14:32:54  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@2ee17f45
+logging.pattern.console=2026-11-25 14:32:54  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-11-25 14:32:55  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-11-25 14:32:55  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-11-25 14:32:55  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-11-25 14:32:55  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 2.945 seconds (process running for 3.295)
+logging.pattern.console=2026-11-25 14:32:55  INFO c.f.springboottest.config.UserPermissionBootstrap.ensureDefaultAdmin 89:[权限] 已创建默认管理员 admin / admin123（请尽快改掉默认秘语）
+logging.pattern.console=2026-11-25 14:32:55  INFO c.f.springboottest.config.PurchaseTableBootstrap.run 41:[坊市] t_purchase 表已就绪
+logging.pattern.console=2026-11-25 14:32:55  INFO c.f.springboottest.config.FriendTableBootstrap.run 42:[道友录] t_friend 表已就绪
+logging.pattern.console=2026-11-25 14:32:55  INFO c.f.springboottest.config.CaveTrainTableBootstrap.run 43:[洞天福地] t_cave_train 表已就绪
+logging.pattern.console=2026-11-25 14:32:55  INFO c.f.springboottest.config.BenzunTableBootstrap.run 46:[本尊] t_benzun 表已就绪
+logging.pattern.console=2026-11-25 14:32:55  INFO c.f.springboottest.config.ContentStatsBootstrap.fillDefaultStats 96:[属性] 已为 70 卷功法/丹药写入默认战斗属性
+logging.pattern.console=2026-11-25 14:32:55  INFO c.f.springboottest.config.ContentStatsBootstrap.run 40:[属性] t_content 战斗属性列已就绪
+logging.pattern.console=2026-11-25 14:33:37  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 4088 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-11-25 14:33:37  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-11-25 14:33:37  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-11-25 14:33:37  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-11-25 14:33:38  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-11-25 14:33:38  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-11-25 14:33:38  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-11-25 14:33:38  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-11-25 14:33:38  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1498 ms
+logging.pattern.console=2026-11-25 14:33:38  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-11-25 14:33:39  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@57affb98
+logging.pattern.console=2026-11-25 14:33:39  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-11-25 14:33:39  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-11-25 14:33:40  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-11-25 14:33:40  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-11-25 14:33:40  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 3.485 seconds (process running for 3.877)
+logging.pattern.console=2026-11-25 14:33:40  INFO c.f.springboottest.config.PurchaseTableBootstrap.run 41:[坊市] t_purchase 表已就绪
+logging.pattern.console=2026-11-25 14:33:40  INFO c.f.springboottest.config.FriendTableBootstrap.run 42:[道友录] t_friend 表已就绪
+logging.pattern.console=2026-11-25 14:33:40  INFO c.f.springboottest.config.CaveTrainTableBootstrap.run 43:[洞天福地] t_cave_train 表已就绪
+logging.pattern.console=2026-11-25 14:33:40  INFO c.f.springboottest.config.BenzunTableBootstrap.run 46:[本尊] t_benzun 表已就绪
+logging.pattern.console=2026-11-25 14:33:40  INFO c.f.springboottest.config.ContentStatsBootstrap.run 40:[属性] t_content 战斗属性列已就绪
+logging.pattern.console=2026-11-25 14:33:55  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring DispatcherServlet 'dispatcherServlet'
+logging.pattern.console=2026-11-25 14:33:55  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 532:Initializing Servlet 'dispatcherServlet'
+logging.pattern.console=2026-11-25 14:33:55  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 554:Completed initialization in 1 ms
+logging.pattern.console=2026-11-25 14:34:18  INFO org.apache.coyote.http11.Http11Processor.log 170:Error parsing HTTP request header
+ Note: further occurrences of HTTP request parsing errors will be logged at DEBUG level.
+java.lang.IllegalArgumentException: Invalid character found in the request target [/api/content/owned?username=0xe50x850x830xe60x960x870xe70xbf0xb0 ]. The valid characters are defined in RFC 7230 and RFC 3986
+	at org.apache.coyote.http11.Http11InputBuffer.parseRequestLine(Http11InputBuffer.java:478)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:271)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1740)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+logging.pattern.console=2026-11-25 14:41:50  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 11092 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-11-25 14:41:50  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-11-25 14:41:50  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-11-25 14:41:50  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-11-25 14:41:51  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-11-25 14:41:51  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-11-25 14:41:51  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-11-25 14:41:51  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-11-25 14:41:51  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 956 ms
+logging.pattern.console=2026-11-25 14:41:51  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-11-25 14:41:51  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@520ebd9a
+logging.pattern.console=2026-11-25 14:41:51  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-11-25 14:41:51  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-11-25 14:41:52  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-11-25 14:41:52  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-11-25 14:41:52  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 2.318 seconds (process running for 2.644)
+logging.pattern.console=2026-11-25 14:41:52  INFO c.f.springboottest.config.PurchaseTableBootstrap.run 41:[坊市] t_purchase 表已就绪
+logging.pattern.console=2026-11-25 14:41:52  INFO c.f.springboottest.config.FriendTableBootstrap.run 42:[道友录] t_friend 表已就绪
+logging.pattern.console=2026-11-25 14:41:52  INFO c.f.springboottest.config.CaveTrainTableBootstrap.run 43:[洞天福地] t_cave_train 表已就绪
+logging.pattern.console=2026-11-25 14:41:52  INFO c.f.springboottest.config.BenzunTableBootstrap.run 46:[本尊] t_benzun 表已就绪
+logging.pattern.console=2026-11-25 14:41:52  WARN c.f.springboottest.config.ContentStatsBootstrap.run 42:[属性] 战斗属性迁移失败：StatementCallback; bad SQL grammar [ALTER TABLE t_content ADD COLUMN `atk` INT NOT NULL DEFAULT 0 COMMENT '战斗属性')]
+logging.pattern.console=2026-11-25 14:43:04  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 2028 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-11-25 14:43:04  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-11-25 14:43:04  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-11-25 14:43:04  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-11-25 14:43:05  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-11-25 14:43:05  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-11-25 14:43:05  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-11-25 14:43:06  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-11-25 14:43:06  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 1214 ms
+logging.pattern.console=2026-11-25 14:43:06  WARN o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext.refresh 635:Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'adminAuthInterceptor' defined in file [D:\workSpace\yhuhhu\java-main\springBootTest\target\classes\com\fenglin\springboottest\config\AdminAuthInterceptor.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'userServiceImpl': Lookup method resolution failed
+logging.pattern.console=2026-11-25 14:43:06  INFO org.apache.catalina.core.StandardService.log 168:Stopping service [Tomcat]
+logging.pattern.console=2026-11-25 14:43:06  INFO o.s.b.a.logging.ConditionEvaluationReportLogger.logMessage 82:
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+logging.pattern.console=2026-11-25 14:43:06  ERROR org.springframework.boot.SpringApplication.reportFailure 858:Application run failed
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'adminAuthInterceptor' defined in file [D:\workSpace\yhuhhu\java-main\springBootTest\target\classes\com\fenglin\springboottest\config\AdminAuthInterceptor.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'userServiceImpl': Lookup method resolution failed
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1387)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1224)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1221)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1187)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1122)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1362)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1351)
+	at com.fenglin.springboottest.SpringBootTestApplication.main(SpringBootTestApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'userServiceImpl': Lookup method resolution failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.checkLookupMethods(AutowiredAnnotationBeanPostProcessor.java:498)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.determineCandidateConstructors(AutowiredAnnotationBeanPostProcessor.java:368)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.determineConstructorsFromBeanPostProcessors(AbstractAutowireCapableBeanFactory.java:1326)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1221)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:569)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1739)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1627)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+	... 24 common frames omitted
+Caused by: java.lang.IllegalStateException: Failed to introspect Class [com.fenglin.springboottest.service.impl.UserServiceImpl] from ClassLoader [org.springframework.boot.devtools.restart.classloader.RestartClassLoader@554126fb]
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:483)
+	at org.springframework.util.ReflectionUtils.doWithLocalMethods(ReflectionUtils.java:320)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.checkLookupMethods(AutowiredAnnotationBeanPostProcessor.java:476)
+	... 38 common frames omitted
+Caused by: java.lang.NoClassDefFoundError: com/fenglin/springboottest/entity/User
+	at java.base/java.lang.Class.getDeclaredMethods0(Native Method)
+	at java.base/java.lang.Class.privateGetDeclaredMethods(Class.java:3580)
+	at java.base/java.lang.Class.getDeclaredMethods(Class.java:2678)
+	at org.springframework.util.ReflectionUtils.getDeclaredMethods(ReflectionUtils.java:465)
+	... 40 common frames omitted
+Caused by: java.lang.ClassNotFoundException: com.fenglin.springboottest.entity.User
+	at java.base/jdk.internal.loader.BuiltinClassLoader.loadClass(BuiltinClassLoader.java:641)
+	at java.base/jdk.internal.loader.ClassLoaders$AppClassLoader.loadClass(ClassLoaders.java:188)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	at java.base/java.lang.Class.forName0(Native Method)
+	at java.base/java.lang.Class.forName(Class.java:536)
+	at java.base/java.lang.Class.forName(Class.java:515)
+	at org.springframework.boot.devtools.restart.classloader.RestartClassLoader.loadClass(RestartClassLoader.java:121)
+	at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:526)
+	... 44 common frames omitted
+logging.pattern.console=2026-11-25 14:43:19  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarting 53:Starting SpringBootTestApplication using Java 21.0.10 with PID 5804 (D:\workSpace\yhuhhu\java-main\springBootTest\target\classes started by Administrator in D:\workSpace\yhuhhu\java-main\springBootTest)
+logging.pattern.console=2026-11-25 14:43:19  INFO c.fenglin.springboottest.SpringBootTestApplication.logStartupProfileInfo 658:The following 1 profile is active: "dev"
+logging.pattern.console=2026-11-25 14:43:19  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+logging.pattern.console=2026-11-25 14:43:19  INFO o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor.logTo 252:For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+logging.pattern.console=2026-11-25 14:43:20  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.initialize 111:Tomcat initialized with port 8081 (http)
+logging.pattern.console=2026-11-25 14:43:20  INFO org.apache.catalina.core.StandardService.log 168:Starting service [Tomcat]
+logging.pattern.console=2026-11-25 14:43:20  INFO org.apache.catalina.core.StandardEngine.log 168:Starting Servlet engine: [Apache Tomcat/10.1.40]
+logging.pattern.console=2026-11-25 14:43:20  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring embedded WebApplicationContext
+logging.pattern.console=2026-11-25 14:43:20  INFO o.s.b.w.s.c.ServletWebServerApplicationContext.prepareWebApplicationContext 301:Root WebApplicationContext: initialization completed in 957 ms
+logging.pattern.console=2026-11-25 14:43:21  INFO com.zaxxer.hikari.HikariDataSource.getConnection 109:HikariPool-1 - Starting...
+logging.pattern.console=2026-11-25 14:43:21  INFO com.zaxxer.hikari.pool.HikariPool.checkFailFast 554:HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@44e6432b
+logging.pattern.console=2026-11-25 14:43:21  INFO com.zaxxer.hikari.HikariDataSource.getConnection 122:HikariPool-1 - Start completed.
+logging.pattern.console=2026-11-25 14:43:21  INFO o.s.b.a.web.servlet.WelcomePageHandlerMapping.<init> 59:Adding welcome page: class path resource [static/index.html]
+logging.pattern.console=2026-11-25 14:43:22  INFO o.s.b.d.autoconfigure.OptionalLiveReloadServer.startServer 59:LiveReload server is running on port 35729
+logging.pattern.console=2026-11-25 14:43:22  INFO o.s.boot.web.embedded.tomcat.TomcatWebServer.start 243:Tomcat started on port 8081 (http) with context path '/'
+logging.pattern.console=2026-11-25 14:43:22  INFO c.fenglin.springboottest.SpringBootTestApplication.logStarted 59:Started SpringBootTestApplication in 2.539 seconds (process running for 2.853)
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.PurchaseTableBootstrap.run 41:[坊市] t_purchase 表已就绪
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.FriendTableBootstrap.run 42:[道友录] t_friend 表已就绪
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.CaveTrainTableBootstrap.run 43:[洞天福地] t_cave_train 表已就绪
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.BenzunTableBootstrap.run 46:[本尊] t_benzun 表已就绪
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.ContentStatsBootstrap.addMissingColumns 57:[属性] 已补列 t_content.atk
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.ContentStatsBootstrap.addMissingColumns 57:[属性] 已补列 t_content.def
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.ContentStatsBootstrap.addMissingColumns 57:[属性] 已补列 t_content.hp
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.ContentStatsBootstrap.addMissingColumns 57:[属性] 已补列 t_content.spd
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.ContentStatsBootstrap.addMissingColumns 57:[属性] 已补列 t_content.crit
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.ContentStatsBootstrap.fillDefaultStats 96:[属性] 已为 70 卷功法/丹药写入默认战斗属性
+logging.pattern.console=2026-11-25 14:43:22  INFO c.f.springboottest.config.ContentStatsBootstrap.run 40:[属性] t_content 战斗属性列已就绪
+logging.pattern.console=2026-11-25 14:43:35  INFO o.a.c.core.ContainerBase.[Tomcat].[localhost].[/].log 168:Initializing Spring DispatcherServlet 'dispatcherServlet'
+logging.pattern.console=2026-11-25 14:43:35  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 532:Initializing Servlet 'dispatcherServlet'
+logging.pattern.console=2026-11-25 14:43:35  INFO org.springframework.web.servlet.DispatcherServlet.initServletBean 554:Completed initialization in 2 ms

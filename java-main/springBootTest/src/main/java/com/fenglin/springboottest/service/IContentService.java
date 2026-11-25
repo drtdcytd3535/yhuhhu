@@ -60,6 +60,13 @@ public interface IContentService extends IService<Content> {
      */
     long priceOfCategory(Long categoryId);
 
+    /**
+     * 某道号已得的功法 / 丹药（灵石购入 + 道友赠予），含战斗属性，供洞府总属性统计
+     *
+     * @param username 道号
+     */
+    List<ContentCard> ownedContent(String username);
+
     /** 总内容数 */
     long totalCount();
 

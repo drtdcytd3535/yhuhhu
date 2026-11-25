@@ -20,6 +20,11 @@ public record AdminContentRow(
         Integer hot,
         Integer views,
         Integer status,
+        Integer atk,
+        Integer def,
+        Integer hp,
+        Integer spd,
+        Integer crit,
         LocalDateTime createdAt
 ) {
 }

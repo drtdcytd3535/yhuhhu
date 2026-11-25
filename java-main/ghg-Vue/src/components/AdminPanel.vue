@@ -169,6 +169,17 @@
           </label>
         </div>
 
+        <p class="fld-hint">战斗属性 · 功法/丹药购入后计入道友洞府总属性（数值≥0）</p>
+        <div class="fld-row stat-row">
+          <label class="fld"><span>⚔ 攻击</span><input v-model.number="form.atk" type="number" min="0" /></label>
+          <label class="fld"><span>⛨ 防御</span><input v-model.number="form.def" type="number" min="0" /></label>
+          <label class="fld"><span>❤ 气血</span><input v-model.number="form.hp" type="number" min="0" /></label>
+        </div>
+        <div class="fld-row stat-row">
+          <label class="fld"><span>➤ 身法</span><input v-model.number="form.spd" type="number" min="0" /></label>
+          <label class="fld"><span>✦ 暴击(%)</span><input v-model.number="form.crit" type="number" min="0" /></label>
+        </div>
+
         <div class="editor-ops">
           <button class="op" @click="editorOpen = null">作罢</button>
           <button class="op primary" :disabled="saving" @click="saveContent">
@@ -221,6 +232,11 @@ function blankForm() {
     tags: '',
     author: '',
     hot: 0,
+    atk: 0,
+    def: 0,
+    hp: 0,
+    spd: 0,
+    crit: 0,
     status: 1
   }
 }
@@ -326,6 +342,11 @@ function openEditor(item) {
         tags: item.tags || '',
         author: item.author || '',
         hot: item.hot ?? 0,
+        atk: item.atk ?? 0,
+        def: item.def ?? 0,
+        hp: item.hp ?? 0,
+        spd: item.spd ?? 0,
+        crit: item.crit ?? 0,
         status: item.status ?? 1
       }
     : blankForm()
@@ -846,6 +867,17 @@ onBeforeUnmount(() => clearTimeout(toastTimer))
 
 .fld-row .fld {
   flex: 1;
+}
+
+.fld-hint {
+  margin: 4px 0 -4px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: rgba(232, 198, 107, 0.75);
+}
+
+.stat-row .fld input {
+  border-color: rgba(232, 198, 107, 0.28);
 }
 
 .editor-ops {

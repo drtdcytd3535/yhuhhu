@@ -12,6 +12,7 @@ import { reactive, computed, ref } from 'vue'
 /* ==================== 接口地址 ==================== */
 const API_CAVE = '/api/cave'
 const API_REALMS = '/api/realms'
+const API_CONTENT = '/api/content'
 
 /* ==================== 内置境界配置（兜底） ==================== */
 
@@ -366,6 +367,58 @@ export const wornStats = computed(() => {
 /** 佩戴装备的总战力（未佩戴为 0），挑战宗门用此判定可否应战 */
 export const wornPower = computed(() => battlePower(wornStats.value))
 
+/* ==================== 已得功法 / 丹药的属性 ==================== */
+
+/**
+ * 道号已得的功法 / 丹药列表（灵石购入 + 道友赠予），由后端 /api/content/owned 返回。
+ * 属性存在内容表里，此处只做汇总，不写入洞府存档，换设备登录同样能取回。
+ */
+export const ownedContent = ref([])
+
+/** 从一卷功法/丹药中取出战斗属性（字段缺失按 0 计） */
+export function contentStats(item) {
+  const zero = { atk: 0, def: 0, hp: 0, spd: 0, crit: 0 }
+  if (!item) return zero
+  return {
+    atk: Number(item.atk) || 0,
+    def: Number(item.def) || 0,
+    hp: Number(item.hp) || 0,
+    spd: Number(item.spd) || 0,
+    crit: Number(item.crit) || 0
+  }
+}
+
+/** 已购功法 / 丹药的战斗属性合计（未载入时为全 0） */
+export const learnedStats = computed(() => {
+  const sum = { atk: 0, def: 0, hp: 0, spd: 0, crit: 0 }
+  for (const c of ownedContent.value || []) {
+    const st = contentStats(c)
+    sum.atk += st.atk
+    sum.def += st.def
+    sum.hp += st.hp
+    sum.spd += st.spd
+    sum.crit += st.crit
+  }
+  return sum
+})
+
+/** 拉取某道号已得的功法 / 丹药（含属性），失败则保留空列表，不影响离线体验 */
+export async function loadOwnedContent(username) {
+  const name = username || cave.username
+  if (typeof fetch !== 'function' || !name || name === '道友') {
+    ownedContent.value = []
+    return
+  }
+  try {
+    const res = await fetch(`${API_CONTENT}/owned?username=${encodeURIComponent(name)}`)
+    const body = await res.json().catch(() => null)
+    ownedContent.value = body?.success && Array.isArray(body.data) ? body.data : []
+  } catch {
+    /* 后端未启动或断网：总属性只展示底子与装备，不影响其它玩法 */
+    ownedContent.value = []
+  }
+}
+
 /* ==================== 工具 ==================== */
 
 /** 今日日期 yyyy-mm-dd */
@@ -632,7 +685,7 @@ export async function initCave(username) {
   cave.username = username || '道友'
   cave.cloud = false
   readLocal()
-  await Promise.all([loadRealms(), pullFromServer()])
+  await Promise.all([loadRealms(), pullFromServer(), loadOwnedContent(username)])
 }
 
 /**
@@ -657,6 +710,7 @@ export function clearCave() {
   cave.savedAt = 0
   cave.synced = false
   cave.cloud = false
+  ownedContent.value = []
 }
 
 /** 重置洞府：清空内存、本地缓存，并删除数据库中此道号的一切记录

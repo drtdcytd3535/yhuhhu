@@ -49,6 +49,59 @@
       </button>
     </div>
 
+    <!-- ================= 总属性 ================= -->
+    <div class="cave-panel attrs">
+      <div class="panel-head">
+        <h3>道行总属性</h3>
+        <span class="panel-count">根基 · 法宝 · 功法丹药 · 修为</span>
+        <div class="panel-tools">
+          <button class="panel-tool" :class="{ on: attrDetail }" @click="attrDetail = !attrDetail">
+            {{ attrDetail ? '收起明细' : '查看明细' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="attr-power">
+        <span class="ap-label">战力</span>
+        <b class="ap-num">{{ totalPower }}</b>
+        <span class="ap-note">
+          {{ equippedItem ? `佩「${equippedItem.name}」` : '未佩法宝' }}
+          · 已得功法丹药 {{ ownedContent.length }} 卷
+        </span>
+      </div>
+
+      <div class="attr-grid">
+        <div v-for="a in totalBreakdown" :key="a.key" class="attr-cell">
+          <p class="ac-top"><i>{{ a.ico }}</i>{{ a.name }}</p>
+          <p class="ac-value">{{ a.value }}<em v-if="a.suffix">{{ a.suffix }}</em></p>
+          <p class="ac-from">
+            根基 {{ a.base }}
+            <template v-if="a.eq"> · 法宝 +{{ a.eq }}</template>
+            <template v-if="a.skill"> · 功法丹药 +{{ a.skill }}</template>
+            <template v-if="a.realm"> · 修为 +{{ a.realm }}</template>
+          </p>
+        </div>
+      </div>
+
+      <div v-if="attrDetail" class="attr-detail">
+        <template v-if="ownedContent.length">
+          <p class="ad-title">已得功法 / 丹药（购入与道友所授皆计）</p>
+          <ul class="ad-list">
+            <li v-for="c in ownedContent" :key="c.id">
+              <span class="ad-path">{{ c.categoryPath || '未分类' }}</span>
+              <span class="ad-name">{{ c.title }}</span>
+              <span class="ad-stats">
+                <template v-for="s in statOf(c)" :key="s.key">{{ s.ico }}+{{ s.value }} </template>
+              </span>
+            </li>
+          </ul>
+        </template>
+        <p v-else class="ad-empty">
+          尚未习得功法、服食丹药。前往天宝坊市的功法阁 / 丹阁，以灵石购入即可增长属性。
+        </p>
+      </div>
+    </div>
+
     <!-- ================= 境界总览 ================= -->
     <RealmTable class="cave-realm" storage-key="cave" />
 
@@ -180,7 +233,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeUnmount } from 'vue'
+import { computed, ref, watch, onBeforeUnmount } from 'vue'
 import RealmTable from './RealmTable.vue'
 import {
   cave,
@@ -189,8 +242,17 @@ import {
   nextRealm,
   isSignedToday,
   sign,
-  resetCave
+  resetCave,
+  STAT_DEFS,
+  battlePower,
+  wornStats,
+  equippedItem,
+  ownedContent,
+  learnedStats,
+  contentStats,
+  loadOwnedContent
 } from '../composables/useCave.js'
+import { PLAYER_BASE } from '../composables/useSect.js'
 
 const props = defineProps({
   username: { type: String, default: '道友' },
@@ -316,6 +378,45 @@ function openAnime() {
   emit('toast', '正在开启腾讯视频 · 《仙逆》动漫')
 }
 
+/* ---------------- 总属性：根基 + 法宝 + 功法丹药 + 修为 ---------------- */
+const attrDetail = ref(false)
+
+/** 修为养出的气血：与宗门挑战 playerStats 同一口径 */
+const realmHp = computed(() => Math.round(Math.pow(Math.max(0, Number(cave.exp) || 0), 0.6) * 0.8))
+
+/** 逐项列出五维属性的来源，便于看清每一分加成从何而来 */
+const totalBreakdown = computed(() => {
+  const worn = wornStats.value
+  const skill = learnedStats.value
+  return STAT_DEFS.map((d) => {
+    const base = PLAYER_BASE[d.key] || 0
+    const eq = worn[d.key] || 0
+    const fromSkill = skill[d.key] || 0
+    const fromRealm = d.key === 'hp' ? realmHp.value : 0
+    return {
+      ...d,
+      base,
+      eq,
+      skill: fromSkill,
+      realm: fromRealm,
+      value: base + eq + fromSkill + fromRealm
+    }
+  })
+})
+
+/** 战力评定复用与宗门同一套公式，两套面板口径一致 */
+const totalPower = computed(() => {
+  const s = {}
+  for (const a of totalBreakdown.value) s[a.key] = a.value
+  return battlePower(s)
+})
+
+/** 一卷功法/丹药的非零属性，用于明细列表 */
+function statOf(c) {
+  const st = contentStats(c)
+  return STAT_DEFS.filter((d) => st[d.key] > 0).map((d) => ({ ...d, value: st[d.key] }))
+}
+
 /* ---------------- 签到 / 进度 ---------------- */
 const signed = computed(() => isSignedToday())
 const progressPct = computed(() => Math.round(realmProgress.value * 100))
@@ -325,6 +426,13 @@ function onSign() {
   const r = sign()
   emit('toast', r.msg)
 }
+
+/* 进入洞府 / 换道号时刷新已得功法丹药，保证总属性为最新 */
+watch(
+  () => props.username,
+  (name) => loadOwnedContent(name),
+  { immediate: true }
+)
 
 /* ---------------- 重置（二次确认，因会删除云端存档） ---------------- */
 const confirmReset = ref(false)
@@ -627,6 +735,119 @@ function fmtTime(ts) {
 .cave-sign.done {
   cursor: default;
   opacity: 0.55;
+}
+
+/* 道行总属性 */
+.attrs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.attr-power {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(100deg, rgba(232, 198, 107, 0.1), rgba(58, 42, 107, 0.18));
+  border: 1px solid rgba(232, 198, 107, 0.24);
+}
+.ap-label {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(233, 238, 251, 0.6);
+}
+.ap-num {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: 2px;
+  color: var(--gold);
+  text-shadow: 0 0 16px rgba(232, 198, 107, 0.4);
+}
+.ap-note {
+  margin-left: auto;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: rgba(233, 238, 251, 0.5);
+}
+
+.attr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.attr-cell {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(8, 9, 22, 0.45);
+  border: 1px solid rgba(111, 233, 255, 0.14);
+}
+.ac-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: rgba(111, 233, 255, 0.85);
+}
+.ac-top i { font-style: normal; font-size: 14px; }
+.ac-value {
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: #fff;
+  text-shadow: 0 0 12px rgba(111, 233, 255, 0.35);
+}
+.ac-value em { font-style: normal; font-size: 13px; color: rgba(233, 238, 251, 0.55); }
+.ac-from {
+  margin-top: 3px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(233, 238, 251, 0.45);
+}
+
+.attr-detail {
+  padding: 10px 12px 4px;
+  border-radius: 10px;
+  background: rgba(8, 9, 22, 0.35);
+  border: 1px dashed rgba(111, 233, 255, 0.18);
+}
+.ad-title {
+  margin-bottom: 8px;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+.ad-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ad-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.ad-path {
+  flex-shrink: 0;
+  color: rgba(111, 233, 255, 0.75);
+}
+.ad-name { flex: 1; color: #e9eefb; }
+.ad-stats {
+  flex-shrink: 0;
+  color: var(--gold);
+  font-size: 11px;
+}
+.ad-empty {
+  padding: 8px 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: rgba(233, 238, 251, 0.45);
 }
 
 /* 藏书阁 / 足迹列表 */

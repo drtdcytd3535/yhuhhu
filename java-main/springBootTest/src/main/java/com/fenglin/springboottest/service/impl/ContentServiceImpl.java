@@ -222,7 +222,12 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
                 locked,
                 price,
                 topName,
-                "道友".equals(topName) && isFriend(username, c.getId())
+                "道友".equals(topName) && isFriend(username, c.getId()),
+                c.getAtk(),
+                c.getDef(),
+                c.getHp(),
+                c.getSpd(),
+                c.getCrit()
         );
     }
 
@@ -385,7 +390,54 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
                 c.getHot(),
                 c.getViews(),
                 c.getCreatedAt(),
-                priceOfCategory(c.getCategoryId())
+                priceOfCategory(c.getCategoryId()),
+                c.getAtk(),
+                c.getDef(),
+                c.getHp(),
+                c.getSpd(),
+                c.getCrit()
         );
+    }
+
+    /**
+     * 某道号已得的全部功法 / 丹药（购入 + 道友赠予），供洞府「总属性」统计。
+     * 属性已随内容落库，这里只汇总列表，合计交给前端按同一套规则计算。
+     */
+    @Override
+    public List<ContentCard> ownedContent(String username) {
+        String name = username == null ? "" : username.trim();
+        List<ContentCard> result = new ArrayList<>();
+        if (name.isEmpty()) {
+            return result;
+        }
+        // 灵石购入
+        List<Long> ids = new ArrayList<>();
+        for (Purchase p : purchaseMapper.selectList(
+                new LambdaQueryWrapper<Purchase>().eq(Purchase::getUsername, name).select(Purchase::getContentId))) {
+            ids.add(p.getContentId());
+        }
+        // 道友结交所赠功法
+        for (Friend f : friendMapper.selectList(
+                new LambdaQueryWrapper<Friend>().eq(Friend::getUsername, name).select(Friend::getGiftId))) {
+            if (f.getGiftId() != null) {
+                ids.add(f.getGiftId());
+            }
+        }
+        if (ids.isEmpty()) {
+            return result;
+        }
+        // 去重、只留上架内容，且只统计功法 / 丹药两类（其余属性为 0，无意义）
+        for (Long id : new java.util.LinkedHashSet<>(ids)) {
+            Content c = this.getById(id);
+            if (c == null || c.getStatus() == null || c.getStatus() != 1) {
+                continue;
+            }
+            String top = categoryService.topNameOf(c.getCategoryId());
+            if (!"功法".equals(top) && !"丹药".equals(top)) {
+                continue;
+            }
+            result.add(toCard(c));
+        }
+        return result;
     }
 }

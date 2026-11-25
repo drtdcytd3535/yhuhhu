@@ -194,6 +194,12 @@ public class AdminController {
         c.setTags(str(body.get("tags")));
         c.setAuthor(str(body.get("author")));
         c.setHot(intVal(body.get("hot"), 0));
+        // 战斗属性：功法 / 丹药购入后计入洞府总属性。负数一律夹到 0。
+        c.setAtk(Math.max(0, intVal(body.get("atk"), 0)));
+        c.setDef(Math.max(0, intVal(body.get("def"), 0)));
+        c.setHp(Math.max(0, intVal(body.get("hp"), 0)));
+        c.setSpd(Math.max(0, intVal(body.get("spd"), 0)));
+        c.setCrit(Math.max(0, intVal(body.get("crit"), 0)));
         c.setStatus(intVal(body.get("status"), 1) == 0 ? 0 : 1);
         if (id == null) {
             c.setViews(0);
@@ -277,6 +283,11 @@ public class AdminController {
                 c.getHot(),
                 c.getViews(),
                 c.getStatus(),
+                c.getAtk(),
+                c.getDef(),
+                c.getHp(),
+                c.getSpd(),
+                c.getCrit(),
                 c.getCreatedAt()
         );
     }

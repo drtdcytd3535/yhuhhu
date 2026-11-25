@@ -43,6 +43,21 @@ public class Content {
     /** 状态：1 上架 / 0 下架 */
     private Integer status;
 
+    /** 战斗属性：攻击（功法 / 丹药购入后计入洞府总属性） */
+    private Integer atk;
+
+    /** 战斗属性：防御 */
+    private Integer def;
+
+    /** 战斗属性：气血 */
+    private Integer hp;
+
+    /** 战斗属性：身法 */
+    private Integer spd;
+
+    /** 战斗属性：暴击率(%) */
+    private Integer crit;
+
     /** 创建时间 */
     private LocalDateTime createdAt;
 
@@ -124,6 +139,46 @@ public class Content {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getAtk() {
+        return atk;
+    }
+
+    public void setAtk(Integer atk) {
+        this.atk = atk;
+    }
+
+    public Integer getDef() {
+        return def;
+    }
+
+    public void setDef(Integer def) {
+        this.def = def;
+    }
+
+    public Integer getHp() {
+        return hp;
+    }
+
+    public void setHp(Integer hp) {
+        this.hp = hp;
+    }
+
+    public Integer getSpd() {
+        return spd;
+    }
+
+    public void setSpd(Integer spd) {
+        this.spd = spd;
+    }
+
+    public Integer getCrit() {
+        return crit;
+    }
+
+    public void setCrit(Integer crit) {
+        this.crit = crit;
     }
 
     public LocalDateTime getCreatedAt() {

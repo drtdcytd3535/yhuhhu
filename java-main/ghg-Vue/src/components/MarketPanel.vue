@@ -47,6 +47,12 @@
           <span v-if="c.price > 0" class="ware-price">◈ {{ c.price }}</span>
           <h3 class="ware-name">{{ c.title }}</h3>
           <p class="ware-desc">{{ c.summary }}</p>
+          <div class="ware-stats">
+            <span v-for="s in shownStats(c)" :key="s.key" class="ware-stat" :title="s.name">
+              <i>{{ s.ico }}</i>{{ s.name }} +{{ s.value }}
+            </span>
+            <span v-if="!shownStats(c).length" class="ware-stat none">此卷无属性加成</span>
+          </div>
           <div class="ware-foot">
             <span>{{ c.categoryPath }}</span>
             <span>✦ {{ fmtHot(c.hot) }}</span>
@@ -75,7 +81,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import ShopPanel from './ShopPanel.vue'
-import { cave } from '../composables/useCave.js'
+import { cave, STAT_DEFS, contentStats } from '../composables/useCave.js'
 
 const props = defineProps({
   username: { type: String, default: '道友' },
@@ -97,6 +103,12 @@ const pages = ref(1)
 const page = ref(1)
 const loading = ref(false)
 const PAGE_SIZE = 9
+
+/** 取该卷功法/丹药的非零战斗属性，按统一顺序展示 */
+function shownStats(c) {
+  const st = contentStats(c)
+  return STAT_DEFS.filter((d) => st[d.key] > 0).map((d) => ({ ...d, value: st[d.key] }))
+}
 
 /** 热度千分位化简写：98000 → 9.8万（与首页展示一致） */
 function fmtHot(n) {
@@ -306,6 +318,31 @@ watch(
   line-height: 1.7;
   color: #a7b2d4;
 }
+.ware-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  margin-top: 8px;
+}
+.ware-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: rgba(232, 198, 107, 0.92);
+  background: rgba(232, 198, 107, 0.09);
+  border: 1px solid rgba(232, 198, 107, 0.28);
+}
+.ware-stat i { font-style: normal; font-size: 12px; }
+.ware-stat.none {
+  color: #7d89ad;
+  background: rgba(160, 190, 230, 0.06);
+  border-color: rgba(160, 190, 230, 0.18);
+}
+
 .ware-foot {
   display: flex;
   align-items: center;
