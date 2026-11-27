@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { cave, realms, wornStats, battlePower, addStones } from './useCave.js'
+import { cave, realms, wornStats, realmBonus, battlePower, addStones } from './useCave.js'
 
 /* =============================================================
  * 云岚宗 · 十三人试
@@ -398,6 +398,13 @@ export function playerStats() {
   const s = withBase(wornStats.value)
   const e = Math.max(0, Number(cave.exp) || 0)
   s.hp += Math.round(Math.pow(e, 0.6) * 0.8)
+  // 境界晋升带来的五维加成：与洞府面板同口径，境界越高战力越强
+  const rb = realmBonus.value
+  s.atk += rb.atk
+  s.def += rb.def
+  s.hp += rb.hp
+  s.spd += rb.spd
+  s.crit += rb.crit
   return s
 }
 

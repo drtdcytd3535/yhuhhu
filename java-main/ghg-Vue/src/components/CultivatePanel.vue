@@ -271,7 +271,7 @@
         </p>
         <p v-if="result.levelUp" class="gr-up">
           ✦ 境界精进 · {{ result.realm.name }}{{ result.realm.suffix }} 第 {{ result.realm.level }}
-          {{ result.realm.unit }} ✦
+          {{ result.realm.unit }}<template v-if="result.powerGain"> · 战力 +{{ result.powerGain }}</template> ✦
         </p>
         <div class="gr-acts">
           <button class="g-btn" @click="restart">再试一次</button>
@@ -1210,6 +1210,7 @@ function settle(rawExp, detail) {
     left: r.left,
     capped: r.capped,
     levelUp: r.levelUp,
+    powerGain: r.powerGain || 0,
     realm: r.realm
   }
   if (r.exp > 0 && r.levelUp) beep(980, 0.3, 'sine', 0.05)

@@ -139,3 +139,21 @@ D:\ghg-Vue-backup\
 - **MySQL 数据目录在 C 盘** → 开机重置会丢注册用户。彻底解决需把 datadir 迁到 D 盘（要改 my.ini 并以管理员重启服务），暂未做。
 - `dist/` 是旧构建产物，改源码后需 `npm run build` 才会更新；开发时看 5173 端口即可。
 - `log/xx.log` 是后端运行日志，排查启动问题看它最直接。
+
+---
+
+## 8. 2026-11-27 本次会话改动速记
+
+> 端口 / 数据库 / 启动方式均未变；只动 `ghg-Vue/src/` 与 `springBootTest/`。
+> 本文件其余章节描述的是 10-23 的基线，以下为新增内容，冲突时以本节为准。
+
+| 需求 | 落点 |
+| --- | --- |
+| 进入首页入场特效 | 新增 `components/EntryEffect.vue` + `assets/entry-fx.gif`（960×408，16 帧 × 100ms = 1600ms/轮）；`App.vue` 的 `playEntryFx()` 统一触发（fxKey 递增保证重播）：登录成功 / 本尊页返回 / 后台返回 / 首页内 `backHome()`（仅非首页视图时）；`?preview=home` 也播；`onMounted` 预载 GIF。`duration` 默认 **3200ms**（GIF 两轮），只改这一个数即可调时长 |
+| 本尊背景铺满视口 | `BenzunPanel.vue` `.bz-bg-img`（`planets/benzun-bg.jpg` 2000×825）：`width/height:100%` + `object-fit:cover` + `object-position:center center`；`.bz-bg-veil` 暗纱调轻，整屏可见 |
+| 晋升境界加战力 | `useCave.js` 新增 `realmLevelIndex` / `realmCleared` / `realmBonus`（境界五维加成）；`CavePanel.vue` 明细显示「境界 +N」；`useSect.js` 的 `playerStats()` 同口径；`addTrainExp` 返回 `powerGain`，结算面板与 toast 显示「战力 +X」 |
+| 购买功法丹药 +3000 修为 | 后端 `ContentServiceImpl.BUY_EXP_REWARD=3000L`，buy 成功 `exp = exp + 3000` 入 `t_cave`，`BuyResult` 加 `exp` 字段（保留 3 参兼容构造器）；前端 `HomePage.vue` 的 `buyDetail` 用 `setExp(body.data.exp)` 同步，toast 移到 `openDetail` 之后避免被「首次研读 +15」覆盖 |
+
+- **未改**：`FAV_EXP`(5000 收入藏书阁)、`HISTORY_EXP`(15 首次研读)、本尊页 GOD_REALMS 突破体系（该页无战力字段）。
+- **构建**：前端 `npm run build`；后端 **Git Bash 下 `./mvnw` 会因路径转换报 `classworlds` 找不到**，改用 PowerShell 原生 `.\mvnw.cmd -o -B -DskipTests compile` 或 `run-backend.bat`，devtools 会自动重启。
+- **预览**：前端 5174（`?preview=home` 看入场特效、`?preview=benzun` 看本尊）、后端 8081；正式启动仍用 `start.bat`。

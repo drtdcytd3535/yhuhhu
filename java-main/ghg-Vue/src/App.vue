@@ -44,13 +44,14 @@
       @logout="onLogout"
       @admin="adminState = 'login'"
       @benzun="benzunPage = true"
+      @entry-fx="playEntryFx"
     />
 
     <!-- ============ 本尊 · 古神苦修（独立整页，点「返回仙门」回首页） ============ -->
     <BenzunPanel
       v-else
       :username="username"
-      @back="benzunPage = false"
+      @back="backFromBenzun"
       @toast="onBenzunToast"
     />
 
@@ -59,6 +60,9 @@
       <div v-if="benzunToast" class="bz-toast">{{ benzunToast }}</div>
     </transition>
   </template>
+
+  <!-- 进入首页的入场特效：GIF 播完自动散去，露出首页 -->
+  <EntryEffect v-if="entryFx" :key="fxKey" :src="entryFxUrl" @done="entryFx = false" />
 </template>
 
 <script setup>
@@ -71,8 +75,25 @@ import HomePage from './components/HomePage.vue'
 import AdminLogin from './components/AdminLogin.vue'
 import AdminPanel from './components/AdminPanel.vue'
 import BenzunPanel from './components/BenzunPanel.vue'
+import EntryEffect from './components/EntryEffect.vue'
+import entryFxUrl from './assets/entry-fx.gif'
 
 const mode = ref('login')
+
+/* 进入首页的入场特效：GIF 播完自动散去；key 递增保证重复触发能从头再播 */
+const entryFx = ref(false)
+const fxKey = ref(0)
+
+function playEntryFx() {
+  fxKey.value += 1
+  entryFx.value = true
+}
+
+/** 从本尊整页返回仙门：同样播放入场特效 */
+function backFromBenzun() {
+  benzunPage.value = false
+  playEntryFx()
+}
 
 /* 本尊 · 古神苦修：独立整页开关（true 时整页替换首页，与后台管理系统同款切换方式） */
 const benzunPage = ref(false)
@@ -114,6 +135,7 @@ function onAdminLogin(payload) {
 function exitAdmin() {
   adminState.value = null
   markAdmin(false)
+  playEntryFx()
 }
 
 /** 退出后台：回后台登录页并清掉记忆标记 */
@@ -124,6 +146,10 @@ function onAdminLogout() {
 
 /* 刷新恢复：本地标记 + 后端 session 双重确认 */
 onMounted(async () => {
+  // 提前把入场 GIF 放进浏览器缓存，登录成功时不必等下载
+  const preload = new Image()
+  preload.src = entryFxUrl
+
   let flag = false
   try {
     flag = sessionStorage.getItem(ADMIN_FLAG) === '1'
@@ -164,6 +190,8 @@ if (import.meta.env.DEV) {
     username.value = '预览道友'
     permission.value = query.get('perm') === '0' ? 0 : 1
     logged.value = true
+    // 预览也播一次入场特效，方便直接查看效果
+    playEntryFx()
   } else if (preview === 'benzun') {
     // 开发预览：直达「本尊 · 古神苦修」整页
     username.value = '预览道友'
@@ -181,6 +209,8 @@ function onLoginSuccess(payload) {
   username.value = payload?.username || '道友'
   permission.value = payload?.permission == null ? 1 : Number(payload.permission)
   logged.value = true
+  // 播放入场特效，GIF 播完自动露出首页
+  playEntryFx()
   window.scrollTo({ top: 0 })
 }
 

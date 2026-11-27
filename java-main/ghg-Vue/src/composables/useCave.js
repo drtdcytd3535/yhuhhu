@@ -333,6 +333,40 @@ export const REALM_TOTAL = computed(() => realms.value.reduce((s, r) => s + r.sp
 /** 境界总数 */
 export const REALM_COUNT = computed(() => realms.value.length)
 
+/* ==================== 境界加成：晋升境界即涨战力 ==================== */
+
+/** 当前所处的全局重序（1 起）：已圆满诸境重数之和 + 本境第几重 */
+export const realmLevelIndex = computed(() => {
+  let done = 0
+  for (const r of realmTable.value) {
+    if (r.status === 'done') done += r.segs
+    else if (r.status === 'current') return done + r.level
+  }
+  return done
+})
+
+/** 已破的完整大境数（当前境不计） */
+export const realmCleared = computed(
+  () => realmTable.value.filter((r) => r.status === 'done').length
+)
+
+/**
+ * 境界加成：每精进一重，根基随之增厚；每破一大境，另有一笔大道馈赠。
+ * 只由「境界 / 重数」决定，境界晋升即自动涨战力，无需额外存档。
+ * 洞府面板与宗门挑战共用此加成，口径一致。
+ */
+export const realmBonus = computed(() => {
+  const idx = Math.max(0, realmLevelIndex.value - 1)
+  const cleared = realmCleared.value
+  return {
+    atk: idx * 2 + cleared * 6,
+    def: idx * 1 + cleared * 3,
+    hp: idx * 10 + cleared * 30,
+    spd: Math.floor(idx / 4) + cleared * 2,
+    crit: Math.floor(idx / 10) * 0.5 + cleared * 0.5
+  }
+})
+
 /* ==================== 装备加成 ==================== */
 
 /** 当前佩戴的装备定义；未佩戴为 null */
@@ -839,7 +873,7 @@ export function trainRemaining() {
  * 佩戴装备会提升所得修为；灵石按「本次修为 × 7」结算，且灵石不受每日修为上限约束
  * （修为封顶后继续修炼仍可得灵石）
  * @param {number} amount 本次应得修为（未含法宝加成）
- * @returns {{ok:boolean, exp:number, stones:number, bonus:number, capped:boolean, left:number, levelUp:boolean, realm:object, msg:string}}
+ * @returns {{ok:boolean, exp:number, stones:number, bonus:number, capped:boolean, left:number, levelUp:boolean, powerGain:number, realm:object, msg:string}}
  */
 export function addTrainExp(amount) {
   const bonus = expBonus()
@@ -879,6 +913,7 @@ export function addTrainExp(amount) {
   }
 
   const before = realm.value
+  const powerBefore = battlePower(realmBonus.value)
   cave.exp += real
   cave.trainExp += real
   cave.stones += stones
@@ -886,6 +921,9 @@ export function addTrainExp(amount) {
   const after = realm.value
   const brokeThrough = after.name !== before.name
   const levelUp = brokeThrough || after.level !== before.level
+  // 境界晋升带来的战力增量（境界加成随重数/大境递增）
+  const powerGain = battlePower(realmBonus.value) - powerBefore
+  const powerText = powerGain > 0 ? ` · 战力 +${powerGain}` : ''
 
   return {
     ok: true,
@@ -895,11 +933,12 @@ export function addTrainExp(amount) {
     capped: real < want,
     left: Math.max(0, TRAIN_LIMIT - cave.trainExp),
     levelUp,
+    powerGain,
     realm: after,
     msg: brokeThrough
-      ? `修为 +${real} · 灵石 +${stones} · 破境至${after.name}${after.suffix}第 ${after.level} ${after.unit}`
+      ? `修为 +${real} · 灵石 +${stones}${powerText} · 破境至${after.name}${after.suffix}第 ${after.level} ${after.unit}`
       : levelUp
-        ? `修为 +${real} · 灵石 +${stones} · ${after.name}${after.suffix}第 ${after.level} ${after.unit}`
+        ? `修为 +${real} · 灵石 +${stones}${powerText} · ${after.name}${after.suffix}第 ${after.level} ${after.unit}`
         : `修为 +${real} · 灵石 +${stones}`
   }
 }

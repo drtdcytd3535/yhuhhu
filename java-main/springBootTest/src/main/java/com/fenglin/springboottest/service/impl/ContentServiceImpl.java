@@ -37,6 +37,9 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
     /** 丹药类内容售价（灵石） */
     private static final long PRICE_DANYAO = 100L;
 
+    /** 购入一卷功法 / 一枚丹药所得修为 */
+    private static final long BUY_EXP_REWARD = 3000L;
+
     private final ICategoryService categoryService;
     private final CaveMapper caveMapper;
     private final PurchaseMapper purchaseMapper;
@@ -289,7 +292,15 @@ public class ContentServiceImpl extends ServiceImpl<ContentMapper, Content> impl
             }
         }
 
-        return new BuyResult(true, "以 " + price + " 灵石购得「" + c.getTitle() + "」", balance - price);
+        // 购入功法 / 丹药即有所得：修为 +3000 直接累加进洞府存档
+        caveMapper.update(null, new LambdaUpdateWrapper<Cave>()
+                .eq(Cave::getUsername, name)
+                .setSql("exp = exp + " + BUY_EXP_REWARD));
+        long newExp = (caveRow.getExp() == null ? 0L : caveRow.getExp()) + BUY_EXP_REWARD;
+
+        return new BuyResult(true,
+                "以 " + price + " 灵石购得「" + c.getTitle() + "」· 修为 +" + BUY_EXP_REWARD,
+                balance - price, newExp);
     }
 
     /**

@@ -78,7 +78,7 @@
             根基 {{ a.base }}
             <template v-if="a.eq"> · 法宝 +{{ a.eq }}</template>
             <template v-if="a.skill"> · 功法丹药 +{{ a.skill }}</template>
-            <template v-if="a.realm"> · 修为 +{{ a.realm }}</template>
+            <template v-if="a.realm"> · 境界 +{{ a.realm }}</template>
           </p>
         </div>
       </div>
@@ -239,6 +239,7 @@ import {
   cave,
   realm,
   realmProgress,
+  realmBonus,
   nextRealm,
   isSignedToday,
   sign,
@@ -388,11 +389,13 @@ const realmHp = computed(() => Math.round(Math.pow(Math.max(0, Number(cave.exp) 
 const totalBreakdown = computed(() => {
   const worn = wornStats.value
   const skill = learnedStats.value
+  const bonus = realmBonus.value
   return STAT_DEFS.map((d) => {
     const base = PLAYER_BASE[d.key] || 0
     const eq = worn[d.key] || 0
     const fromSkill = skill[d.key] || 0
-    const fromRealm = d.key === 'hp' ? realmHp.value : 0
+    // 境界加成 = 修为底蕴（气血）+ 晋升境界/重数的五维加成
+    const fromRealm = (d.key === 'hp' ? realmHp.value : 0) + (bonus[d.key] || 0)
     return {
       ...d,
       base,

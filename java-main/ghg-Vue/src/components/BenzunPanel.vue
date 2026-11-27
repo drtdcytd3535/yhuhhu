@@ -1388,22 +1388,23 @@ function closeExplore() {
   pointer-events: none;
 }
 
-/* 宽幅横图（2000×825）：只铺视口上部，宽度撑满、左右不裁，完整保留火焰环绕构图；
-   下缘由暗纱渐变融入夜色，面板区域保持纯净可读 */
+/* 宽幅横图（2000×825）：铺满整屏，object-fit: cover 严格按原图比例缩放，只裁不拉伸；
+   焦点居中，保证真容与火焰环绕都在视口内 */
 .bz-bg-img {
   width: 100%;
-  height: 60%;
+  height: 100%;
   object-fit: cover;
-  object-position: center 18%;
+  object-position: center center;
   opacity: 0.7;
 }
 
+/* 暗纱只做轻压：整屏都要看得见背景，同时保证面板文字可读 */
 .bz-bg-veil {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(88% 58% at 50% 10%, rgba(5, 6, 12, 0) 0%, rgba(5, 6, 12, 0.38) 78%),
-    linear-gradient(180deg, rgba(5, 6, 12, 0.22) 0%, rgba(5, 6, 12, 0.38) 34%, rgba(5, 6, 12, 0.9) 58%, #05060c 66%, #05060c 100%);
+    radial-gradient(78% 62% at 50% 42%, rgba(5, 6, 12, 0.16) 0%, rgba(5, 6, 12, 0.44) 100%),
+    linear-gradient(180deg, rgba(5, 6, 12, 0.14) 0%, rgba(5, 6, 12, 0.22) 42%, rgba(5, 6, 12, 0.78) 100%);
 }
 
 /* ---------- 入场特效：闭眼 → 睁眼 ---------- */

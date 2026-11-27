@@ -473,7 +473,7 @@ const props = defineProps({
   // 权限：1 默认（普通道友）/ 0 管理员；只有管理员能看到后台管理入口
   permission: { type: [Number, String], default: 1 }
 })
-const emit = defineEmits(['logout', 'admin', 'benzun'])
+const emit = defineEmits(['logout', 'admin', 'benzun', 'entry-fx'])
 
 /** 是否管理员（permission = 0） */
 const isAdmin = computed(() => Number(props.permission) === 0)
@@ -511,9 +511,12 @@ function enterMarket() {
 }
 
 function backHome() {
+  // 从洞府/修炼/坊市等视图回到首页时，播一次入场特效
+  const wasAway = view.value !== 'home'
   view.value = 'home'
   activeMenu.value = 'home'
   window.scrollTo({ top: 0 })
+  if (wasAway) emit('entry-fx')
 }
 
 /* ---------------- 导航 ---------------- */
@@ -961,12 +964,15 @@ async function buyDetail() {
     if (body?.success) {
       // 以云端结算后的余额为准，同步洞府灵石
       if (body.data?.stones != null) setStones(body.data.stones)
+      // 购入所得修为：后端已累加到 t_cave.exp，这里同步回洞府
+      if (body.data?.exp != null) setExp(body.data.exp)
       // 秘卷已入囊中：刷新已得功法丹药，洞府总属性即时生效
       loadOwnedContent(props.username)
-      toast(body.message || '灵石已付，秘卷归你')
       const id = d.id
       detail.value = null
       await openDetail(id)
+      // 提示放最后，避免被「首次研读」的轻提示覆盖
+      toast(body.message || '灵石已付，秘卷归你')
     } else {
       toast(body?.message || '灵石不足，交易未成')
     }
